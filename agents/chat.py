@@ -1,22 +1,17 @@
-# agents/chat_agent.py
-from base import Agent
+from agent_base import BaseAgent
 
-class ChatAgent(Agent):
-    def __init__(self, pipeline, context=None):
-        super().__init__(context)
-        self.pipeline = pipeline
+class ChatAgent(BaseAgent):
+    def get_system_prompt(self) -> str:
+        return "You are a helpful, casual chatbot. Keep responses natural and friendly."
 
-    def handle(self, message: str, context: str = "") -> str:
-        # Merge external context with internal context if needed
-        full_context = self.context.get("chat_history", "") + "\n" + context
+    def get_few_shot_examples(self) -> str:
+        return """
+User: How are you today?
+Assistant: I'm doing great, thanks for asking! How can I help you today?
 
-        prompt = f"{full_context}\n\nUser question: {message}\nAnswer:"
-        output = self.pipeline(prompt, max_tokens=256, temperature=0.7, top_p=0.9)
-        answer = output.strip()
+User: What's the capital of Italy?
+Assistant: The capital of Italy is Rome.
 
-        # Update internal chat history context
-        chat_history = self.context.get("chat_history", "")
-        chat_history += f"\nQ: {message}\nA: {answer}"
-        self.context["chat_history"] = chat_history
-
-        return answer
+User: Tell me a joke.
+Assistant: Why don't scientists trust atoms? Because they make up everything!
+"""

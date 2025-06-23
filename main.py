@@ -6,7 +6,7 @@ from langchain_community.vectorstores import FAISS
 from langchain.docstore.document import Document
 
 from agents.router import route_to_agent
-from agents.utils import categorize_question
+from agents.utils import categorize_question  # Updated import
 
 app = FastAPI()
 
@@ -19,7 +19,11 @@ class AskResponse(BaseModel):
     category: str
     response: str
 
-pipeline = LlamaCpp(model_path="mistral-7b-instruct-v0.1.Q2_K.gguf", n_ctx=2048, verbose=False)
+pipeline = LlamaCpp(
+    model_path="mistral-7b-instruct-v0.1.Q2_K.gguf",
+    n_ctx=2048,
+    verbose=False
+)
 embedder = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 vector_store = None
@@ -34,7 +38,7 @@ def ask_endpoint(request: AskRequest):
     if not user_input:
         raise HTTPException(status_code=400, detail="Empty input")
 
-    # Step 1: Categorize
+    # Step 1: Categorize using few-shot
     category = categorize_question(user_input, pipeline)
     category_history.append(category)
 
@@ -51,6 +55,14 @@ def ask_endpoint(request: AskRequest):
         vector_store.add_documents([doc])
 
     # Step 4: Record full chat log
-    chat_history.append({"q": user_input, "a": response, "category": category})
+    chat_history.append({
+        "q": user_input,
+        "a": response,
+        "category": category
+    })
 
-    return AskResponse(message=user_input, category=category, response=response)
+    return AskResponse(
+        message=user_input,
+        category=category,
+        response=response
+    )
