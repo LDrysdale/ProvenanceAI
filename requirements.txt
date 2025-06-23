@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+langchain-community
+llama-cpp-python
+faiss-cpu
+nltk
+wikipedia
+pydantic
+typing-extensions
+huggingface-hub
+transformers
+sentence-transformers
