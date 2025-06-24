@@ -142,37 +142,26 @@ class ImageMergeAgent:
         return result
 
 
-# A simple wrapper function to unify interface with other agents
-def handle(message: str, context: str = "") -> str:
+def handle(message: str, context: str = "", image_paths: list = None) -> str:
     """
-    This handle function expects message to contain:
-      - a list of local image file paths, separated by commas, on a line starting with "images:"
-      - a prompt describing how to merge them
+    Handle image merge request.
 
-    Example message:
-        images: path/to/img1.png, path/to/img2.png
-        please combine image1 and photo2 seamlessly.
+    Args:
+        message (str): Text prompt describing how to merge images.
+        context (str): Optional context (unused here).
+        image_paths (list): List of local image file paths.
 
-    Returns a text confirmation or error.
+    Returns:
+        str: Success or error message.
     """
-    lines = message.strip().split("\n")
-    image_paths = []
-    prompt_lines = []
-
-    for line in lines:
-        if line.lower().startswith("images:"):
-            paths_part = line[len("images:"):].strip()
-            image_paths = [p.strip() for p in paths_part.split(",") if p.strip()]
-        else:
-            prompt_lines.append(line)
-
-    prompt = " ".join(prompt_lines)
-    if not image_paths:
-        return "Error: No images specified. Please provide images in format 'images: path1, path2, ...'"
+    if image_paths is None or len(image_paths) < 2:
+        return "Error: Please upload at least two images to merge."
 
     try:
         agent = ImageMergeAgent()
-        agent.merge_images(image_paths, prompt)
-        return f"Images merged successfully and saved to merged_output.png"
+        agent.merge_images(image_paths, message)
+        return "Images merged successfully and saved to merged_output.png"
     except Exception as e:
         return f"Error during image merge: {str(e)}"
+
+

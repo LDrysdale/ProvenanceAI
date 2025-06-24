@@ -1,9 +1,11 @@
 import requests
 
-url = "http://127.0.0.1:8000/query"
+url = "http://localhost:8000/ask"
 data = {
-    "text": "Tell me about the history of artificial intelligence and its key contributors."
+    "message": "hello",
+    "context": ""
 }
 
-response = requests.post(url, json=data)
-print("Response:", response.json())
+response = requests.post(url, data=data)
+print(response.status_code)
+print(response.json())

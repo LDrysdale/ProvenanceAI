@@ -6,14 +6,15 @@ export default function ChatWithImagePrompt() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
+  const [error, setError] = useState(null);
 
   const onDrop = useCallback((acceptedFiles) => {
-    const imagePreviews = acceptedFiles.map((file) =>
+    const previews = acceptedFiles.map((file) =>
       Object.assign(file, {
         preview: URL.createObjectURL(file),
       })
     );
-    setImages((prev) => [...prev, ...imagePreviews]);
+    setImages((prev) => [...prev, ...previews]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -25,14 +26,22 @@ export default function ChatWithImagePrompt() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     setResponse(null);
 
+    if (!prompt.trim()) {
+      setError("Please enter a prompt.");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
+    formData.append("message", prompt);
+    formData.append("context", "");
+
     images.forEach((file) => {
       formData.append("images", file);
     });
-    formData.append("message", prompt);
-    formData.append("context", "");
 
     try {
       const res = await fetch("http://localhost:8000/ask", {
@@ -40,11 +49,13 @@ export default function ChatWithImagePrompt() {
         body: formData,
       });
 
+      if (!res.ok) throw new Error("Server returned error");
+
       const data = await res.json();
       setResponse(data);
     } catch (err) {
-      console.error("Error:", err);
-      alert("Something went wrong");
+      setError("Something went wrong while processing the request.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -63,7 +74,7 @@ export default function ChatWithImagePrompt() {
           {isDragActive ? (
             <p>Drop images here...</p>
           ) : (
-            <p>Drag & drop multiple images here, or click to select</p>
+            <p>Drag & drop images, or click to upload</p>
           )}
         </div>
 
@@ -88,7 +99,7 @@ export default function ChatWithImagePrompt() {
           <textarea
             className="w-full border border-gray-300 rounded-xl p-3 resize-none"
             rows="3"
-            placeholder="Type your prompt here, e.g., combine image 1 with image 2"
+            placeholder="Type your prompt here..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
@@ -101,9 +112,12 @@ export default function ChatWithImagePrompt() {
           </button>
         </form>
 
+        {loading && <p className="text-blue-600">Thinking...</p>}
+        {error && <p className="text-red-600">{error}</p>}
+
         {response && (
           <div className="mt-4 border-t pt-4">
-            <h2 className="font-semibold">Response:</h2>
+            <h2 className="font-semibold text-lg mb-2">AI Response</h2>
             <p><strong>Category:</strong> {response.category}</p>
             <p>{response.response}</p>
           </div>
