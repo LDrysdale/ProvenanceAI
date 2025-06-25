@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 export default function ChatWithImagePrompt() {
@@ -8,14 +8,20 @@ export default function ChatWithImagePrompt() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const previews = acceptedFiles.map((file) =>
-      Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      })
-    );
-    setImages((prev) => [...prev, ...previews]);
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      // Revoke previews of old images
+      images.forEach((file) => URL.revokeObjectURL(file.preview));
+
+      const previews = acceptedFiles.map((file) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        })
+      );
+      setImages(previews);
+    },
+    [images]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -60,6 +66,13 @@ export default function ChatWithImagePrompt() {
       setLoading(false);
     }
   };
+
+  // Cleanup on component unmount or when images change
+  useEffect(() => {
+    return () => {
+      images.forEach((file) => URL.revokeObjectURL(file.preview));
+    };
+  }, [images]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
@@ -116,12 +129,27 @@ export default function ChatWithImagePrompt() {
         {error && <p className="text-red-600">{error}</p>}
 
         {response && (
-          <div className="mt-4 border-t pt-4">
-            <h2 className="font-semibold text-lg mb-2">AI Response</h2>
-            <p><strong>Category:</strong> {response.category}</p>
-            <p>{response.response}</p>
+          <div className="mt-6 border-t pt-6 space-y-3">
+            <h2 className="text-xl font-bold text-gray-800">AI Response</h2>
+
+            <div className="bg-gray-50 border-l-4 border-blue-400 p-4 rounded-lg">
+              <p className="text-sm text-gray-500 uppercase font-semibold mb-1">
+                Category
+              </p>
+              <p className="text-lg font-medium text-blue-800">{response.category}</p>
+            </div>
+
+            <div className="prose max-w-none">
+              {response.response
+                .split("\n")
+                .filter((line) => line.trim() !== "")
+                .map((line, idx) => (
+                  <p key={idx}>{line}</p>
+                ))}
+            </div>
           </div>
         )}
+
       </div>
     </div>
   );

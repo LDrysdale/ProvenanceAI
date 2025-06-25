@@ -1,3 +1,4 @@
+import logging
 import torch
 import clip
 import cv2
@@ -7,27 +8,31 @@ from segment_anything import sam_model_registry, SamPredictor
 from diffusers import StableDiffusionInpaintPipeline
 import re
 
+logger = logging.getLogger("app_logger")  # use consistent logger name
 
 class ImageMergeAgent:
     def __init__(self, sam_checkpoint_path="sam_vit_b.pth", model_type="vit_b", sd_model="runwayml/stable-diffusion-inpainting"):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        logger.info(f"Using device: {self.device}")
+
         # Load CLIP
+        logger.info("[INFO] Loading CLIP model...")
         self.model_clip, self.preprocess_clip = clip.load("ViT-B/32", device=self.device)
 
         # Load SAM
-        print("[INFO] Loading SAM...")
+        logger.info("[INFO] Loading SAM model...")
         self.sam = sam_model_registry[model_type](checkpoint=sam_checkpoint_path)
         self.sam.to(self.device)
         self.predictor = SamPredictor(self.sam)
 
         # Load Stable Diffusion Inpainting model
-        print("[INFO] Loading Stable Diffusion...")
+        logger.info("[INFO] Loading Stable Diffusion Inpainting pipeline...")
         self.pipe = StableDiffusionInpaintPipeline.from_pretrained(
             sd_model,
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32
         ).to(self.device)
-        print("[INFO] All models ready.")
+        logger.info("[INFO] All models ready.")
 
     def _clip_score(self, image_pil, prompt):
         image_input = self.preprocess_clip(image_pil).unsqueeze(0).to(self.device)
@@ -37,9 +42,12 @@ class ImageMergeAgent:
             text_features = self.model_clip.encode_text(text_input)
         image_features /= image_features.norm(dim=-1, keepdim=True)
         text_features /= text_features.norm(dim=-1, keepdim=True)
-        return (image_features @ text_features.T).item()
+        score = (image_features @ text_features.T).item()
+        logger.debug(f"CLIP score for prompt '{prompt}': {score}")
+        return score
 
     def _generate_mask(self, image_np, prompt, box_step=128):
+        logger.info("Generating mask using SAM and CLIP...")
         self.predictor.set_image(image_np)
         h, w = image_np.shape[:2]
 
@@ -62,9 +70,15 @@ class ImageMergeAgent:
                 best_score = score
                 best_mask = mask_np
 
+        if best_mask is None:
+            logger.warning("No suitable mask found for prompt.")
+        else:
+            logger.info(f"Best mask found with CLIP score: {best_score}")
+
         return best_mask
 
     def _refine_with_diffusion(self, image_pil, mask_np, prompt="a seamless blend"):
+        logger.info("Refining image with Stable Diffusion inpainting...")
         mask_pil = Image.fromarray((mask_np.astype(np.uint8) * 255)).convert("L")
         image_pil = image_pil.resize((512, 512))
         mask_pil = mask_pil.resize((512, 512))
@@ -87,8 +101,10 @@ class ImageMergeAgent:
             refine_prompt (str): Prompt for Stable Diffusion refinement
         """
         if len(image_paths) < 2:
+            logger.error("At least 2 images are required for merging.")
             raise ValueError("At least 2 images are required.")
         if len(image_paths) > 5:
+            logger.error("A maximum of 5 images is supported.")
             raise ValueError("A maximum of 5 images is supported.")
 
         aliases = ["image", "photo", "picture"]
@@ -108,6 +124,7 @@ class ImageMergeAgent:
                 break
 
         if len(selected) < 2:
+            logger.error("Prompt must reference at least 2 distinct images by number.")
             raise ValueError("Prompt must reference at least 2 distinct images by number (e.g. 'combine image1 and photo3').")
 
         image1 = Image.open(selected[0]).convert("RGB")
@@ -120,10 +137,11 @@ class ImageMergeAgent:
         np2 = np.array(image2)
 
         source_np, target_np = (np2, np1) if selected[0] in prompt else (np1, np2)
-        print(f"[INFO] Merging '{selected[0]}' into '{selected[1]}'")
+        logger.info(f"Merging '{selected[0]}' into '{selected[1]}'")
 
         mask = self._generate_mask(source_np, prompt)
         if mask is None:
+            logger.error("No region found for prompt.")
             raise RuntimeError("No region found for prompt.")
 
         mask_3ch = cv2.merge([mask.astype(np.uint8) * 255] * 3)
@@ -134,11 +152,11 @@ class ImageMergeAgent:
         merged_np = cv2.add(foreground, background)
         merged_pil = Image.fromarray(merged_np)
 
-        print("[INFO] Refining with Stable Diffusion...")
+        logger.info("Refining merged image with Stable Diffusion...")
         result = self._refine_with_diffusion(merged_pil, mask, refine_prompt)
 
         result.save(output_path)
-        print(f"[INFO] Final output saved to {output_path}")
+        logger.info(f"Final output saved to {output_path}")
         return result
 
 
@@ -155,6 +173,7 @@ def handle(message: str, context: str = "", image_paths: list = None) -> str:
         str: Success or error message.
     """
     if image_paths is None or len(image_paths) < 2:
+        logger.warning("Insufficient images provided to merge.")
         return "Error: Please upload at least two images to merge."
 
     try:
@@ -162,6 +181,5 @@ def handle(message: str, context: str = "", image_paths: list = None) -> str:
         agent.merge_images(image_paths, message)
         return "Images merged successfully and saved to merged_output.png"
     except Exception as e:
+        logger.error(f"Error during image merge: {str(e)}", exc_info=True)
         return f"Error during image merge: {str(e)}"
-
-
