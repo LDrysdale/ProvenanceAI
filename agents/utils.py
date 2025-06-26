@@ -46,3 +46,25 @@ Category:"""
 
     valid_categories = {"email", "summarization", "timeline", "imagemergeagent", "chat"}
     return result if result in valid_categories else "chat"
+
+
+import os
+
+def save_vector_store(vector_store, path: str):
+    """
+    Saves the vector store locally to the specified path.
+    Creates directories as needed.
+    """
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    vector_store.save_local(path)
+
+
+def load_vector_store(path: str, embedder):
+    """
+    Loads the vector store from the specified path if it exists.
+    Returns None if the path does not exist.
+    """
+    if not os.path.exists(path):
+        return None
+    from langchain_community.vectorstores import FAISS
+    return FAISS.load_local(path, embedder)

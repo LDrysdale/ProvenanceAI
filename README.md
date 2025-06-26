@@ -23,7 +23,8 @@ pip install segment_anything
 pip install diffusers
 pip install torchvision
 pip install python-multipart
-
+pip install slowapi
+pip install aiofiles
 
 # 5. Download NLTK sentence tokenizer
 python -c "import nltk; nltk.download('punkt')"

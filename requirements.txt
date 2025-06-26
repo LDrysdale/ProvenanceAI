@@ -10,3 +10,6 @@ typing-extensions
 huggingface-hub
 transformers
 sentence-transformers
+aiofiles
+slowapi
+
