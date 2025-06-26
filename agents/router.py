@@ -42,7 +42,10 @@ def route_to_agent(category, message, pipeline, context="", image_paths=None):
             return response
 
         elif category == "imagemergeagent":
-            logger.debug("Calling imagemerge_handle")
+            if not image_paths or len(image_paths) < 2:
+                logger.warning("Insufficient images uploaded for image merging.")
+                return "Please upload at least two images for merging."
+            logger.debug("Calling imagemerge_handle with multiple image support")
             response = imagemerge_handle(message, context, image_paths=image_paths)
             logger.info("imagemerge_handle processed the request successfully")
             return response
