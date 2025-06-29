@@ -28,6 +28,7 @@ pip install aiofiles
 pip install pytest
 pip install firebase-admin
 pip install streamlit
+pip install flask
 
 # 5. Download NLTK sentence tokenizer
 python -c "import nltk; nltk.download('punkt')"
@@ -54,5 +55,10 @@ package.json corrections
  rm -rf node_modules 
 rm package-lock.json
 npm install
+
+
+# 10. Run react router
+npm install react-router-dom
+
 
 

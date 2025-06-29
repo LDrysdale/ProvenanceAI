@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 // Firebase config - replace with your actual config
 const firebaseConfig = {
@@ -17,6 +18,15 @@ export default function FirebaseAuthLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Read local/cloud mode from environment variable
+  const useLocalData = process.env.REACT_APP_USE_LOCAL_DATA === "1";
+
+  // Set backend URL based on mode
+  const backendAuthUrl = useLocalData
+    ? "http://localhost:8000/api/auth/verify_token"  // Adjust port/path if needed
+    : "/api/auth/verify_token";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +38,7 @@ export default function FirebaseAuthLogin() {
       const idToken = await userCredential.user.getIdToken();
 
       // Send the token to your backend for verification/auth
-      const response = await fetch("/api/auth/verify_token", {
+      const response = await fetch(backendAuthUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: idToken }),
@@ -38,8 +48,8 @@ export default function FirebaseAuthLogin() {
         throw new Error("Authentication failed on backend.");
       }
 
-      // Redirect or update UI as needed after successful login
-      alert("Login successful!");
+      // Redirect to main app after successful login
+      navigate("/app");
     } catch (err) {
       setError(err.message);
     } finally {

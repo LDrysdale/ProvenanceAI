@@ -1,11 +1,15 @@
-# Main.py
+# main.py
 import logging
 import os
 import re
 import aiofiles
+import json
+import shutil
+from typing import List, Optional
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from fastapi.responses import JSONResponse
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -19,8 +23,13 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
-import shutil
 from dotenv import load_dotenv
+
+# Import your config variable for auth mode and local data usage
+from config import USE_LOCAL_DATA
+
+# Import the Firebase auth router
+from firebase_auth import router as firebase_auth_router
 
 # Load environment variables from .env file
 load_dotenv()
@@ -62,6 +71,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount Firebase Auth routes at /auth
+app.include_router(firebase_auth_router, prefix="/auth")
 
 # --- Load language model ---
 try:
@@ -172,7 +184,46 @@ def validate_upload_file(upload_file: UploadFile):
             detail=f"Unsupported file type: {upload_file.content_type}. Allowed types: {ALLOWED_FILE_TYPES}"
         )
 
-# --- API Endpoint ---
+# --- Load mock users locally helper ---
+MOCK_USERS_FILE = "tests/datasets/mock_users.json"
+
+def load_mock_users():
+    try:
+        with open(MOCK_USERS_FILE, "r") as f:
+            users = json.load(f)
+        logger.info("Loaded mock users from local JSON")
+        return users
+    except Exception as e:
+        logger.error(f"Failed to load mock users: {e}")
+        return []
+
+# --- API Endpoints ---
+
+@app.get("/users")
+async def get_users():
+    if USE_LOCAL_DATA:
+        users = load_mock_users()
+        if not users:
+            raise HTTPException(status_code=500, detail="Failed to load mock users")
+        return JSONResponse(content=users)
+    else:
+        try:
+            import firebase_admin
+            from firebase_admin import credentials, firestore
+
+            if not firebase_admin._apps:
+                cred = credentials.Certificate("path/to/firebase-adminsdk.json")  # Update path
+                firebase_admin.initialize_app(cred)
+
+            db = firestore.client()
+            docs = db.collection("users").stream()
+            users = [doc.to_dict() for doc in docs]
+            return JSONResponse(content=users)
+        except Exception as e:
+            logger.error(f"Failed to fetch users from Firebase: {e}")
+            raise HTTPException(status_code=500, detail="Failed to fetch users from Firebase")
+
+
 @app.post("/ask")
 @limiter.limit(RATE_LIMIT)
 async def ask_endpoint(

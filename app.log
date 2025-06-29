@@ -1,0 +1,9 @@
+2025-06-29 10:48:38 INFO [main.py:87] - LlamaCpp model loaded successfully
+2025-06-29 10:48:41 INFO [main.py:95] - Embedder loaded successfully
+2025-06-29 10:48:41 WARNING [main.py:126] - No vector store found on disk to load.
+2025-06-29 10:52:58 INFO [main.py:87] - LlamaCpp model loaded successfully
+2025-06-29 10:53:01 INFO [main.py:95] - Embedder loaded successfully
+2025-06-29 10:53:01 WARNING [main.py:126] - No vector store found on disk to load.
+2025-06-29 10:57:12 INFO [main.py:87] - LlamaCpp model loaded successfully
+2025-06-29 10:57:14 INFO [main.py:95] - Embedder loaded successfully
+2025-06-29 10:57:14 WARNING [main.py:126] - No vector store found on disk to load.
