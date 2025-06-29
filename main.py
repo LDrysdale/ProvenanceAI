@@ -1,4 +1,5 @@
 # main.py
+
 import logging
 import os
 import re
@@ -7,7 +8,7 @@ import json
 import shutil
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -25,25 +26,27 @@ from agents.utils import categorize_question
 
 from dotenv import load_dotenv
 
-# Import your config variable for auth mode and local data usage
 from config import USE_LOCAL_DATA
-
-# Import the Firebase auth router
 from firebase_auth import router as firebase_auth_router
+from session_manager import get_session_user, clear_session, get_session_uid
 
-# Load environment variables from .env file
 load_dotenv()
 
-# --- Environment config ---
+# --- Role constants ---
+ROLE_ADMIN = "admin"
+ROLE_READER = "reader"
+ROLE_WRITER = "writer"
+
+# --- Configuration ---
 RATE_LIMIT = os.getenv("RATE_LIMIT", "5/minute")
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
-MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE_MB", "5")) * 1024 * 1024  # 5MB default
+MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE_MB", "5")) * 1024 * 1024
 ALLOWED_FILE_TYPES = os.getenv("ALLOWED_FILE_TYPES", "image/png,image/jpeg").split(",")
 
-# --- Rate limiter setup ---
+# --- Rate limiter ---
 limiter = Limiter(key_func=get_remote_address)
 
-# --- Logger setup ---
+# --- Logging ---
 logger = logging.getLogger("app_logger")
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
@@ -51,15 +54,13 @@ formatter = logging.Formatter(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 file_handler = logging.FileHandler("app.log")
-file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
-# --- FastAPI app ---
+# --- FastAPI setup ---
 app = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -72,10 +73,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Firebase Auth routes at /auth
+# --- Mount Auth ---
 app.include_router(firebase_auth_router, prefix="/auth")
 
-# --- Load language model ---
+# --- Load LLM ---
 try:
     pipeline = LlamaCpp(
         model_path="mistral-7b-instruct-v0.1.Q2_K.gguf",
@@ -89,7 +90,7 @@ except Exception as e:
     logger.error(f"Failed to load LlamaCpp model: {e}")
     raise RuntimeError("Failed to initialize language model")
 
-# --- Load embedding model ---
+# --- Load embedder ---
 try:
     embedder = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     logger.info("Embedder loaded successfully")
@@ -97,132 +98,120 @@ except Exception as e:
     logger.error(f"Failed to load embedder: {e}")
     raise RuntimeError("Failed to initialize embedding model")
 
-# --- Vector store setup ---
+# --- Vector store ---
 VECTOR_STORE_DIR = "./data/vector_store"
 os.makedirs(VECTOR_STORE_DIR, exist_ok=True)
-
-vector_store = None  # type: Optional[FAISS]
+vector_store: Optional[FAISS] = None
 
 def persist_vector_store():
-    global vector_store
     if vector_store:
         try:
             vector_store.save_local(VECTOR_STORE_DIR)
-            logger.info("Vector store persisted to disk.")
+            logger.info("Vector store persisted.")
         except Exception as e:
-            logger.error(f"Failed to persist vector store: {e}")
+            logger.error(f"Persist error: {e}")
 
 def load_vector_store():
     global vector_store
-    index_path = os.path.join(VECTOR_STORE_DIR, "index.faiss")
-    if os.path.exists(index_path):
-        try:
-            vector_store = FAISS.load_local(VECTOR_STORE_DIR, embedder)
-            logger.info("Vector store loaded from disk.")
-        except Exception as e:
-            logger.error(f"Failed to load vector store: {e}")
-            vector_store = None
-    else:
-        logger.warning("No vector store found on disk to load.")
+    try:
+        vector_store = FAISS.load_local(VECTOR_STORE_DIR, embedder)
+        logger.info("Vector store loaded.")
+    except Exception as e:
+        logger.warning("No vector store found or failed to load.")
         vector_store = None
 
 def delete_vector_store():
-    global vector_store
     try:
         if os.path.exists(VECTOR_STORE_DIR):
             shutil.rmtree(VECTOR_STORE_DIR)
-            logger.info("Vector store deleted from disk.")
         os.makedirs(VECTOR_STORE_DIR, exist_ok=True)
+        global vector_store
         vector_store = None
+        logger.info("Vector store reset.")
     except Exception as e:
         logger.error(f"Failed to delete vector store: {e}")
 
 load_vector_store()
 
-# --- Input sanitization helpers ---
-def sanitize_input(user_input: str) -> str:
-    """
-    Sanitize user input by removing control characters and limiting length.
-    """
-    sanitized = re.sub(r"[^\x20-\x7E\n\r\t]", "", user_input)  # Remove control chars except newline/tab
-    max_length = 500
-    if len(sanitized) > max_length:
-        logger.warning(f"Input truncated to {max_length} characters.")
-        sanitized = sanitized[:max_length]
-    sanitized = sanitized.strip()
-    return sanitized
+# --- Role-based access ---
+def require_role(required_roles: List[str]):
+    def role_checker(user=Depends(get_session_user)):
+        if user.get("role") not in required_roles:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        return user
+    return role_checker
 
-def sanitize_filename(filename: str) -> str:
-    """
-    Sanitize filename to prevent path traversal and disallow unsafe characters.
-    """
-    filename = os.path.basename(filename)
-    filename = re.sub(r"[^a-zA-Z0-9._-]", "_", filename)
-    return filename
+# --- Sanitization helpers ---
+def sanitize_input(text: str) -> str:
+    clean = re.sub(r"[^\x20-\x7E\n\r\t]", "", text)
+    return clean[:500].strip()
+
+def sanitize_filename(name: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9._-]", "_", os.path.basename(name))
 
 async def save_upload_file(upload_file: UploadFile, destination: str):
-    """
-    Asynchronously save uploaded file to disk in chunks to prevent large memory usage.
-    """
-    try:
-        async with aiofiles.open(destination, 'wb') as out_file:
-            while content := await upload_file.read(1024):
-                await out_file.write(content)
-        logger.info(f"File saved to {destination}")
-    except Exception as e:
-        logger.error(f"Failed to save file {upload_file.filename}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save uploaded file")
+    async with aiofiles.open(destination, 'wb') as out_file:
+        while content := await upload_file.read(1024):
+            await out_file.write(content)
+    logger.info(f"Saved file: {destination}")
 
 def validate_upload_file(upload_file: UploadFile):
-    """
-    Validate uploaded file type and size.
-    """
     if upload_file.content_type not in ALLOWED_FILE_TYPES:
-        logger.warning(f"Unsupported file type upload attempt: {upload_file.content_type}")
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file type: {upload_file.content_type}. Allowed types: {ALLOWED_FILE_TYPES}"
-        )
+        raise HTTPException(400, detail=f"Unsupported file type: {upload_file.content_type}")
 
-# --- Load mock users locally helper ---
+# --- Local test users ---
 MOCK_USERS_FILE = "tests/datasets/mock_users.json"
 
 def load_mock_users():
     try:
         with open(MOCK_USERS_FILE, "r") as f:
-            users = json.load(f)
-        logger.info("Loaded mock users from local JSON")
-        return users
+            return json.load(f)
     except Exception as e:
-        logger.error(f"Failed to load mock users: {e}")
+        logger.error(f"Mock user load failed: {e}")
         return []
 
 # --- API Endpoints ---
 
 @app.get("/users")
-async def get_users():
+async def get_users(user=Depends(require_role([ROLE_ADMIN]))):
     if USE_LOCAL_DATA:
         users = load_mock_users()
         if not users:
-            raise HTTPException(status_code=500, detail="Failed to load mock users")
+            raise HTTPException(500, detail="Mock user load failed")
         return JSONResponse(content=users)
-    else:
-        try:
-            import firebase_admin
-            from firebase_admin import credentials, firestore
+    try:
+        import firebase_admin
+        from firebase_admin import credentials, firestore
 
-            if not firebase_admin._apps:
-                cred = credentials.Certificate("path/to/firebase-adminsdk.json")  # Update path
-                firebase_admin.initialize_app(cred)
+        if not firebase_admin._apps:
+            cred = credentials.Certificate("path/to/firebase-adminsdk.json")  # Update path
+            firebase_admin.initialize_app(cred)
 
-            db = firestore.client()
-            docs = db.collection("users").stream()
-            users = [doc.to_dict() for doc in docs]
-            return JSONResponse(content=users)
-        except Exception as e:
-            logger.error(f"Failed to fetch users from Firebase: {e}")
-            raise HTTPException(status_code=500, detail="Failed to fetch users from Firebase")
+        db = firestore.client()
+        docs = db.collection("users").stream()
+        return JSONResponse(content=[doc.to_dict() for doc in docs])
+    except Exception as e:
+        logger.error(f"Firebase fetch failed: {e}")
+        raise HTTPException(500, detail="Failed to fetch users")
 
+@app.get("/session/me")
+async def get_current_user(user=Depends(get_session_user)):
+    return user  # Full user dict including uid, email, name, role
+
+@app.post("/session/logout")
+async def logout_user(response: Response):
+    clear_session(response)
+    return {"message": "Logged out successfully"}
+
+@app.get("/admin/dashboard")
+async def admin_dashboard(user=Depends(require_role([ROLE_ADMIN]))):
+    # Example admin-only info
+    return {"message": "Welcome to the admin dashboard", "user": user}
+
+@app.get("/reader/data")
+async def reader_data(user=Depends(require_role([ROLE_READER, ROLE_ADMIN]))):
+    # Example reader-only access endpoint (admin allowed too)
+    return {"message": "Reader data accessed", "user": user}
 
 @app.post("/ask")
 @limiter.limit(RATE_LIMIT)
@@ -231,63 +220,43 @@ async def ask_endpoint(
     message: str = Form(...),
     context: Optional[str] = Form(""),
     images: Optional[List[UploadFile]] = File(None),
+    user=Depends(get_session_user)  # Only require auth, any role
 ):
     global vector_store
-
     user_input = sanitize_input(message)
     if not user_input:
-        logger.warning("Empty or invalid input received at /ask endpoint")
-        raise HTTPException(status_code=400, detail="Invalid or empty input")
+        raise HTTPException(400, detail="Empty input")
 
     saved_image_paths = []
     if images:
         os.makedirs("uploaded_images", exist_ok=True)
         for image in images:
-            # Validate file size (UploadFile does not have size attribute directly, so read)
             contents = await image.read()
             if len(contents) > MAX_FILE_SIZE:
-                logger.warning(f"File too large: {image.filename}")
-                raise HTTPException(status_code=400, detail=f"File too large: {image.filename}")
-            # Reset read pointer for save
+                raise HTTPException(400, detail=f"File too large: {image.filename}")
             await image.seek(0)
-
             validate_upload_file(image)
-
-            sanitized_filename = sanitize_filename(image.filename)
-            image_path = os.path.join("uploaded_images", sanitized_filename)
-
-            await save_upload_file(image, image_path)
-            saved_image_paths.append(image_path)
-            logger.info(f"Saved uploaded image: {sanitized_filename}")
+            path = os.path.join("uploaded_images", sanitize_filename(image.filename))
+            await save_upload_file(image, path)
+            saved_image_paths.append(path)
 
     try:
-        # Categorize input
         category = categorize_question(user_input, pipeline)
-        logger.info(f"Categorized input: '{user_input}' as '{category}'")
-
-        # Route to appropriate agent
-        response = route_to_agent(
+        response_text = route_to_agent(
             category, user_input, pipeline, context, image_paths=saved_image_paths
         )
-        logger.info(f"Agent response generated for category '{category}'")
-
-        # Save Q&A to vector store
-        doc = Document(page_content=f"Q: {user_input}\nA: {response}")
+        doc = Document(page_content=f"Q: {user_input}\nA: {response_text}")
         if vector_store is None:
             vector_store = FAISS.from_documents([doc], embedder)
-            logger.info("Initialized vector store with first document")
         else:
             vector_store.add_documents([doc])
-            logger.debug("Added new document to vector store")
-
         persist_vector_store()
-
     except Exception as e:
-        logger.error("Error during ask_endpoint processing", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        logger.error("Ask endpoint failed", exc_info=True)
+        raise HTTPException(500, detail="Internal Server Error")
 
     return {
         "message": user_input,
         "category": category,
-        "response": response,
+        "response": response_text,
     }
