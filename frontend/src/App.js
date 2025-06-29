@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import FirebaseAuthLogin from "./FirebaseAuthLogin";
-import ProvenanceMain from "./ProvenanceMain";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import FirebaseAuthLogin from "./FirebaseAuthLogin";  // Firebase login
+import MockUserLogin from "./MockUserLogin";  // Mock login
+import ProvenanceMain from "./ProvenanceMain";  // Main AI tool page
+
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function ProtectedRoute({ children }) {
@@ -27,10 +29,17 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
+  // Hardcode the USE_LOCAL_DATA flag
+  const USE_LOCAL_DATA = 1;  // Set to 1 to use mock data, 0 to use Firebase
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<FirebaseAuthLogin />} />
+        {/* Check USE_LOCAL_DATA flag */}
+        <Route
+          path="/"
+          element={USE_LOCAL_DATA === 1 ? <MockUserLogin /> : <FirebaseAuthLogin />}
+        />
         <Route
           path="/app"
           element={

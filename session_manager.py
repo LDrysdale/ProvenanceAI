@@ -1,47 +1,71 @@
 # session_manager.py
-
-import os
 import json
-from fastapi import Request, Response, HTTPException
-from itsdangerous import TimestampSigner, BadSignature, SignatureExpired
+from fastapi import Request, HTTPException, Response
+from config import USE_LOCAL_DATA
+import uuid
+import time
 
-COOKIE_NAME = "session_token"
-SECRET_KEY = os.getenv("SESSION_SECRET_KEY", "super-secret-key")
-signer = TimestampSigner(SECRET_KEY)
+MOCK_USERS_FILE = "tests/datasets/mock_users.json"
 
-SESSION_DURATION_SECONDS = 1800  # 30 minutes
+# Simple in-memory session store: { session_id: { "user_id": ..., "expires": ... } }
+_sessions = {}
 
-def create_session(response: Response, user_data: dict):
-    payload = json.dumps(user_data)
-    signed_data = signer.sign(payload.encode("utf-8"))
+SESSION_DURATION_SECONDS = 3600  # 1 hour session expiry
 
-    response.set_cookie(
-        key=COOKIE_NAME,
-        value=signed_data.decode("utf-8"),
-        max_age=SESSION_DURATION_SECONDS,
-        httponly=True,
-        secure=True,       # ✅ Secure in production
-        samesite="Lax",
-        path="/"
-    )
+async def create_session(user_id: str) -> str:
+    """Create a new session ID for a user and store it in-memory."""
+    session_id = str(uuid.uuid4())
+    expires = time.time() + SESSION_DURATION_SECONDS
+    _sessions[session_id] = {"user_id": user_id, "expires": expires}
+    return session_id
 
-def get_session_user(request: Request) -> dict:
-    cookie = request.cookies.get(COOKIE_NAME)
-    if not cookie:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+async def get_session_user(request: Request):
+    """Get user info from session or mock user headers."""
+    if USE_LOCAL_DATA:
+        # In local mode, expect header "X-User-Id" to identify mock user
+        user_id = request.headers.get("X-User-Id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Missing X-User-Id header in local mode")
 
-    try:
-        unsigned = signer.unsign(cookie, max_age=SESSION_DURATION_SECONDS)
-        user_data = json.loads(unsigned.decode("utf-8"))
-        return user_data
-    except SignatureExpired:
-        raise HTTPException(status_code=401, detail="Session expired")
-    except BadSignature:
-        raise HTTPException(status_code=401, detail="Invalid session")
+        try:
+            with open(MOCK_USERS_FILE, "r") as f:
+                users = json.load(f)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Failed to load mock users")
 
-def refresh_session(response: Response, user_data: dict):
-    # Called after any authenticated access to extend session
-    create_session(response, user_data)
+        # Find user by id or email
+        user = next((u for u in users if str(u.get("id")) == user_id or u.get("email") == user_id), None)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found in mock users")
+        return user
 
-def clear_session(response: Response):
-    response.delete_cookie(COOKIE_NAME)
+    else:
+        # Real Firebase auth logic here
+        from firebase_admin import auth
+        authorization = request.headers.get("Authorization")
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        id_token = authorization.split(" ")[1]
+        try:
+            decoded_token = auth.verify_id_token(id_token)
+            user_info = {
+                "uid": decoded_token.get("uid"),
+                "email": decoded_token.get("email"),
+                "role": decoded_token.get("role", "reader")
+            }
+            return user_info
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+async def clear_session(response: Response, session_id: str = None):
+    """Clear the session by deleting session cookie and removing from store."""
+    if session_id and session_id in _sessions:
+        del _sessions[session_id]
+    response.delete_cookie("session")
+
+async def refresh_session(session_id: str):
+    """Refresh session expiry if session exists."""
+    session = _sessions.get(session_id)
+    if session:
+        session["expires"] = time.time() + SESSION_DURATION_SECONDS

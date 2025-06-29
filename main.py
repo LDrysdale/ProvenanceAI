@@ -12,6 +12,8 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Res
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from pydantic import BaseModel
+
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -24,24 +26,25 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
-from dotenv import load_dotenv
+from config import (
+    USE_LOCAL_DATA,
+    RATE_LIMIT,
+    ALLOWED_ORIGINS,
+    MAX_FILE_SIZE,
+    ALLOWED_FILE_TYPES,
+    FIREBASE_CREDENTIALS_PATH,
+    MOCK_USERS_FILE,
+    MODEL_PATH,
+    VECTOR_STORE_DIR,
+)
 
-from config import USE_LOCAL_DATA
 from firebase_auth import router as firebase_auth_router
-from session_manager import get_session_user, clear_session, get_session_uid
-
-load_dotenv()
+from session_manager import get_session_user, clear_session
 
 # --- Role constants ---
 ROLE_ADMIN = "admin"
 ROLE_READER = "reader"
 ROLE_WRITER = "writer"
-
-# --- Configuration ---
-RATE_LIMIT = os.getenv("RATE_LIMIT", "5/minute")
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
-MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE_MB", "5")) * 1024 * 1024
-ALLOWED_FILE_TYPES = os.getenv("ALLOWED_FILE_TYPES", "image/png,image/jpeg").split(",")
 
 # --- Rate limiter ---
 limiter = Limiter(key_func=get_remote_address)
@@ -73,13 +76,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Mount Auth ---
+# --- Mount Firebase Auth ---
 app.include_router(firebase_auth_router, prefix="/auth")
 
 # --- Load LLM ---
 try:
     pipeline = LlamaCpp(
-        model_path="mistral-7b-instruct-v0.1.Q2_K.gguf",
+        model_path=MODEL_PATH,
         n_ctx=4086,
         n_batch=64,
         n_gpu_layers=35,
@@ -99,7 +102,6 @@ except Exception as e:
     raise RuntimeError("Failed to initialize embedding model")
 
 # --- Vector store ---
-VECTOR_STORE_DIR = "./data/vector_store"
 os.makedirs(VECTOR_STORE_DIR, exist_ok=True)
 vector_store: Optional[FAISS] = None
 
@@ -160,8 +162,6 @@ def validate_upload_file(upload_file: UploadFile):
         raise HTTPException(400, detail=f"Unsupported file type: {upload_file.content_type}")
 
 # --- Local test users ---
-MOCK_USERS_FILE = "tests/datasets/mock_users.json"
-
 def load_mock_users():
     try:
         with open(MOCK_USERS_FILE, "r") as f:
@@ -170,7 +170,30 @@ def load_mock_users():
         logger.error(f"Mock user load failed: {e}")
         return []
 
+# --- Mock login model ---
+class MockLoginRequest(BaseModel):
+    first_name: str
+    last_name: str
+
 # --- API Endpoints ---
+
+@app.post("/api/auth/mock_login")
+async def mock_login(user: MockLoginRequest):
+    if not USE_LOCAL_DATA:
+        raise HTTPException(status_code=403, detail="Mock login not allowed in production")
+
+    users = load_mock_users()
+    for u in users:
+        if u["first_name"].lower() == user.first_name.lower() and u["last_name"].lower() == user.last_name.lower():
+            # Instead of token string, return a JSON with id/email for header usage
+            return {
+                "token": f"mock-{u['first_name']}-{u['last_name']}",
+                "user_id": u.get("id") or u.get("email"),
+                "email": u.get("email"),
+                "role": u.get("role", "reader"),
+            }
+
+    raise HTTPException(status_code=401, detail="User not found")
 
 @app.get("/users")
 async def get_users(user=Depends(require_role([ROLE_ADMIN]))):
@@ -184,7 +207,7 @@ async def get_users(user=Depends(require_role([ROLE_ADMIN]))):
         from firebase_admin import credentials, firestore
 
         if not firebase_admin._apps:
-            cred = credentials.Certificate("path/to/firebase-adminsdk.json")  # Update path
+            cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
             firebase_admin.initialize_app(cred)
 
         db = firestore.client()
@@ -196,7 +219,7 @@ async def get_users(user=Depends(require_role([ROLE_ADMIN]))):
 
 @app.get("/session/me")
 async def get_current_user(user=Depends(get_session_user)):
-    return user  # Full user dict including uid, email, name, role
+    return user
 
 @app.post("/session/logout")
 async def logout_user(response: Response):
@@ -205,12 +228,10 @@ async def logout_user(response: Response):
 
 @app.get("/admin/dashboard")
 async def admin_dashboard(user=Depends(require_role([ROLE_ADMIN]))):
-    # Example admin-only info
     return {"message": "Welcome to the admin dashboard", "user": user}
 
 @app.get("/reader/data")
 async def reader_data(user=Depends(require_role([ROLE_READER, ROLE_ADMIN]))):
-    # Example reader-only access endpoint (admin allowed too)
     return {"message": "Reader data accessed", "user": user}
 
 @app.post("/ask")
@@ -220,7 +241,7 @@ async def ask_endpoint(
     message: str = Form(...),
     context: Optional[str] = Form(""),
     images: Optional[List[UploadFile]] = File(None),
-    user=Depends(get_session_user)  # Only require auth, any role
+    user=Depends(get_session_user)
 ):
     global vector_store
     user_input = sanitize_input(message)
