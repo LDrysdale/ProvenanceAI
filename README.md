@@ -25,6 +25,9 @@ pip install torchvision
 pip install python-multipart
 pip install slowapi
 pip install aiofiles
+pip install pytest
+pip install firebase-admin
+pip install streamlit
 
 # 5. Download NLTK sentence tokenizer
 python -c "import nltk; nltk.download('punkt')"
