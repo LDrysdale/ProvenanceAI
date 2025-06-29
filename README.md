@@ -61,4 +61,8 @@ npm install
 npm install react-router-dom
 
 
+# Install Firebaseui
+npm install firebaseui
+
+
 
