@@ -1,10 +1,12 @@
 // src/App.js
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./Login";
-import Chat from "./Chat";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
+
+import Login from "./Login";
+import Chat from "./Chat";
+import PasswordReset from "./PasswordReset"; // <-- added this import
 
 function ProtectedRoute({ children }) {
   const [user, loading] = useAuthState(auth);
@@ -23,6 +25,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/reset-password" element={<PasswordReset />} /> {/* added route */}
         <Route
           path="/chat"
           element={
