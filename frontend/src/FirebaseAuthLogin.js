@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider } from "firebase/auth";
 import * as firebaseui from "firebaseui";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Firebase configuration (if you want to keep it for later use)
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_AUTH_DOMAIN",
@@ -31,17 +31,16 @@ export default function FirebaseAuthLogin() {
   const uiInstanceRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
+  // Use useEffect to ensure FirebaseUI is initialized once the DOM is ready
   useEffect(() => {
-    console.log("USE_LOCAL_DATA:", USE_LOCAL_DATA);
-
     if (USE_LOCAL_DATA) {
       console.log("Rendering Mock Login Form");
-      // Mock login logic
-      return;
+      return; // If using mock data, no need to initialize FirebaseUI
     }
 
     console.log("Initializing Firebase Authentication");
-    // Firebase authentication logic
+
+    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log("User state changed:", user);
       if (user) {
@@ -59,43 +58,49 @@ export default function FirebaseAuthLogin() {
       }
     });
 
-    if (!uiInstanceRef.current) {
-      uiInstanceRef.current = new firebaseui.auth.AuthUI(auth);
-    }
+    // Initialize Firebase UI when the DOM is ready
+    const initializeUI = () => {
+      if (uiRef.current && !uiInstanceRef.current) {
+        uiInstanceRef.current = new firebaseui.auth.AuthUI(auth);
 
-    const uiConfig = {
-      signInSuccessUrl: "/app",  // Redirect after login
-      signInOptions: [
-        auth.EmailAuthProvider.PROVIDER_ID,
-        GoogleAuthProvider.PROVIDER_ID,
-      ],
-      callbacks: {
-        signInSuccessWithAuthResult: () => false,  // Prevent automatic redirect by FirebaseUI
-      },
+        const uiConfig = {
+          signInSuccessUrl: "/app",  // Redirect after login
+          signInOptions: [
+            GoogleAuthProvider.PROVIDER_ID,  // Add more sign-in methods if needed
+            auth.EmailAuthProvider.PROVIDER_ID,
+          ],
+          callbacks: {
+            signInSuccessWithAuthResult: () => false, // Prevent automatic redirect by FirebaseUI
+          },
+        };
+
+        // Initialize Firebase UI only if the UI element is available
+        uiInstanceRef.current.start(uiRef.current, uiConfig);
+      }
     };
 
-    if (uiRef.current) {
-      uiInstanceRef.current.start(uiRef.current, uiConfig);
-    }
+    // Only initialize Firebase UI after the component is mounted and `uiRef` is available
+    setTimeout(() => {
+      initializeUI();
+    }, 100); // Small delay to allow DOM to initialize before calling Firebase UI
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [navigate]);
 
-  // Handle mock login
   const handleMockLogin = () => {
     console.log("Attempting Mock Login");
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    // Simulate mock login check
     const user = mockUsers.find((u) => u.email === email && u.password === password);
 
     if (user) {
-      // Mock successful login
       setLoading(true);
       setTimeout(() => {
         console.log(`Mock Login successful for ${user.firstName} (${user.tier})`);
-        navigate("/app"); // Redirect to app after mock login
+        navigate("/app");
       }, 500);
     } else {
       alert("Invalid email or password");
@@ -114,7 +119,7 @@ export default function FirebaseAuthLogin() {
       ) : (
         <div>
           <h3>Login with Firebase</h3>
-          <div ref={uiRef}></div>
+          <div ref={uiRef}></div> {/* Firebase UI will render inside this div */}
         </div>
       )}
     </div>

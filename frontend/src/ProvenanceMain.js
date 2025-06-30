@@ -1,3 +1,4 @@
+// frontend/src/ProvenanceMain.js
 import React, { useState, useRef, useEffect } from "react";
 import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -10,17 +11,15 @@ export default function ProvenanceMain() {
   const endRef = useRef(null);
   const navigate = useNavigate();
 
-  // Scroll to the bottom of the chat whenever chat history or responses change
   useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [chatHistory, responses]);
 
-  // Handle form submission for chat input
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!prompt.trim()) return; // Don't submit if the prompt is empty
+    if (!prompt.trim()) return;
 
     const updatedChat = [...chatHistory, prompt];
     setChatHistory(updatedChat);
@@ -30,7 +29,6 @@ export default function ProvenanceMain() {
     try {
       let headers = { "Content-Type": "application/json" };
       
-      // Check if we are using local data or Firebase authentication
       if (process.env.REACT_APP_USE_LOCAL_DATA === "1") {
         const mockToken = localStorage.getItem("mock_token");
         if (!mockToken) throw new Error("Not logged in");
@@ -43,7 +41,6 @@ export default function ProvenanceMain() {
         headers["Authorization"] = `Bearer ${idToken}`;
       }
 
-      // Make a request to the backend to process the AI response
       const response = await fetch("/ask", {
         method: "POST",
         headers,
@@ -52,20 +49,18 @@ export default function ProvenanceMain() {
 
       if (!response.ok) throw new Error(`Backend error: ${response.statusText}`);
       const data = await response.json();
-
       setResponses((prev) => [...prev, data.response]);
     } catch (err) {
       setResponses((prev) => [...prev, `Error: ${err.message}`]);
     }
   };
 
-  // Handle user logout
   const handleLogout = async () => {
     try {
       const auth = getAuth();
-      await signOut(auth);  // Sign out from Firebase
-      localStorage.removeItem("mock_token");  // Remove mock token if present
-      navigate("/");  // Redirect to login page
+      await signOut(auth); 
+      localStorage.removeItem("mock_token");
+      navigate("/"); 
     } catch (err) {
       console.error("Logout error:", err.message);
     }
@@ -102,7 +97,7 @@ export default function ProvenanceMain() {
           ))}
           <div ref={endRef} />
         </div>
-        
+
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
           <textarea
             value={prompt}

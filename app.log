@@ -13,3 +13,12 @@
 2025-06-29 22:23:39 INFO [main.py:91] - LlamaCpp model loaded successfully
 2025-06-29 22:23:42 INFO [main.py:99] - Embedder loaded successfully
 2025-06-29 22:23:42 WARNING [main.py:122] - No vector store found or failed to load.
+2025-06-30 08:12:45 INFO [main.py:91] - LlamaCpp model loaded successfully
+2025-06-30 08:12:49 INFO [main.py:99] - Embedder loaded successfully
+2025-06-30 08:12:49 WARNING [main.py:122] - No vector store found or failed to load.
+2025-06-30 08:30:33 INFO [main.py:91] - LlamaCpp model loaded successfully
+2025-06-30 08:30:36 INFO [main.py:99] - Embedder loaded successfully
+2025-06-30 08:30:36 WARNING [main.py:122] - No vector store found or failed to load.
+2025-06-30 08:45:41 INFO [main.py:91] - LlamaCpp model loaded successfully
+2025-06-30 08:45:43 INFO [main.py:99] - Embedder loaded successfully
+2025-06-30 08:45:43 WARNING [main.py:122] - No vector store found or failed to load.
