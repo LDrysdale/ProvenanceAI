@@ -60,6 +60,39 @@ async def downgrade_expired_users():
         })
     return len(expired_users)
 
+async def update_membership(user_id: str, new_tier: str):
+    """
+    Update a user's membership tier (upgrade from free or change between paid tiers).
+
+    - Updates createdAt to now.
+    - Updates membershipExpiry based on new tier.
+    - Updates subscriptionStatus accordingly.
+    """
+    now = datetime.now(pytz.UTC)
+    user_ref = db.collection("users").document(user_id)
+
+    # Fetch user document
+    user_snapshot = user_ref.get()
+    if not user_snapshot.exists:
+        raise ValueError(f"User {user_id} does not exist in Firestore")
+
+    # Determine new expiry and subscription status
+    if new_tier == "free":
+        expiry = now + timedelta(days=365*100)
+        subscription_status = "lifetime"
+    else:
+        expiry = now + timedelta(days=365)
+        subscription_status = "active"
+
+    # Update document with new membership data
+    user_ref.update({
+        "tier": new_tier,
+        "subscriptionStatus": subscription_status,
+        "createdAt": now,
+        "membershipExpiry": expiry,
+    })
+    print(f"User {user_id} membership updated to {new_tier} until {expiry.isoformat()}")
+
 # Scheduler setup
 scheduler = AsyncIOScheduler(timezone=pytz.UTC)
 
