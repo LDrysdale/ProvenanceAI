@@ -12,4 +12,6 @@ transformers
 sentence-transformers
 aiofiles
 slowapi
+firebase-admin
+
 
