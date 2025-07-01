@@ -22,6 +22,9 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
+# Import membership management functions
+from membership_manager import downgrade_expired_users  # << your membership function
+
 # --- Configuration constants (hardcoded now since config.py removed) ---
 USE_LOCAL_DATA = False  # No longer used, but keeping for compatibility
 RATE_LIMIT = "5/minute"
@@ -205,3 +208,17 @@ async def ask_endpoint(
         "category": category,
         "response": response_text,
     }
+
+# --- Membership expiry check endpoint ---
+
+@app.post("/membership/check-expiry")
+async def membership_check_expiry(request: Request, role_check=Depends(require_role(["admin"]))):
+    """
+    Endpoint for admins to trigger downgrade of expired memberships.
+    """
+    try:
+        count_downgraded = await downgrade_expired_users()
+        return {"message": f"{count_downgraded} users downgraded to free tier due to expiry."}
+    except Exception as e:
+        logger.error(f"Failed to downgrade expired users: {e}", exc_info=True)
+        raise HTTPException(500, detail="Failed to process membership expiry check.")

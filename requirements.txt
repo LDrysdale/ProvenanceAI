@@ -13,5 +13,6 @@ sentence-transformers
 aiofiles
 slowapi
 firebase-admin
+apscheduler
 
 
