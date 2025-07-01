@@ -5,6 +5,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
 
 import Login from "./Login";
+import Signup from "./Signup";
 import Chat from "./Chat";
 import PasswordReset from "./PasswordReset"; // <-- added this import
 
@@ -25,6 +26,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<PasswordReset />} /> {/* added route */}
         <Route
           path="/chat"

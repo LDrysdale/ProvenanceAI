@@ -57,6 +57,10 @@ export default function Login() {
       <p style={{ marginTop: "1em" }}>
         Forgot password? <Link to="/reset-password">Reset it here</Link>
       </p>
+
+      <p style={{ marginTop: "1em" }}>
+        Don't have an account? <Link to="/signup">Sign up here</Link>
+      </p>
     </>
   );
 }
