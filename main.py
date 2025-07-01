@@ -4,15 +4,11 @@ import logging
 import os
 import re
 import aiofiles
-import json
 import shutil
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Response, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-
-from pydantic import BaseModel
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -26,25 +22,14 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
-from config import (
-    USE_LOCAL_DATA,
-    RATE_LIMIT,
-    ALLOWED_ORIGINS,
-    MAX_FILE_SIZE,
-    ALLOWED_FILE_TYPES,
-    FIREBASE_CREDENTIALS_PATH,
-    MOCK_USERS_FILE,
-    MODEL_PATH,
-    VECTOR_STORE_DIR,
-)
-
-from firebase_auth import router as firebase_auth_router
-from session_manager import get_session_user, clear_session
-
-# --- Role constants ---
-ROLE_ADMIN = "admin"
-ROLE_READER = "reader"
-ROLE_WRITER = "writer"
+# --- Configuration constants (hardcoded now since config.py removed) ---
+USE_LOCAL_DATA = False  # No longer used, but keeping for compatibility
+RATE_LIMIT = "5/minute"
+ALLOWED_ORIGINS = ["http://localhost:5173"]
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB max upload
+ALLOWED_FILE_TYPES = ["image/png", "image/jpeg"]
+MODEL_PATH = "mistral-7b-instruct-v0.1.Q2_K.gguf"
+VECTOR_STORE_DIR = "./data/vector_store"
 
 # --- Rate limiter ---
 limiter = Limiter(key_func=get_remote_address)
@@ -75,9 +60,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# --- Mount Firebase Auth ---
-app.include_router(firebase_auth_router, prefix="/auth")
 
 # --- Load LLM ---
 try:
@@ -137,10 +119,11 @@ load_vector_store()
 
 # --- Role-based access ---
 def require_role(required_roles: List[str]):
-    def role_checker(user=Depends(get_session_user)):
-        if user.get("role") not in required_roles:
+    def role_checker(request: Request):
+        role = request.headers.get("X-User-Role")
+        if role not in required_roles:
             raise HTTPException(status_code=403, detail="Insufficient permissions")
-        return user
+        return {"role": role}
     return role_checker
 
 # --- Sanitization helpers ---
@@ -161,78 +144,20 @@ def validate_upload_file(upload_file: UploadFile):
     if upload_file.content_type not in ALLOWED_FILE_TYPES:
         raise HTTPException(400, detail=f"Unsupported file type: {upload_file.content_type}")
 
-# --- Local test users ---
-def load_mock_users():
-    try:
-        with open(MOCK_USERS_FILE, "r") as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Mock user load failed: {e}")
-        return []
-
-# --- Mock login model ---
-class MockLoginRequest(BaseModel):
-    first_name: str
-    last_name: str
-
 # --- API Endpoints ---
 
-@app.post("/api/auth/mock_login")
-async def mock_login(user: MockLoginRequest):
-    if not USE_LOCAL_DATA:
-        raise HTTPException(status_code=403, detail="Mock login not allowed in production")
-
-    users = load_mock_users()
-    for u in users:
-        if u["first_name"].lower() == user.first_name.lower() and u["last_name"].lower() == user.last_name.lower():
-            # Instead of token string, return a JSON with id/email for header usage
-            return {
-                "token": f"mock-{u['first_name']}-{u['last_name']}",
-                "user_id": u.get("id") or u.get("email"),
-                "email": u.get("email"),
-                "role": u.get("role", "reader"),
-            }
-
-    raise HTTPException(status_code=401, detail="User not found")
-
-@app.get("/users")
-async def get_users(user=Depends(require_role([ROLE_ADMIN]))):
-    if USE_LOCAL_DATA:
-        users = load_mock_users()
-        if not users:
-            raise HTTPException(500, detail="Mock user load failed")
-        return JSONResponse(content=users)
-    try:
-        import firebase_admin
-        from firebase_admin import credentials, firestore
-
-        if not firebase_admin._apps:
-            cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
-            firebase_admin.initialize_app(cred)
-
-        db = firestore.client()
-        docs = db.collection("users").stream()
-        return JSONResponse(content=[doc.to_dict() for doc in docs])
-    except Exception as e:
-        logger.error(f"Firebase fetch failed: {e}")
-        raise HTTPException(500, detail="Failed to fetch users")
-
 @app.get("/session/me")
-async def get_current_user(user=Depends(get_session_user)):
-    return user
-
-@app.post("/session/logout")
-async def logout_user(response: Response):
-    clear_session(response)
-    return {"message": "Logged out successfully"}
-
-@app.get("/admin/dashboard")
-async def admin_dashboard(user=Depends(require_role([ROLE_ADMIN]))):
-    return {"message": "Welcome to the admin dashboard", "user": user}
-
-@app.get("/reader/data")
-async def reader_data(user=Depends(require_role([ROLE_READER, ROLE_ADMIN]))):
-    return {"message": "Reader data accessed", "user": user}
+async def get_current_user(request: Request):
+    user_id = request.headers.get("X-User-Id")
+    user_email = request.headers.get("X-User-Email")
+    user_role = request.headers.get("X-User-Role")
+    if not user_id or not user_email or not user_role:
+        raise HTTPException(status_code=401, detail="Unauthorized: Missing user headers")
+    return {
+        "user_id": user_id,
+        "email": user_email,
+        "role": user_role
+    }
 
 @app.post("/ask")
 @limiter.limit(RATE_LIMIT)
@@ -241,7 +166,6 @@ async def ask_endpoint(
     message: str = Form(...),
     context: Optional[str] = Form(""),
     images: Optional[List[UploadFile]] = File(None),
-    user=Depends(get_session_user)
 ):
     global vector_store
     user_input = sanitize_input(message)

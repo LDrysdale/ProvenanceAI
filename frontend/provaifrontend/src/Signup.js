@@ -7,11 +7,11 @@ import { doc, setDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { serverTimestamp } from "firebase/firestore";
 
-
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tier, setTier] = useState("free");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState(null);
 
   const [user, loading] = useAuthState(auth);
@@ -22,43 +22,48 @@ export default function Signup() {
   }, [user, navigate]);
 
   const handleSignup = async (e) => {
-  e.preventDefault();
-  setError(null);
+    e.preventDefault();
+    setError(null);
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
 
-    console.log("User signed up with UID:", uid);
+      const now = new Date();
+      let expiry;
 
-    // Wait until auth state reflects the new user
-    await new Promise((resolve) => {
-    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
-        if (authUser && authUser.uid === uid) {
-        console.log("Auth state ready, writing Firestore document...");
+      if (tier === "free") {
+        expiry = new Date(now.setFullYear(now.getFullYear() + 100)); // 100 years from now
+      } else {
+        expiry = new Date(now.setFullYear(now.getFullYear() + 1)); // 1 year from now
+      }
 
-        await setDoc(doc(db, "users", uid), {
-            email,
-            tier,
-            createdAt: serverTimestamp(),
+      await new Promise((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+          if (authUser && authUser.uid === uid) {
+            await setDoc(doc(db, "users", uid), {
+              email,
+              tier,
+              displayName,
+              profilePicURL: "", // optionally update later
+              subscriptionStatus: tier === "free" ? "lifetime" : "active",
+              membershipExpiry: expiry.toISOString(),
+              createdAt: serverTimestamp(),
+            });
+
+            unsubscribe();
+            resolve();
+          }
         });
+      });
 
-        console.log("Firestore write successful!");
-        unsubscribe();
-        resolve();
-        }
-    });
-    });
+      navigate("/chat");
 
-    navigate("/chat");
-
-  } catch (err) {
-    console.error("🔥 Error during signup or Firestore write:", err);
-    setError(err.message);
-  }
+    } catch (err) {
+      console.error("🔥 Error during signup or Firestore write:", err);
+      setError(err.message);
+    }
   };
-
-
 
   if (loading) return <div>Loading...</div>;
 
@@ -66,6 +71,13 @@ export default function Signup() {
     <>
       <h2>Sign Up</h2>
       <form onSubmit={handleSignup}>
+        <input
+          type="text"
+          value={displayName}
+          placeholder="Display Name"
+          onChange={(e) => setDisplayName(e.target.value)}
+          required
+        />
         <input
           type="email"
           value={email}
