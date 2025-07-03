@@ -2,12 +2,16 @@
 
 import logging
 import os
+
+from dotenv import load_dotenv
+load_dotenv()  # ⬅️ This loads the .env file into os.environ
+
 import re
 import aiofiles
 import shutil
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Depends, Body, BackgroundTasks
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -22,14 +26,13 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
-# Import membership management functions
-from membership_manager import downgrade_expired_users, update_membership  # added update_membership
+from redis_chat_history import store_chat_message, get_chat_history  # ⬅️ New import
 
-# --- Configuration constants (hardcoded now since config.py removed) ---
-USE_LOCAL_DATA = False  # No longer used, but keeping for compatibility
+# --- Configuration constants ---
+USE_LOCAL_DATA = False
 RATE_LIMIT = "5/minute"
 ALLOWED_ORIGINS = ["http://localhost:5173"]
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB max upload
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 ALLOWED_FILE_TYPES = ["image/png", "image/jpeg"]
 MODEL_PATH = "mistral-7b-instruct-v0.1.Q2_K.gguf"
 VECTOR_STORE_DIR = "./data/vector_store"
@@ -199,6 +202,12 @@ async def ask_endpoint(
         else:
             vector_store.add_documents([doc])
         persist_vector_store()
+
+        # Store to Redis ⬇️
+        user_id = request.headers.get("X-User-Id")
+        if user_id:
+            await store_chat_message(user_id, user_input, response_text)
+
     except Exception as e:
         logger.error("Ask endpoint failed", exc_info=True)
         raise HTTPException(500, detail="Internal Server Error")
@@ -209,35 +218,14 @@ async def ask_endpoint(
         "response": response_text,
     }
 
-# --- Membership expiry check endpoint ---
+@app.get("/chat/history")
+async def fetch_chat_history(request: Request, limit: int = 50):
+    user_id = request.headers.get("X-User-Id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Missing user ID")
 
-@app.post("/membership/check-expiry")
-async def membership_check_expiry(request: Request, role_check=Depends(require_role(["admin"]))):
-    """
-    Endpoint for admins to trigger downgrade of expired memberships.
-    """
-    try:
-        count_downgraded = await downgrade_expired_users()
-        return {"message": f"{count_downgraded} users downgraded to free tier due to expiry."}
-    except Exception as e:
-        logger.error(f"Failed to downgrade expired users: {e}", exc_info=True)
-        raise HTTPException(500, detail="Failed to process membership expiry check.")
-
-# --- New membership update endpoint ---
-
-@app.post("/membership/update")
-async def membership_update(
-    user_id: str = Body(...),
-    new_tier: str = Body(...),
-    background_tasks: BackgroundTasks = None,
-):
-    """
-    Endpoint to update or upgrade user membership tier.
-    Calls update_membership function in the background.
-    """
-    try:
-        background_tasks.add_task(update_membership, user_id, new_tier)
-        return {"status": "success", "message": f"Membership update started for user {user_id}"}
-    except Exception as e:
-        logger.error(f"Failed to update membership for {user_id}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to update membership: {e}")
+    history = await get_chat_history(user_id, limit)
+    return {
+        "user_id": user_id,
+        "history": history
+    }

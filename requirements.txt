@@ -14,5 +14,6 @@ aiofiles
 slowapi
 firebase-admin
 apscheduler
+httpx
 
 
