@@ -3,20 +3,18 @@ import React, { useEffect, useRef } from "react";
 export default function DotCluster() {
   const canvasRef = useRef(null);
   const dotsRef = useRef([]);
-  const targetRef = useRef(null);
-  const clickingRef = useRef(false);
-
-  // Store random active clicks as an array of {x, y, expirationTime}
-  const randomClicksRef = useRef([]);
+  const attractorsRef = useRef([]);
 
   useEffect(() => {
-    const setupDots = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const spacing = 30; // Adjust spacing as needed
+    const spacing = 30;
+    const bufferMultiplier = 3;
+    let bufferX, bufferY, width, height;
 
-      const bufferX = width * 4;
-      const bufferY = height * 4;
+    const setupDots = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      bufferX = width * bufferMultiplier;
+      bufferY = height * bufferMultiplier;
 
       const cols = Math.floor((width + bufferX * 2) / spacing);
       const rows = Math.floor((height + bufferY * 2) / spacing);
@@ -31,6 +29,8 @@ export default function DotCluster() {
             originalY: posY,
             currentX: posX,
             currentY: posY,
+            lastX: posX,
+            lastY: posY,
             vx: 0,
             vy: 0,
           });
@@ -40,131 +40,117 @@ export default function DotCluster() {
     };
 
     setupDots();
-    window.addEventListener("resize", setupDots);
+    window.addEventListener("resize", () => setupDots());
     return () => window.removeEventListener("resize", setupDots);
   }, []);
 
+  // ✅ Each mousedown creates a new attractor with its own timer
   useEffect(() => {
     const handleMouseDown = (e) => {
-      clickingRef.current = true;
-      targetRef.current = { x: e.clientX, y: e.clientY };
+      attractorsRef.current.push({
+        x: e.clientX,
+        y: e.clientY,
+        startTime: performance.now(),
+      });
     };
-    const handleMouseMove = (e) => {
-      if (clickingRef.current) {
-        targetRef.current = { x: e.clientX, y: e.clientY };
-      }
-    };
-    const handleMouseUp = () => {
-      clickingRef.current = false;
-      targetRef.current = null;
-    };
-
     window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
+    return () => window.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
-  // New: create random clicks every few seconds that last 5 seconds each
+  // Optional: add random attractors every few seconds (unchanged)
   useEffect(() => {
-    const addRandomClick = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const expireTime = Date.now() + 5000; // lasts 5 seconds
-
-      randomClicksRef.current.push({ x, y, expireTime });
-    };
-
-    // Add a new random click every 1.5 seconds (adjust frequency if desired)
-    const intervalId = setInterval(addRandomClick, 1500);
-
-    return () => clearInterval(intervalId);
+    const interval = setInterval(() => {
+      attractorsRef.current.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        startTime: performance.now(),
+      });
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    const dotRadius = 3;
-    const springFactor = 0.07;
-    const damping = 0.8;
-    const maxMove = 30;
 
-    let bufferX = window.innerWidth * 4;
-    let bufferY = window.innerHeight * 4;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let bufferX = width * 3;
+    let bufferY = height * 3;
+
+    const dotRadius = 3;
+    const springFactor = 0.015;
+    const damping = 0.85;
+    const maxMove = 25;
+    const maxVel = 15;
+    const attractorDuration = 2500; // ✅ Each attractor lives for 2.5 seconds
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      bufferX = window.innerWidth * 4;
-      bufferY = window.innerHeight * 4;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      bufferX = width * 3;
+      bufferY = height * 3;
     };
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const timestep = 1000 / 60;
+    let lastUpdate = performance.now();
+    let accumulator = 0;
 
-      // Clean up expired random clicks
-      const now = Date.now();
-      randomClicksRef.current = randomClicksRef.current.filter(
-        (click) => click.expireTime > now
+    function physicsStep() {
+      const now = performance.now();
+
+      // ✅ Remove expired attractors
+      attractorsRef.current = attractorsRef.current.filter(
+        (a) => now - a.startTime < attractorDuration
       );
 
+      const activeAttractors = attractorsRef.current;
+
       dotsRef.current.forEach((dot) => {
-        // Combine all attraction points:
-        // - user click if active
-        // - all active random clicks
+        dot.lastX = dot.currentX;
+        dot.lastY = dot.currentY;
 
-        let totalDx = 0;
-        let totalDy = 0;
-        let attractionCount = 0;
+        let vx = dot.vx * damping;
+        let vy = dot.vy * damping;
 
-        // User click attraction
-        if (clickingRef.current && targetRef.current) {
-          let dx = targetRef.current.x - dot.currentX;
-          let dy = targetRef.current.y - dot.currentY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > maxMove) {
-            dx = (dx / dist) * maxMove;
-            dy = (dy / dist) * maxMove;
+        if (activeAttractors.length > 0) {
+          activeAttractors.forEach(({ x, y, startTime }) => {
+            const age = now - startTime;
+            const progress = 1 - age / attractorDuration;
+
+            let dx = x - dot.currentX;
+            let dy = y - dot.currentY;
+
+            const distSq = dx * dx + dy * dy;
+            const maxMoveSq = maxMove * maxMove;
+
+            if (distSq > maxMoveSq) {
+              const scale = maxMove / Math.sqrt(distSq);
+              dx *= scale;
+              dy *= scale;
+            }
+
+            vx += dx * springFactor * progress;
+            vy += dy * springFactor * progress;
+          });
+
+          const velSq = vx * vx + vy * vy;
+          if (velSq > maxVel * maxVel) {
+            const scale = maxVel / Math.sqrt(velSq);
+            vx *= scale;
+            vy *= scale;
           }
-          totalDx += dx;
-          totalDy += dy;
-          attractionCount++;
-        }
 
-        // Random clicks attraction
-        randomClicksRef.current.forEach(({ x, y }) => {
-          let dx = x - dot.currentX;
-          let dy = y - dot.currentY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > maxMove) {
-            dx = (dx / dist) * maxMove;
-            dy = (dy / dist) * maxMove;
-          }
-          totalDx += dx;
-          totalDy += dy;
-          attractionCount++;
-        });
-
-        if (attractionCount > 0) {
-          // Average the vector
-          totalDx /= attractionCount;
-          totalDy /= attractionCount;
-
-          dot.vx = (dot.vx + totalDx * springFactor) * damping;
-          dot.vy = (dot.vy + totalDy * springFactor) * damping;
+          dot.vx = vx;
+          dot.vy = vy;
 
           dot.currentX += dot.vx;
           dot.currentY += dot.vy;
         } else {
-          // No active clicks, spring back to original
           const dx = dot.originalX - dot.currentX;
           const dy = dot.originalY - dot.currentY;
 
@@ -175,36 +161,63 @@ export default function DotCluster() {
           dot.currentY += dot.vy;
         }
 
-        // Wrap horizontally
+        // Wrap-around
         if (dot.currentX < -bufferX) {
-          dot.currentX += canvas.width + bufferX * 2;
-          dot.originalX += canvas.width + bufferX * 2;
-        } else if (dot.currentX > canvas.width + bufferX) {
-          dot.currentX -= canvas.width + bufferX * 2;
-          dot.originalX -= canvas.width + bufferX * 2;
+          dot.currentX += width + bufferX * 2;
+          dot.originalX += width + bufferX * 2;
+          dot.lastX += width + bufferX * 2;
+        } else if (dot.currentX > width + bufferX) {
+          dot.currentX -= width + bufferX * 2;
+          dot.originalX -= width + bufferX * 2;
+          dot.lastX -= width + bufferX * 2;
         }
 
-        // Wrap vertically
         if (dot.currentY < -bufferY) {
-          dot.currentY += canvas.height + bufferY * 2;
-          dot.originalY += canvas.height + bufferY * 2;
-        } else if (dot.currentY > canvas.height + bufferY) {
-          dot.currentY -= canvas.height + bufferY * 2;
-          dot.originalY -= canvas.height + bufferY * 2;
+          dot.currentY += height + bufferY * 2;
+          dot.originalY += height + bufferY * 2;
+          dot.lastY += height + bufferY * 2;
+        } else if (dot.currentY > height + bufferY) {
+          dot.currentY -= height + bufferY * 2;
+          dot.originalY -= height + bufferY * 2;
+          dot.lastY -= height + bufferY * 2;
         }
+      });
+    }
+
+    let rafId;
+    const render = () => {
+      const now = performance.now();
+      accumulator += now - lastUpdate;
+      lastUpdate = now;
+
+      while (accumulator >= timestep) {
+        physicsStep();
+        accumulator -= timestep;
+      }
+
+      const alpha = accumulator / timestep;
+
+      ctx.clearRect(0, 0, width, height);
+      dotsRef.current.forEach((dot) => {
+        const interpX = dot.lastX + (dot.currentX - dot.lastX) * alpha;
+        const interpY = dot.lastY + (dot.currentY - dot.lastY) * alpha;
 
         ctx.beginPath();
-        ctx.arc(dot.currentX, dot.currentY, dotRadius, 0, 2 * Math.PI);
+        ctx.arc(interpX, interpY, dotRadius, 0, 2 * Math.PI);
         ctx.fillStyle = "rgba(0, 35, 102, 0.25)";
         ctx.fill();
       });
 
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(render);
     };
 
-    animate();
+    lastUpdate = performance.now();
+    rafId = requestAnimationFrame(render);
 
-    return () => window.removeEventListener("resize", resizeCanvas);
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
