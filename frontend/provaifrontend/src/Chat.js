@@ -6,12 +6,39 @@ export default function Chat() {
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [prompt, setPrompt] = useState("");
   const endRef = useRef(null);
+  const cardsRef = useRef([]);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
 
   const activeSession = chatSessions.find((s) => s.id === activeSessionId);
 
+  // Scroll to end on active session change or messages change
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    endRef.current?.scrollIntoView({ behavior: "smooth", inline: "end" });
   }, [activeSession]);
+
+  // Compute connector line positions between timeline cards
+  const [connectors, setConnectors] = useState([]);
+
+  useEffect(() => {
+    if (!activeSession) return;
+
+    const newConnectors = [];
+
+    for (let i = 0; i < activeSession.messages.length - 1; i++) {
+      const currentCard = cardsRef.current[i];
+      const nextCard = cardsRef.current[i + 1];
+
+      if (currentCard && nextCard) {
+        const top =
+          currentCard.offsetTop + currentCard.offsetHeight / 2 - 1; // center vertical - 1 for half line height
+        const left = currentCard.offsetLeft + currentCard.offsetWidth;
+        const width = nextCard.offsetLeft - left;
+
+        newConnectors.push({ top, left, width });
+      }
+    }
+    setConnectors(newConnectors);
+  }, [activeSession, timelineExpanded, prompt]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,6 +47,13 @@ export default function Chat() {
     const newMessage = {
       question: prompt,
       response: `Creative reply to: "${prompt}"`,
+      timestamp: new Date().toLocaleString([], {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     if (!activeSessionId) {
@@ -50,89 +84,84 @@ export default function Chat() {
   };
 
   return (
-    <div className="app-container">
-      {/* Left sidebar */}
-      <aside className="sidebar">
-        <div className="menu-dot" title="Menu">
-          ☰
-        </div>
-        <h2 className="sidebar-title">Chat History</h2>
-        {chatSessions.length === 0 && (
-          <p className="no-chats-text">No chats yet. Start a new chat!</p>
-        )}
-        <ul className="session-list">
-          {chatSessions.map((session) => (
-            <li
-              key={session.id}
-              className={`session-item ${
-                session.id === activeSessionId ? "active-session" : ""
-              }`}
-              onClick={() => handleSelectSession(session.id)}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSelectSession(session.id);
-              }}
-              aria-selected={session.id === activeSessionId}
-              role="button"
-            >
-              {session.title}
-            </li>
-          ))}
-        </ul>
-      </aside>
+    <div className="chat-app">
+      <header className="chat-header">Chat Timeline Interface</header>
 
-      {/* Center chat container */}
-      <main className="main-chat-container">
-        {!activeSession ? (
-          <>
-            <h1 className="main-title">Welcome! Start a new chat</h1>
-            <form className="initial-form" onSubmit={handleSubmit}>
-              <textarea
-                rows={4}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Type your prompt here..."
-                className="prompt-textarea"
-                spellCheck={false}
-              />
-              <button type="submit" className="btn-submit">
-                Submit
-              </button>
-            </form>
-          </>
-        ) : (
-          <>
+      <section className="chat-history-scroll">
+        {chatSessions.map((session) => (
+          <div
+            key={session.id}
+            className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
+            onClick={() => handleSelectSession(session.id)}
+          >
+            <div className="capsule-title">{session.title}</div>
+          </div>
+        ))}
+      </section>
+
+      <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
+        <div
+          className="timeline-overlay"
+          onClick={() => setTimelineExpanded(!timelineExpanded)}
+        >
+          {activeSession && (
             <div
-              className="chat-messages"
+              className="timeline-scroll"
               role="log"
               aria-live="polite"
-              aria-relevant="additions"
+              style={{ position: "relative" }}
             >
-              {activeSession.messages.map(({ question, response }, idx) => (
-                <div key={idx} className="message-row">
-                  <div className="chat-bubble user-bubble">{question}</div>
-                  <div className="chat-bubble bot-bubble">{response}</div>
+              {activeSession.messages.map(({ question, response, timestamp }, idx) => (
+                <div
+                  className="timeline-card"
+                  key={idx}
+                  ref={(el) => (cardsRef.current[idx] = el)}
+                  style={{ position: "relative", whiteSpace: "normal", wordWrap: "break-word", overflowWrap: "break-word" }}
+                >
+                  <div className="timestamp" style={{ marginBottom: "0.5rem", position: "relative", right: 0, bottom: "auto" }}>
+                    {timestamp}
+                  </div>
+                  <div className="question">{question}</div>
+                  <div className="answer">{response}</div>
                 </div>
               ))}
+
+              {/* Render connector lines between timeline cards */}
+              {connectors.map(({ top, left, width }, i) => (
+                <div
+                  key={"connector-" + i}
+                  style={{
+                    position: "absolute",
+                    top: top,
+                    left: left,
+                    width: width,
+                    height: 2,
+                    backgroundColor: "#6366f1",
+                    borderRadius: 1,
+                    pointerEvents: "none",
+                    zIndex: 5,
+                  }}
+                />
+              ))}
+
               <div ref={endRef} />
             </div>
-
-            <form className="input-form" onSubmit={handleSubmit}>
-              <textarea
-                rows={2}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Continue the conversation..."
-                className="prompt-textarea chatgpt-style-input"
-                spellCheck={false}
-              />
-              <button type="submit" className="btn-send">
-                Send
-              </button>
-            </form>
-          </>
-        )}
+          )}
+        </div>
       </main>
+
+      <form className="prompt-form" onSubmit={handleSubmit}>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Ask something..."
+          rows={2}
+          className="prompt-input"
+        />
+        <button type="submit" className="submit-button">
+          Send
+        </button>
+      </form>
     </div>
   );
 }
