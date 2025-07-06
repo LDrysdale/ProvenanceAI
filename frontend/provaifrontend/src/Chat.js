@@ -11,12 +11,10 @@ export default function Chat() {
 
   const activeSession = chatSessions.find((s) => s.id === activeSessionId);
 
-  // Scroll to end on active session change or messages change
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", inline: "end" });
   }, [activeSession]);
 
-  // Compute connector line positions between timeline cards
   const [connectors, setConnectors] = useState([]);
 
   useEffect(() => {
@@ -29,8 +27,7 @@ export default function Chat() {
       const nextCard = cardsRef.current[i + 1];
 
       if (currentCard && nextCard) {
-        const top =
-          currentCard.offsetTop + currentCard.offsetHeight / 2 - 1; // center vertical - 1 for half line height
+        const top = currentCard.offsetTop + currentCard.offsetHeight / 2 - 1;
         const left = currentCard.offsetLeft + currentCard.offsetWidth;
         const width = nextCard.offsetLeft - left;
 
@@ -83,21 +80,39 @@ export default function Chat() {
     setActiveSessionId(id);
   };
 
+  const getTopKeywords = (session) => {
+    if (!session?.messages?.length) return [];
+
+    const stopWords = new Set([
+      "the", "is", "and", "to", "in", "of", "a", "an", "for", "on", "it", "this", "that",
+      "i", "you", "with", "are", "be", "was", "at", "as", "by", "we", "our", "or", "from",
+      "my", "your", "they", "have", "has", "do", "did", "what", "who", "how", "where", "when"
+    ]);
+
+    const wordCounts = {};
+
+    session.messages.forEach((msg) => {
+      const words = msg.question
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .split(/\s+/);
+
+      words.forEach((word) => {
+        if (!stopWords.has(word) && word.length > 2) {
+          wordCounts[word] = (wordCounts[word] || 0) + 1;
+        }
+      });
+    });
+
+    return Object.entries(wordCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([word]) => word);
+  };
+
   return (
     <div className="chat-app">
       <header className="chat-header">Chat Timeline Interface</header>
-
-      <section className="chat-history-scroll">
-        {chatSessions.map((session) => (
-          <div
-            key={session.id}
-            className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
-            onClick={() => handleSelectSession(session.id)}
-          >
-            <div className="capsule-title">{session.title}</div>
-          </div>
-        ))}
-      </section>
 
       <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
         <div
@@ -126,7 +141,6 @@ export default function Chat() {
                 </div>
               ))}
 
-              {/* Render connector lines between timeline cards */}
               {connectors.map(({ top, left, width }, i) => (
                 <div
                   key={"connector-" + i}
@@ -136,7 +150,7 @@ export default function Chat() {
                     left: left,
                     width: width,
                     height: 2,
-                    backgroundColor: "#6366f1",
+                    backgroundColor: "#8b91a9",
                     borderRadius: 1,
                     pointerEvents: "none",
                     zIndex: 5,
@@ -150,18 +164,36 @@ export default function Chat() {
         </div>
       </main>
 
+      {/* Updated form with wrapper */}
       <form className="prompt-form" onSubmit={handleSubmit}>
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ask something..."
-          rows={2}
-          className="prompt-input"
-        />
-        <button type="submit" className="submit-button">
-          Send
-        </button>
+        <div className="input-button-wrapper">
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Ask something..."
+            rows={2}
+            className="prompt-input"
+          />
+          <button type="submit" className="submit-button">
+            Send
+          </button>
+        </div>
       </form>
+
+      <section className="chat-history-scroll">
+        {chatSessions.map((session) => (
+          <div
+            key={session.id}
+            className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
+            onClick={() => handleSelectSession(session.id)}
+          >
+            <div className="capsule-title">{session.title}</div>
+            <div className="capsule-stats">
+              <span>{session.messages.length} Questions </span>
+            </div>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }

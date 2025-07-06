@@ -28,38 +28,53 @@ body {
   padding: 1rem;
   background-color: #f1f5f9;
   gap: 1rem;
+  border-top: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
 }
 
+/* Updated capsule style for stats below title */
 .chat-capsule {
   flex: 0 0 auto;
-  padding: 0.75rem 1.25rem;
+  min-width: 180px;
+  padding: 0.75rem 1rem;
   background-color: #e0e7ff;
-  border-radius: 9999px;
+  border-radius: 1rem;
   cursor: pointer;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.3rem;
 }
 
 .chat-capsule:hover {
   background-color: #c7d2fe;
+  transform: scale(1.03);
 }
 
 .chat-capsule.active {
-  background-color: #6366f1;
+  background-color: #e4eaf5;
   color: white;
   font-weight: 600;
+  text-align: center;
 }
 
 .capsule-title {
-  font-size: 0.9rem;
-  margin-bottom: 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e3a8a;
 }
 
-.capsule-percent {
-  font-size: 0.75rem;
-  color: #374151;
+.capsule-stats {
+  font-size: 0.7rem;
+  color: #4b5563;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.25rem;
+  word-break: break-word;
 }
 
 .timeline-container {
@@ -109,13 +124,9 @@ body {
   word-wrap: break-word;
   overflow-wrap: break-word;
   height: auto; /* allow vertical growth */
-
-    /* Add this to vertically center cards without equal height enforcement */
   margin-top: auto;
   margin-bottom: auto;
 }
-
-
 
 .timeline-card + .timeline-card {
   border-top: 1px solid #d1d5db;
@@ -144,43 +155,55 @@ body {
 
 .prompt-form {
   display: flex;
+  justify-content: center;  /* centers horizontally */
   padding: 1rem;
   border-top: 1px solid #e5e7eb;
   background-color: #ffffff;
-  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-button-wrapper {
+  display: flex;
+  width: 33.33vw;         /* one-third viewport width */
+  max-width: 600px;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #d1d5db;
+  background: #f9fafb;
 }
 
 .prompt-input {
   flex-grow: 1;
-  border-radius: 12px;
+  border: none;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  resize: none;
   font-size: 1rem;
-  background: #f9fafb;
+  border-radius: 0;       /* no radius inside wrapper */
+  outline: none;
+  background: transparent;
+  box-sizing: border-box;
+  resize: none;
 }
 
 .prompt-input:focus {
   outline: none;
   border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+  box-shadow: none;
 }
 
 .submit-button {
   background-color: #6366f1;
   color: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0 1.5rem;
   border: none;
-  border-radius: 10px;
-  font-weight: 600;
   cursor: pointer;
+  font-weight: 600;
+  border-radius: 0 30px 30px 0; /* round right side only */
   transition: background-color 0.2s ease;
 }
 
 .submit-button:hover {
   background-color: #4f46e5;
 }
-
 
 .connector-line {
   position: absolute;
@@ -192,6 +215,3 @@ body {
   background-color: #6366f1;
   border-radius: 1px;
 }
-
-
-
