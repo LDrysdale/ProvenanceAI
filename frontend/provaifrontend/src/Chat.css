@@ -19,7 +19,7 @@ body {
   font-weight: bold;
   text-align: center;
   background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: none;
 }
 
 .chat-history-scroll {
@@ -83,6 +83,11 @@ body {
   overflow: hidden;
   background-color: #ffffff;
   transition: all 0.3s ease;
+  /* Remove or override the following if present: */
+  box-shadow: none;
+  border: none;
+  outline: none;
+
 }
 
 .timeline-container.expanded {
@@ -101,6 +106,9 @@ body {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(4px);
   cursor: pointer;
+  box-shadow: none;         /* <-- no shadow */
+  border: none;             /* <-- no border */
+  outline: none; 
 }
 
 .timeline-scroll {
@@ -160,16 +168,20 @@ body {
   border-top: 1px solid #e5e7eb;
   background-color: #ffffff;
   width: 100%;
+  border-top: none;
 }
 
 .input-button-wrapper {
   display: flex;
-  width: 33.33vw;         /* one-third viewport width */
-  max-width: 600px;
+  width: 50vw;         /* one-third viewport width */
+  max-width: 900px;
   border-radius: 30px;
   overflow: hidden;
   box-shadow: 0 0 0 1px #d1d5db;
   background: #f9fafb;
+  box-shadow: none;         /* <-- no shadow */
+  border: none;             /* <-- no border */
+  outline: none; 
 }
 
 .prompt-input {
