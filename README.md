@@ -69,3 +69,6 @@ npm install firebaseui
 npm install express
 
 
+
+# Installing React Icons
+npm install react-icons

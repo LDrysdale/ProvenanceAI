@@ -1,21 +1,26 @@
+// frontend/provaifrontend/src/Chat.js
 import React, { useState, useRef, useEffect } from "react";
+import { FaPlus, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
+import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
 import "./Chat.css";
+import logo from "./logo.svg";
 
 export default function Chat() {
+  const [user, setUser] = useState(null);
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [prompt, setPrompt] = useState("");
   const endRef = useRef(null);
   const cardsRef = useRef([]);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [connectors, setConnectors] = useState([]);
 
   const activeSession = chatSessions.find((s) => s.id === activeSessionId);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", inline: "end" });
   }, [activeSession]);
-
-  const [connectors, setConnectors] = useState([]);
 
   useEffect(() => {
     if (!activeSession) return;
@@ -36,6 +41,30 @@ export default function Chat() {
     }
     setConnectors(newConnectors);
   }, [activeSession, timelineExpanded, prompt]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,6 +96,12 @@ export default function Chat() {
           session.id === activeSessionId
             ? {
                 ...session,
+                title:
+                  session.messages.length === 0
+                    ? prompt.length > 20
+                      ? prompt.slice(0, 17) + "..."
+                      : prompt
+                    : session.title,
                 messages: [...session.messages, newMessage],
               }
             : session
@@ -78,6 +113,16 @@ export default function Chat() {
 
   const handleSelectSession = (id) => {
     setActiveSessionId(id);
+  };
+
+  const handleNewChat = () => {
+    const newSession = {
+      id: Date.now().toString(),
+      title: "New Chat",
+      messages: [],
+    };
+    setChatSessions((prev) => [newSession, ...prev]);
+    setActiveSessionId(newSession.id);
   };
 
   const getTopKeywords = (session) => {
@@ -112,7 +157,19 @@ export default function Chat() {
 
   return (
     <div className="chat-app">
-      <header className="chat-header">Chat Timeline Interface</header>
+      <header className="chat-header">
+        <div className="logo-circle">
+          <img src={logo} alt="Logo" />
+        </div>
+        Chat Timeline Interface
+        <div
+          className="auth-icon"
+          onClick={user ? handleLogout : handleLogin}
+          title={user ? "Logout" : "Login"}
+        >
+          {user ? <FaSignOutAlt size={20} /> : <FaSignInAlt size={20} />}
+        </div>
+      </header>
 
       <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
         <div
@@ -131,11 +188,14 @@ export default function Chat() {
                   className="timeline-card"
                   key={idx}
                   ref={(el) => (cardsRef.current[idx] = el)}
-                  style={{ position: "relative", whiteSpace: "normal", wordWrap: "break-word", overflowWrap: "break-word" }}
+                  style={{
+                    position: "relative",
+                    whiteSpace: "normal",
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word"
+                  }}
                 >
-                  <div className="timestamp" style={{ marginBottom: "0.5rem", position: "relative", right: 0, bottom: "auto" }}>
-                    {timestamp}
-                  </div>
+                  <div className="timestamp">{timestamp}</div>
                   <div className="question">{question}</div>
                   <div className="answer">{response}</div>
                 </div>
@@ -164,9 +224,16 @@ export default function Chat() {
         </div>
       </main>
 
-      {/* Updated form with wrapper */}
       <form className="prompt-form" onSubmit={handleSubmit}>
         <div className="input-button-wrapper">
+          <button
+            type="button"
+            className="new-chat-icon-button"
+            onClick={handleNewChat}
+            title="New Chat"
+          >
+            <FaPlus />
+          </button>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -174,9 +241,7 @@ export default function Chat() {
             rows={2}
             className="prompt-input"
           />
-          <button type="submit" className="submit-button">
-            Send
-          </button>
+          <button type="submit" className="submit-button">Send</button>
         </div>
       </form>
 

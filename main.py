@@ -4,7 +4,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
-load_dotenv()  # ⬅️ This loads the .env file into os.environ
+load_dotenv()
 
 import re
 import aiofiles
@@ -26,16 +26,31 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
-from redis_chat_history import store_chat_message, get_chat_history  # ⬅️ New import
+from redis_chat_history import store_chat_message, get_chat_history
+
+# --- Firebase Admin SDK ---
+import firebase_admin
+from firebase_admin import credentials, auth as firebase_auth
+
+
 
 # --- Configuration constants ---
-USE_LOCAL_DATA = False
-RATE_LIMIT = "5/minute"
-ALLOWED_ORIGINS = ["http://localhost:5173"]
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
-ALLOWED_FILE_TYPES = ["image/png", "image/jpeg"]
-MODEL_PATH = "mistral-7b-instruct-v0.1.Q2_K.gguf"
+# --- Configuration from environment (.env) ---
+USE_LOCAL_DATA = os.getenv("USE_LOCAL_DATA", "0") == "1"
+MOCK_USERS_FILE = os.getenv("MOCK_USERS_FILE", "tests/datasets/mock_users.json")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+RATE_LIMIT = os.getenv("RATE_LIMIT", "5/minute")
+MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "5"))
+MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024  # Convert MB to bytes
+ALLOWED_FILE_TYPES = os.getenv("ALLOWED_FILE_TYPES", "image/png,image/jpeg").split(",")
+
+FIREBASE_CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH", "credentials/firebase-adminsdk.json")
+MODEL_PATH = os.getenv("MODEL_PATH", "mistral-7b-instruct-v0.1.Q2_K.gguf")
 VECTOR_STORE_DIR = "./data/vector_store"
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)  # Update with your path
+    firebase_admin.initialize_app(cred)
 
 # --- Rate limiter ---
 limiter = Limiter(key_func=get_remote_address)
@@ -150,10 +165,24 @@ def validate_upload_file(upload_file: UploadFile):
     if upload_file.content_type not in ALLOWED_FILE_TYPES:
         raise HTTPException(400, detail=f"Unsupported file type: {upload_file.content_type}")
 
+# --- Firebase Token Verification Dependency ---
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+async def get_user_id_from_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        decoded_token = firebase_auth.verify_id_token(token)
+        return decoded_token["uid"]
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired Firebase token")
+
 # --- API Endpoints ---
 
 @app.get("/session/me")
 async def get_current_user(request: Request):
+    # This endpoint can stay as is or be updated to use Firebase token similarly
     user_id = request.headers.get("X-User-Id")
     user_email = request.headers.get("X-User-Email")
     user_role = request.headers.get("X-User-Role")
@@ -172,6 +201,7 @@ async def ask_endpoint(
     message: str = Form(...),
     context: Optional[str] = Form(""),
     images: Optional[List[UploadFile]] = File(None),
+    user_id: str = Depends(get_user_id_from_token),  # Enforce Firebase auth here
 ):
     global vector_store
     user_input = sanitize_input(message)
@@ -203,10 +233,8 @@ async def ask_endpoint(
             vector_store.add_documents([doc])
         persist_vector_store()
 
-        # Store to Redis ⬇️
-        user_id = request.headers.get("X-User-Id")
-        if user_id:
-            await store_chat_message(user_id, user_input, response_text)
+        # Store chat message to Redis
+        await store_chat_message(user_id, user_input, response_text)
 
     except Exception as e:
         logger.error("Ask endpoint failed", exc_info=True)
@@ -219,11 +247,10 @@ async def ask_endpoint(
     }
 
 @app.get("/chat/history")
-async def fetch_chat_history(request: Request, limit: int = 50):
-    user_id = request.headers.get("X-User-Id")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Missing user ID")
-
+async def fetch_chat_history(
+    limit: int = 50,
+    user_id: str = Depends(get_user_id_from_token),  # Enforce Firebase auth
+):
     history = await get_chat_history(user_id, limit)
     return {
         "user_id": user_id,

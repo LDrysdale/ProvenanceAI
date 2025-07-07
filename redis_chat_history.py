@@ -5,6 +5,7 @@ import httpx
 import json
 from datetime import datetime
 
+# Load Upstash credentials from environment
 UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL")
 UPSTASH_REDIS_REST_TOKEN = os.getenv("UPSTASH_REDIS_REST_TOKEN")
 
@@ -15,9 +16,18 @@ HEADERS = {
     "Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"
 }
 
-async def store_chat_message(user_id: str, question: str, answer: str):
+# Updated store function with chat_id and chat_subject
+async def store_chat_message(
+    user_id: str,
+    question: str,
+    answer: str,
+    chat_id: str,
+    chat_subject: str
+):
     key = f"chat_history:{user_id}"
     message = {
+        "chat_id": chat_id,
+        "chat_subject": chat_subject,
         "timestamp": datetime.utcnow().isoformat(),
         "question": question,
         "answer": answer
@@ -30,6 +40,7 @@ async def store_chat_message(user_id: str, question: str, answer: str):
             json={"value": json.dumps(message)}
         )
 
+# Fetch most recent N messages
 async def get_chat_history(user_id: str, limit: int = 50):
     key = f"chat_history:{user_id}"
 
