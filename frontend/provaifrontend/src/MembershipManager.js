@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const TIERS = ["free", "creative", "dealer", "all-rounder"];
 
@@ -9,8 +9,8 @@ export default function MembershipManager({ userId }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Fetch current membership info
-  const fetchMembership = async () => {
+  // Fetch current membership info wrapped in useCallback for stable reference
+  const fetchMembership = useCallback(async () => {
     try {
       const res = await fetch("/api/user/membership", {
         headers: { "X-User-Id": userId },
@@ -24,11 +24,11 @@ export default function MembershipManager({ userId }) {
       setMessage("Error fetching membership info.");
       console.error(err);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchMembership();
-  }, []);
+  }, [fetchMembership]);
 
   // Handler for upgrading/changing membership
   const handleUpgrade = async () => {
@@ -130,7 +130,12 @@ export default function MembershipManager({ userId }) {
       </button>
 
       {message && (
-        <p style={{ marginTop: 10, color: message.includes("error") ? "red" : "green" }}>
+        <p
+          style={{
+            marginTop: 10,
+            color: message.toLowerCase().includes("error") ? "red" : "green",
+          }}
+        >
           {message}
         </p>
       )}

@@ -16,34 +16,34 @@ HEADERS = {
     "Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"
 }
 
-# Updated store function with chat_id and chat_subject
 async def store_chat_message(
     user_id: str,
     question: str,
     answer: str,
     chat_id: str,
-    chat_subject: str
+    chat_subject: str,
 ):
-    key = f"chat_history:{user_id}"
-    message = {
+    key = f"chat_history:{user_id}:{chat_id}"
+    now_iso = datetime.utcnow().isoformat()
+    record = {
+        "question": question,
+        "answer": answer,
+        "createdAt": now_iso,
         "chat_id": chat_id,
         "chat_subject": chat_subject,
-        "timestamp": datetime.utcnow().isoformat(),
-        "question": question,
-        "answer": answer
     }
 
     async with httpx.AsyncClient() as client:
-        await client.post(
+        # Use LPUSH to prepend new messages to the list
+        response = await client.post(
             f"{UPSTASH_REDIS_REST_URL}/lpush/{key}",
             headers=HEADERS,
-            json={"value": json.dumps(message)}
+            content=json.dumps(record)
         )
+        if response.status_code != 200:
+            raise RuntimeError(f"Failed to store chat message: {response.text}")
 
-# Fetch most recent N messages
-async def get_chat_history(user_id: str, limit: int = 50):
-    key = f"chat_history:{user_id}"
-
+async def get_chat_history(key: str, limit: int = 50):
     async with httpx.AsyncClient() as client:
         res = await client.get(
             f"{UPSTASH_REDIS_REST_URL}/lrange/{key}/0/{limit - 1}",
@@ -51,6 +51,14 @@ async def get_chat_history(user_id: str, limit: int = 50):
         )
         if res.status_code == 200:
             data = res.json()
-            return [json.loads(item) for item in data.get("result", [])]
+            # Redis returns a list of JSON strings, decode each
+            results = data.get("result", [])
+            history = []
+            for item in results:
+                try:
+                    history.append(json.loads(item))
+                except json.JSONDecodeError:
+                    continue
+            return history
         else:
             return []

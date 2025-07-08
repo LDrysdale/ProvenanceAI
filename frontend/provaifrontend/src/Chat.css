@@ -9,30 +9,38 @@ body {
 .chat-app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  height: 100vh; /* full viewport height */
+  width: 100%;
+  overflow: hidden; /* prevent scrollbars on main container */
+  background-color: #f9fafb; /* or your preferred background */
 }
 
+
 .chat-header {
-  position: fixed;       /* keep header at top */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 50px;
   background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #e5e7eb;
-  z-index: 999;          /* below the logo */
-  padding: 0 100px;      /* give horizontal padding so text doesn't overlap logo */
+  z-index: 999;
   font-weight: 600;
   font-size: 1.25rem;
   color: #1f2937;
+  flex-shrink: 0;
   border-bottom: none;
+  padding: 0 0px;
 }
 
+
 .chat-history-scroll {
+  position: fixed;
+  bottom: 0px; /* or whatever height your .prompt-form is */
+  left: 0;
+  right: 0;
   display: flex;
   overflow-x: auto;
   padding: 1rem;
@@ -40,13 +48,14 @@ body {
   gap: 1rem;
   border-top: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
+  z-index: 1000;
 }
 
 /* Updated capsule style for stats below title */
 .chat-capsule {
   flex: 0 0 auto;
   min-width: 180px;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 0.5rem;
   background-color: #e0e7ff;
   border-radius: 1rem;
   cursor: pointer;
@@ -88,17 +97,24 @@ body {
 }
 
 .timeline-container {
-  flex-grow: 1;
-  position: relative;
-  overflow: hidden;
+  position: absolute;
+  top: 50px;                /* directly below the 50px header */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
   background-color: #ffffff;
-  transition: all 0.3s ease;
-  /* Remove or override the following if present: */
-  box-shadow: none;
-  border: none;
-  outline: none;
-
+  width: 100%;
+  z-index: 10;
 }
+
+
+.timeline-overlay {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
 
 .timeline-container.expanded {
   z-index: 10;
@@ -118,7 +134,8 @@ body {
   cursor: pointer;
   box-shadow: none;         /* <-- no shadow */
   border: none;             /* <-- no border */
-  outline: none; 
+  outline: none;
+ 
 }
 
 .timeline-scroll {
@@ -128,7 +145,7 @@ body {
 }
 
 .timeline-card {
-  width: 300px; /* fixed width, consistent size */
+  width: 400px; /* fixed width, consistent size */
   background: #f3f4f6;
   padding: 1rem;
   border-radius: 16px;
@@ -172,14 +189,19 @@ body {
 }
 
 .prompt-form {
+  position: fixed;
+  bottom: 100px;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: center;  /* centers horizontally */
+  justify-content: center;
   padding: 1rem;
-  border-top: 1px solid #e5e7eb;
   background-color: #ffffff;
   width: 100%;
-  border-top: none;
+  z-index: 1001; /* Make sure it’s above other elements */
+  border-top: 1px solid #e5e7eb;
 }
+
 
 .input-button-wrapper {
   display: flex;
@@ -288,8 +310,8 @@ body {
   position: fixed;      /* fix it in viewport */
   top: 10px;            /* 10px from top */
   left: 10px;           /* 10px from left */
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
   background-color: white;
@@ -367,6 +389,74 @@ body {
   font-size: 14px;
   cursor: pointer;
 }
+
+
+.nav-quarter-circle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  pointer-events: auto;
+  z-index: 9999;
+  /* Removed background */
+  /* background: rgba(99, 102, 241, 0.15); */
+  display: block; /* remove flex, we position absolutely inside */
+  padding: 0; /* remove padding */
+  position: relative; /* keep this */
+}
+
+/* Style the icon buttons */
+.nav-circle-btn {
+  position: absolute;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: white;
+  transform: translate(-50%, -50%);
+  transition: font-size 0.2s ease;
+}
+
+.nav-circle-btn.active-nav-icon {
+  font-size: 2rem;
+  color: #4f46e5;
+}
+
+
+/* Position each icon */
+.nav-circle-btn:nth-child(1) {
+  top: 25px;
+  left: 115px;
+}
+
+.nav-circle-btn:nth-child(2) {
+  top: 75px;
+  left: 115px;
+}
+
+.nav-circle-btn:nth-child(3) {
+  top: 115px;
+  left: 75px;
+}
+
+.nav-circle-btn:nth-child(4) {
+  top: 112px;
+  left: 20px;
+}
+
+.nav-circle-btn:hover {
+  color: #a5b4fc; /* or any hover effect */
+}
+
+
+
+
+
 
 
 

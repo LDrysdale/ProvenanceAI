@@ -1,5 +1,5 @@
 // frontend/provaifrontend/src/Chat.js
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FaPlus, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import {
   signInWithPopup,
@@ -10,6 +10,7 @@ import {
 import { auth } from "./firebase";
 import "./Chat.css";
 import logo from "./logo.svg";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Chat() {
   const [user, setUser] = useState(null);
@@ -21,6 +22,11 @@ export default function Chat() {
 
   const endRef = useRef(null);
   const cardsRef = useRef([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const path = location.pathname;
+
+  const activeNav = path === "/" ? "chat" : path.replace("/", "");
 
   const [contextMenu, setContextMenu] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -32,7 +38,7 @@ export default function Chat() {
     endRef.current?.scrollIntoView({ behavior: "smooth", inline: "end" });
   }, [activeSession]);
 
-  const updateConnectors = () => {
+  const updateConnectors = useCallback(() => {
     if (!activeSession) return;
 
     const newConnectors = [];
@@ -47,17 +53,17 @@ export default function Chat() {
       }
     }
     setConnectors(newConnectors);
-  };
+  }, [activeSession]);
 
   useEffect(() => {
     updateConnectors();
-  }, [activeSession, timelineExpanded, prompt]);
+  }, [updateConnectors, timelineExpanded, prompt]);
 
   useEffect(() => {
     const handleResize = () => updateConnectors();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [activeSession]);
+  }, [updateConnectors]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -188,6 +194,41 @@ export default function Chat() {
 
   return (
     <div className="chat-app">
+      <nav className="nav-quarter-circle" aria-label="Main navigation">
+        <button
+          className={`nav-circle-btn ${activeNav === "home" ? "active-nav-icon" : ""}`}
+          style={{ '--i': 0 }}
+          title="Home"
+          onClick={() => navigate("/")}
+        >
+          🏠
+        </button>
+        <button
+          className={`nav-circle-btn ${activeNav === "chat" ? "active-nav-icon" : ""}`}
+          style={{ '--i': 1 }}
+          title="Chat"
+          onClick={() => navigate("/chat")}
+        >
+          💬
+        </button>
+        <button
+          className={`nav-circle-btn ${activeNav === "settings" ? "active-nav-icon" : ""}`}
+          style={{ '--i': 2 }}
+          title="Settings"
+          onClick={() => navigate("/settings")}
+        >
+          ⚙️
+        </button>
+        <button
+          className={`nav-circle-btn ${activeNav === "help" ? "active-nav-icon" : ""}`}
+          style={{ '--i': 3 }}
+          title="Help"
+          onClick={() => navigate("/help")}
+        >
+          ❓
+        </button>
+      </nav>
+
       <header className="chat-header">
         <div className="logo-circle">
           <img src={logo} alt="Logo" />
@@ -259,7 +300,9 @@ export default function Chat() {
             rows={2}
             className="prompt-input"
           />
-          <button type="submit" className="submit-button">Send</button>
+          <button type="submit" className="submit-button">
+            Send
+          </button>
         </div>
       </form>
 

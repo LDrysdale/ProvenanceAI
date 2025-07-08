@@ -5,6 +5,7 @@ import os
 import re
 import aiofiles
 import shutil
+import uuid  # For generating chat_id
 from typing import List, Optional
 
 from dotenv import load_dotenv
@@ -203,6 +204,8 @@ async def ask_endpoint(
     context: Optional[str] = Form(""),
     images: Optional[List[UploadFile]] = File(None),
     user_id: str = Depends(get_user_id_from_token),
+    chat_id: Optional[str] = Form(None),
+    chat_subject: Optional[str] = Form("General"),
 ):
     global vector_store
     user_input = sanitize_input(message)
@@ -222,6 +225,9 @@ async def ask_endpoint(
             await save_upload_file(image, path)
             saved_image_paths.append(path)
 
+    if not chat_id:
+        chat_id = str(uuid.uuid4())
+
     try:
         category = categorize_question(user_input, pipeline)
         response_text = route_to_agent(
@@ -233,7 +239,12 @@ async def ask_endpoint(
         else:
             vector_store.add_documents([doc])
         persist_vector_store()
-        await store_chat_message(user_id, user_input, response_text)
+
+        try:
+            await store_chat_message(user_id, user_input, response_text, chat_id, chat_subject)
+        except Exception as redis_exc:
+            logger.error(f"Failed to store chat message in Redis: {redis_exc}")
+
     except Exception as e:
         logger.error("Ask endpoint failed", exc_info=True)
         raise HTTPException(500, detail="Internal Server Error")
@@ -242,16 +253,24 @@ async def ask_endpoint(
         "message": user_input,
         "category": category,
         "response": response_text,
+        "chat_id": chat_id,
+        "chat_subject": chat_subject
     }
 
 @app.get("/chat/history")
 async def fetch_chat_history(
     limit: int = 50,
     user_id: str = Depends(get_user_id_from_token),
+    chat_id: Optional[str] = None
 ):
-    history = await get_chat_history(user_id, limit)
+    if chat_id:
+        key = f"chat_history:{user_id}:{chat_id}"
+    else:
+        key = f"chat_history:{user_id}"
+    history = await get_chat_history(key, limit)
     return {
         "user_id": user_id,
+        "chat_id": chat_id,
         "history": history
     }
 
@@ -282,3 +301,8 @@ async def delete_chat_session(
     except Exception as e:
         logger.error("Delete chat failed", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to delete chat session")
+
+# Example of role check usage (not removing, just example):
+# @app.get("/admin_only")
+# async def admin_only_endpoint(role_data=Depends(require_role(["admin"]))):
+#     return {"message": "Welcome, admin!"}
