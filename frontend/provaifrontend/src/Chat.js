@@ -1,7 +1,12 @@
 // frontend/provaifrontend/src/Chat.js
 import React, { useState, useRef, useEffect } from "react";
 import { FaPlus, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
-import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { auth } from "./firebase";
 import "./Chat.css";
 import logo from "./logo.svg";
@@ -11,10 +16,15 @@ export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [prompt, setPrompt] = useState("");
-  const endRef = useRef(null);
-  const cardsRef = useRef([]);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [connectors, setConnectors] = useState([]);
+
+  const endRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  const [contextMenu, setContextMenu] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
 
   const activeSession = chatSessions.find((s) => s.id === activeSessionId);
 
@@ -22,25 +32,32 @@ export default function Chat() {
     endRef.current?.scrollIntoView({ behavior: "smooth", inline: "end" });
   }, [activeSession]);
 
-  useEffect(() => {
+  const updateConnectors = () => {
     if (!activeSession) return;
 
     const newConnectors = [];
-
     for (let i = 0; i < activeSession.messages.length - 1; i++) {
-      const currentCard = cardsRef.current[i];
-      const nextCard = cardsRef.current[i + 1];
-
-      if (currentCard && nextCard) {
-        const top = currentCard.offsetTop + currentCard.offsetHeight / 2 - 1;
-        const left = currentCard.offsetLeft + currentCard.offsetWidth;
-        const width = nextCard.offsetLeft - left;
-
+      const current = cardsRef.current[i];
+      const next = cardsRef.current[i + 1];
+      if (current && next) {
+        const top = current.offsetTop + current.offsetHeight / 2 - 1;
+        const left = current.offsetLeft + current.offsetWidth;
+        const width = next.offsetLeft - left;
         newConnectors.push({ top, left, width });
       }
     }
     setConnectors(newConnectors);
+  };
+
+  useEffect(() => {
+    updateConnectors();
   }, [activeSession, timelineExpanded, prompt]);
+
+  useEffect(() => {
+    const handleResize = () => updateConnectors();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeSession]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -50,8 +67,8 @@ export default function Chat() {
   }, []);
 
   const handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
     try {
+      const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (err) {
       console.error("Login failed:", err);
@@ -108,6 +125,7 @@ export default function Chat() {
         )
       );
     }
+
     setPrompt("");
   };
 
@@ -125,34 +143,47 @@ export default function Chat() {
     setActiveSessionId(newSession.id);
   };
 
-  const getTopKeywords = (session) => {
-    if (!session?.messages?.length) return [];
-
-    const stopWords = new Set([
-      "the", "is", "and", "to", "in", "of", "a", "an", "for", "on", "it", "this", "that",
-      "i", "you", "with", "are", "be", "was", "at", "as", "by", "we", "our", "or", "from",
-      "my", "your", "they", "have", "has", "do", "did", "what", "who", "how", "where", "when"
-    ]);
-
-    const wordCounts = {};
-
-    session.messages.forEach((msg) => {
-      const words = msg.question
-        .toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .split(/\s+/);
-
-      words.forEach((word) => {
-        if (!stopWords.has(word) && word.length > 2) {
-          wordCounts[word] = (wordCounts[word] || 0) + 1;
-        }
-      });
+  const handleRightClick = (e, sessionId) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.pageX,
+      y: e.pageY,
+      sessionId,
     });
+  };
 
-    return Object.entries(wordCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([word]) => word);
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+    setSessionToDelete(contextMenu?.sessionId);
+    setContextMenu(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!sessionToDelete || !user) return;
+
+    setChatSessions((prev) => prev.filter((s) => s.id !== sessionToDelete));
+    if (activeSessionId === sessionToDelete) setActiveSessionId(null);
+
+    try {
+      await fetch("/api/delete_chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.uid,
+          session_id: sessionToDelete,
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to delete remotely:", err);
+    }
+
+    setShowDeleteConfirm(false);
+    setSessionToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setSessionToDelete(null);
   };
 
   return (
@@ -188,36 +219,23 @@ export default function Chat() {
                   className="timeline-card"
                   key={idx}
                   ref={(el) => (cardsRef.current[idx] = el)}
-                  style={{
-                    position: "relative",
-                    whiteSpace: "normal",
-                    wordWrap: "break-word",
-                    overflowWrap: "break-word"
-                  }}
                 >
                   <div className="timestamp">{timestamp}</div>
                   <div className="question">{question}</div>
                   <div className="answer">{response}</div>
                 </div>
               ))}
-
               {connectors.map(({ top, left, width }, i) => (
                 <div
-                  key={"connector-" + i}
+                  key={`connector-${i}`}
+                  className="connector-line"
                   style={{
-                    position: "absolute",
-                    top: top,
-                    left: left,
-                    width: width,
-                    height: 2,
-                    backgroundColor: "#8b91a9",
-                    borderRadius: 1,
-                    pointerEvents: "none",
-                    zIndex: 5,
+                    top,
+                    left,
+                    width,
                   }}
                 />
               ))}
-
               <div ref={endRef} />
             </div>
           )}
@@ -251,14 +269,38 @@ export default function Chat() {
             key={session.id}
             className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
             onClick={() => handleSelectSession(session.id)}
+            onContextMenu={(e) => handleRightClick(e, session.id)}
           >
             <div className="capsule-title">{session.title}</div>
             <div className="capsule-stats">
-              <span>{session.messages.length} Questions </span>
+              <span>{session.messages.length} Questions</span>
             </div>
           </div>
         ))}
       </section>
+
+      {contextMenu && (
+        <div
+          className="context-menu"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <div className="context-menu-item" onClick={handleDeleteClick}>
+            Delete
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="confirm-popup">
+          <div className="confirm-box">
+            <p>Are you sure you want to delete?</p>
+            <div className="confirm-buttons">
+              <button onClick={handleConfirmDelete}>Yes</button>
+              <button onClick={handleCancelDelete}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

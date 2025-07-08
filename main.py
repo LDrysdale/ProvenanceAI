@@ -2,14 +2,13 @@
 
 import logging
 import os
-
-from dotenv import load_dotenv
-load_dotenv()
-
 import re
 import aiofiles
 import shutil
 from typing import List, Optional
+
+from dotenv import load_dotenv
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,10 +31,10 @@ from redis_chat_history import store_chat_message, get_chat_history
 import firebase_admin
 from firebase_admin import credentials, auth as firebase_auth
 
-
+# --- Upstash Redis ---
+import httpx
 
 # --- Configuration constants ---
-# --- Configuration from environment (.env) ---
 USE_LOCAL_DATA = os.getenv("USE_LOCAL_DATA", "0") == "1"
 MOCK_USERS_FILE = os.getenv("MOCK_USERS_FILE", "tests/datasets/mock_users.json")
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
@@ -48,8 +47,11 @@ FIREBASE_CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH", "credentials/
 MODEL_PATH = os.getenv("MODEL_PATH", "mistral-7b-instruct-v0.1.Q2_K.gguf")
 VECTOR_STORE_DIR = "./data/vector_store"
 
+UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL")
+UPSTASH_REDIS_REST_TOKEN = os.getenv("UPSTASH_REDIS_REST_TOKEN")
+
 if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)  # Update with your path
+    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
     firebase_admin.initialize_app(cred)
 
 # --- Rate limiter ---
@@ -182,7 +184,6 @@ async def get_user_id_from_token(credentials: HTTPAuthorizationCredentials = Dep
 
 @app.get("/session/me")
 async def get_current_user(request: Request):
-    # This endpoint can stay as is or be updated to use Firebase token similarly
     user_id = request.headers.get("X-User-Id")
     user_email = request.headers.get("X-User-Email")
     user_role = request.headers.get("X-User-Role")
@@ -201,7 +202,7 @@ async def ask_endpoint(
     message: str = Form(...),
     context: Optional[str] = Form(""),
     images: Optional[List[UploadFile]] = File(None),
-    user_id: str = Depends(get_user_id_from_token),  # Enforce Firebase auth here
+    user_id: str = Depends(get_user_id_from_token),
 ):
     global vector_store
     user_input = sanitize_input(message)
@@ -232,10 +233,7 @@ async def ask_endpoint(
         else:
             vector_store.add_documents([doc])
         persist_vector_store()
-
-        # Store chat message to Redis
         await store_chat_message(user_id, user_input, response_text)
-
     except Exception as e:
         logger.error("Ask endpoint failed", exc_info=True)
         raise HTTPException(500, detail="Internal Server Error")
@@ -249,10 +247,38 @@ async def ask_endpoint(
 @app.get("/chat/history")
 async def fetch_chat_history(
     limit: int = 50,
-    user_id: str = Depends(get_user_id_from_token),  # Enforce Firebase auth
+    user_id: str = Depends(get_user_id_from_token),
 ):
     history = await get_chat_history(user_id, limit)
     return {
         "user_id": user_id,
         "history": history
     }
+
+@app.post("/api/delete_chat")
+async def delete_chat_session(
+    request: Request,
+    user_id: str = Depends(get_user_id_from_token)
+):
+    try:
+        data = await request.json()
+        session_id = data.get("session_id")
+        if not session_id:
+            raise HTTPException(status_code=400, detail="Missing session_id")
+
+        key = f"chat_history:{user_id}:{session_id}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{UPSTASH_REDIS_REST_URL}/del/{key}",
+                headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"}
+            )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Failed to delete session in Redis")
+
+        return {"status": "deleted", "session_id": session_id}
+
+    except Exception as e:
+        logger.error("Delete chat failed", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to delete chat session")
