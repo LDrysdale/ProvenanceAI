@@ -307,7 +307,7 @@ body {
   background-color: white;
   border-radius: 50%;
   box-shadow: 0 0 4px rgba(0,0,0,0.1);
-  z-index: 1000;
+  
 }
 
 .logo-text-circle {
@@ -352,7 +352,7 @@ body {
   top: 10px;
   right: 10px;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 1;
   padding: 6px;
 }
 
@@ -470,6 +470,11 @@ body {
 
 .nav-circle-btn:hover {
   color: #a5b4fc; /* or any hover effect */
+}
+
+.nav-header {
+  position: relative; /* or fixed if you want it to stay on top while scrolling */
+  z-index: 1000000; /* a high enough number to stay in front */
 }
 
 

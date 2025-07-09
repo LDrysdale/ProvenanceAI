@@ -8,10 +8,12 @@ import Login from "./Login";
 import Signup from "./Signup";
 import Chat from "./Chat";
 import PasswordReset from "./PasswordReset";
+import Settings from "./Settings";
+
 
 // Placeholder components for navigation
 const Home = () => <div style={{ padding: "2rem" }}><h2>Home Page</h2></div>;
-const Settings = () => <div style={{ padding: "2rem" }}><h2>Settings Page</h2></div>;
+// const Settings = () => <div style={{ padding: "2rem" }}><h2>Settings Page</h2></div>;
 const Help = () => <div style={{ padding: "2rem" }}><h2>Help Page</h2></div>;
 
 function ProtectedRoute({ children }) {

@@ -1,0 +1,27 @@
+/* src/Settings.css */
+.settings-page {
+  padding: 2rem;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.back-button {
+  padding: 0.5rem 1rem;
+  background-color: #eee;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.settings-content {
+  margin-top: 1.5rem;
+}
+
+.settings-content section {
+  margin-bottom: 2rem;
+}

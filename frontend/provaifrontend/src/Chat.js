@@ -11,6 +11,9 @@ import { auth } from "./firebase";
 import "./Chat.css";
 import logo from "./logo.svg";
 import { useLocation, useNavigate } from "react-router-dom";
+import AuthButton from "./AuthButton";
+
+
 
 export default function Chat() {
   const [user, setUser] = useState(null);
@@ -377,13 +380,12 @@ useEffect(() => {
           <img src={logo} alt="Logo" />
         </div>
         Chat Timeline Interface
-        <div
-          className="auth-icon"
-          onClick={user ? handleLogout : handleLogin}
-          title={user ? "Logout" : "Login"}
-        >
-          {user ? <FaSignOutAlt size={20} /> : <FaSignInAlt size={20} />}
-        </div>
+        <AuthButton
+          isLoggedIn={!!user}
+          handleLogin={handleLogin}
+          handleLogout={handleLogout}
+        />
+
       </header>
 
       <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
