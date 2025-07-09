@@ -106,6 +106,7 @@ body {
   background-color: #ffffff;
   width: 100%;
   z-index: 10;
+  
 }
 
 
@@ -135,6 +136,7 @@ body {
   box-shadow: none;         /* <-- no shadow */
   border: none;             /* <-- no border */
   outline: none;
+  overflow-x: auto;
  
 }
 
@@ -166,6 +168,23 @@ body {
 .timeline-card + .timeline-card {
   border-top: 1px solid #d1d5db;
 }
+
+.timeline-overlay {
+  overflow: auto;
+  cursor: grab;
+}
+
+.timeline-overlay {
+  cursor: grab;
+  overflow: hidden;
+  transform-origin: 0 0; /* for zooming from top-left */
+  transition: transform 0.2s ease-out;
+}
+
+.timeline-overlay.dragging {
+  cursor: grabbing;
+}
+
 
 .question {
   font-weight: 600;
