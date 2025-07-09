@@ -30,7 +30,8 @@ export default function Chat() {
   const navigate = useNavigate();
   const path = location.pathname;
 
-  const activeNav = path === "/" ? "chat" : path.replace("/", "");
+  const activeNav = path === "/" ? "home" : path.replace("/", "");
+
 
   const [contextMenu, setContextMenu] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -345,7 +346,7 @@ useEffect(() => {
           className={`nav-circle-btn ${activeNav === "home" ? "active-nav-icon" : ""}`}
           style={{ '--i': 0 }}
           title="Home"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
         >
           🏠
         </button>
