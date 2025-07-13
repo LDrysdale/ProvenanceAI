@@ -7,6 +7,8 @@ import aiofiles
 import shutil
 import uuid  # For generating chat_id
 from typing import List, Optional
+from datetime import datetime
+import json
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -26,7 +28,7 @@ from langchain.docstore.document import Document
 from agents.router import route_to_agent
 from agents.utils import categorize_question
 
-from redis_chat_history import store_chat_message, get_chat_history
+from redis_chat_history import get_chat_history, store_diary_activity
 
 # --- Firebase Admin SDK ---
 import firebase_admin
@@ -170,6 +172,7 @@ def validate_upload_file(upload_file: UploadFile):
 
 # --- Firebase Token Verification Dependency ---
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
 
 security = HTTPBearer()
 
@@ -180,6 +183,27 @@ async def get_user_id_from_token(credentials: HTTPAuthorizationCredentials = Dep
         return decoded_token["uid"]
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired Firebase token")
+
+# --- New Redis chat storage function ---
+async def store_chat_message(user_id, question, answer, chat_id, chat_subject):
+    key = f"chat_history:{user_id}:{chat_id}"
+    now_iso = datetime.utcnow().isoformat()
+    record = {
+        "question": question,
+        "answer": answer,
+        "createdAt": now_iso,
+        "chat_id": chat_id,
+        "chat_subject": chat_subject,
+        "activityCategory": "Chat",
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{UPSTASH_REDIS_REST_URL}/rpush/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"},
+            content=json.dumps(record),
+        )
+    if response.status_code != 200:
+        raise Exception(f"Failed to store chat message in Redis: {response.text}")
 
 # --- API Endpoints ---
 
@@ -241,6 +265,7 @@ async def ask_endpoint(
         persist_vector_store()
 
         try:
+            # <-- Here is the updated store call -->
             await store_chat_message(user_id, user_input, response_text, chat_id, chat_subject)
         except Exception as redis_exc:
             logger.error(f"Failed to store chat message in Redis: {redis_exc}")
@@ -273,6 +298,36 @@ async def fetch_chat_history(
         "chat_id": chat_id,
         "history": history
     }
+
+# --- Diary API ---
+
+class DiaryEntryIn(BaseModel):
+    chat_id: str
+    diary_entry: str
+    diary_status: str  # "Entry" or "Deletion"
+    diary_date: str
+
+@app.post("/api/diary")
+async def diary_endpoint(
+    data: DiaryEntryIn,
+    user_id: str = Depends(get_user_id_from_token),
+):
+    if data.diary_status not in ("Entry", "Deletion"):
+        raise HTTPException(status_code=400, detail="Invalid diary_status")
+
+    try:
+        await store_diary_activity(
+            user_id=user_id,
+            chat_id=data.chat_id,
+            diary_entry=data.diary_entry,
+            diary_status=data.diary_status,
+            diary_date=data.diary_date,
+        )
+    except Exception as e:
+        logger.error(f"Failed to store diary activity: {e}")
+        raise HTTPException(status_code=500, detail="Failed to store diary activity")
+
+    return {"success": True}
 
 @app.post("/api/delete_chat")
 async def delete_chat_session(
