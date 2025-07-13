@@ -22,6 +22,7 @@ async def store_chat_message(
     answer: str,
     chat_id: str,
     chat_subject: str,
+    activity_category: str = "Chat",
 ):
     key = f"chat_history:{user_id}:{chat_id}"
     now_iso = datetime.utcnow().isoformat()
@@ -31,10 +32,10 @@ async def store_chat_message(
         "createdAt": now_iso,
         "chat_id": chat_id,
         "chat_subject": chat_subject,
+        "activityCategory": activity_category,
     }
 
     async with httpx.AsyncClient() as client:
-        # Use LPUSH to prepend new messages to the list
         response = await client.post(
             f"{UPSTASH_REDIS_REST_URL}/lpush/{key}",
             headers=HEADERS,
@@ -42,6 +43,38 @@ async def store_chat_message(
         )
         if response.status_code != 200:
             raise RuntimeError(f"Failed to store chat message: {response.text}")
+
+async def store_diary_activity(
+    user_id: str,
+    chat_id: str,
+    diary_entry: str,
+    diary_status: str,  # "Entry" or "Deletion"
+    diary_date: str = None,
+    chat_subject: str = None  # optional if needed
+):
+    key = f"chat_history:{user_id}:{chat_id}"
+    now_iso = datetime.utcnow().isoformat()
+    record = {
+        "diaryEntry": diary_entry,
+        "diaryStatus": diary_status,
+        "createdAt": now_iso,
+        "chat_id": chat_id,
+        "activityCategory": "Diary",
+        "userId": user_id,
+    }
+    if diary_date:
+        record["diaryDate"] = diary_date
+    if chat_subject:
+        record["chat_subject"] = chat_subject
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{UPSTASH_REDIS_REST_URL}/lpush/{key}",
+            headers=HEADERS,
+            content=json.dumps(record)
+        )
+        if response.status_code != 200:
+            raise RuntimeError(f"Failed to store diary activity: {response.text}")
 
 async def get_chat_history(key: str, limit: int = 50):
     async with httpx.AsyncClient() as client:
@@ -51,7 +84,6 @@ async def get_chat_history(key: str, limit: int = 50):
         )
         if res.status_code == 200:
             data = res.json()
-            # Redis returns a list of JSON strings, decode each
             results = data.get("result", [])
             history = []
             for item in results:
