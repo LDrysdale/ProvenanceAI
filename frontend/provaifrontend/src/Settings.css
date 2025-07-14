@@ -94,3 +94,24 @@
 }
 
 
+.password-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap; /* allows wrapping on smaller screens */
+}
+
+.password-row label {
+  flex: 1;
+  min-width: 200px;
+}
+
+.settings-document p {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.settings-document p:first-of-type {
+  margin-top: 0.5rem;
+}
+

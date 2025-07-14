@@ -37,7 +37,8 @@ export default function UserProfile() {
 
   return (
     <section>
-      <h3>User Profile</h3>
+      <h3>🧑‍💼 User Profile</h3>
+      <p><strong>Display Name:</strong>{user.displayName || "Not set"}</p>
       <p><strong>Email:</strong> {user.email}</p>
       <label>
         <strong>Display Name:</strong>
@@ -47,7 +48,7 @@ export default function UserProfile() {
           style={{ marginLeft: "1rem" }}
         />
       </label>
-      <button onClick={handleUpdate} style={{ marginLeft: "1rem" }}>
+      <button onClick={handleUpdate} style={{}}>
         Update
       </button>
       <p>{status}</p>

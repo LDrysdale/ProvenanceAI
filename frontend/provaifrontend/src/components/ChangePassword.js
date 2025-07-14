@@ -32,22 +32,24 @@ export default function ChangePassword() {
   return (
     <section>
       <h3>Change Password</h3>
-      <div>
-        <input
-          type="password"
-          placeholder="Current password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-        />
-      </div>
-      <div>
-        <input
-          type="password"
-          placeholder="New password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </div>
+        <div className="password-row">
+        <label>
+            Current Password:
+            <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+        </label>
+        <label>
+            New Password:
+            <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            />
+        </label>
+        </div>
       <button onClick={handleChange}>Update Password</button>
       <p>{status}</p>
     </section>
