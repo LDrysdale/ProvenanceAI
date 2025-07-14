@@ -1,22 +1,10 @@
 // frontend/provaifrontend/src/Chat.js
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { FaPlus, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
-import { auth } from "./firebase";
+import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
-import logo from "./logo.svg";
-import { useLocation, useNavigate } from "react-router-dom";
-import AuthButton from "./AuthButton";
-
-
+import TopOfPage from "./TopOfPage";
 
 export default function Chat() {
-  const [user, setUser] = useState(null);
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [prompt, setPrompt] = useState("");
@@ -25,13 +13,7 @@ export default function Chat() {
 
   const endRef = useRef(null);
   const cardsRef = useRef([]);
-  const scrollRef = useRef(null); // ✅ Ref for drag scroll
-  const location = useLocation();
-  const navigate = useNavigate();
-  const path = location.pathname;
-
-  const activeNav = path === "/" ? "home" : path.replace("/", "");
-
+  const scrollRef = useRef(null);
 
   const [contextMenu, setContextMenu] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -69,30 +51,6 @@ export default function Chat() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [updateConnectors]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error("Login failed:", err);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -169,25 +127,9 @@ export default function Chat() {
     setContextMenu(null);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!sessionToDelete || !user) return;
-
+  const handleConfirmDelete = () => {
     setChatSessions((prev) => prev.filter((s) => s.id !== sessionToDelete));
     if (activeSessionId === sessionToDelete) setActiveSessionId(null);
-
-    try {
-      await fetch("/api/delete_chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.uid,
-          session_id: sessionToDelete,
-        }),
-      });
-    } catch (err) {
-      console.error("Failed to delete remotely:", err);
-    }
-
     setShowDeleteConfirm(false);
     setSessionToDelete(null);
   };
@@ -197,211 +139,114 @@ export default function Chat() {
     setSessionToDelete(null);
   };
 
-useEffect(() => {
-  const scrollEl = scrollRef.current;
-  if (!scrollEl) return;
+  // Drag scroll logic
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
 
-  let isDown = false;
-  let startX;
-  let startY;
-  let scrollLeft;
-  let scrollTop;
+    let isDown = false;
+    let startX, startY, scrollLeft, scrollTop;
+    let velocityX = 0, velocityY = 0;
+    let momentumID;
+    let lastMoveTime = 0, lastX = 0, lastY = 0;
 
-  // For momentum
-  let velocityX = 0;
-  let velocityY = 0;
-  let momentumID;
+    const momentumScroll = () => {
+      velocityX *= 0.95;
+      velocityY *= 0.95;
 
-  let lastMoveTime = 0;
-  let lastX = 0;
-  let lastY = 0;
+      if (Math.abs(velocityX) > 0.5 || Math.abs(velocityY) > 0.5) {
+        scrollEl.scrollLeft -= velocityX;
+        scrollEl.scrollTop -= velocityY;
+        momentumID = requestAnimationFrame(momentumScroll);
+      } else {
+        cancelAnimationFrame(momentumID);
+      }
+    };
 
-  const momentumScroll = () => {
-    velocityX *= 0.95;
-    velocityY *= 0.95;
-
-    if (Math.abs(velocityX) > 0.5 || Math.abs(velocityY) > 0.5) {
-      scrollEl.scrollLeft -= velocityX;
-      scrollEl.scrollTop -= velocityY;
-      momentumID = requestAnimationFrame(momentumScroll);
-    } else {
+    const handleStart = (pageX, pageY) => {
+      isDown = true;
+      scrollEl.classList.add("dragging");
+      startX = pageX - scrollEl.offsetLeft;
+      startY = pageY - scrollEl.offsetTop;
+      scrollLeft = scrollEl.scrollLeft;
+      scrollTop = scrollEl.scrollTop;
+      lastX = pageX;
+      lastY = pageY;
+      lastMoveTime = Date.now();
       cancelAnimationFrame(momentumID);
-    }
-  };
+      velocityX = 0;
+      velocityY = 0;
+    };
 
-  const handleStart = (pageX, pageY) => {
-    isDown = true;
-    scrollEl.classList.add("dragging");
-    startX = pageX - scrollEl.offsetLeft;
-    startY = pageY - scrollEl.offsetTop;
-    scrollLeft = scrollEl.scrollLeft;
-    scrollTop = scrollEl.scrollTop;
+    const handleMove = (pageX, pageY) => {
+      if (!isDown) return;
 
-    lastX = pageX;
-    lastY = pageY;
-    lastMoveTime = Date.now();
+      const now = Date.now();
+      const dt = now - lastMoveTime || 16;
 
-    cancelAnimationFrame(momentumID);
-    velocityX = 0;
-    velocityY = 0;
-  };
+      const dx = pageX - lastX;
+      const dy = pageY - lastY;
 
-  const handleMove = (pageX, pageY) => {
-    if (!isDown) return;
+      velocityX = (dx / dt) * 16;
+      velocityY = (dy / dt) * 16;
 
-    const now = Date.now();
-    const dt = now - lastMoveTime || 16; // avoid zero division
+      lastX = pageX;
+      lastY = pageY;
+      lastMoveTime = now;
 
-    const dx = pageX - lastX;
-    const dy = pageY - lastY;
+      const x = pageX - scrollEl.offsetLeft;
+      const y = pageY - scrollEl.offsetTop;
+      const walkX = x - startX;
+      const walkY = y - startY;
 
-    velocityX = dx / dt * 16; // normalize velocity to 60fps frame time
-    velocityY = dy / dt * 16;
+      scrollEl.scrollLeft = scrollLeft - walkX;
+      scrollEl.scrollTop = scrollTop - walkY;
+    };
 
-    lastX = pageX;
-    lastY = pageY;
-    lastMoveTime = now;
+    const handleEnd = () => {
+      isDown = false;
+      scrollEl.classList.remove("dragging");
+      momentumID = requestAnimationFrame(momentumScroll);
+    };
 
-    const x = pageX - scrollEl.offsetLeft;
-    const y = pageY - scrollEl.offsetTop;
-    const walkX = x - startX;
-    const walkY = y - startY;
-
-    scrollEl.scrollLeft = scrollLeft - walkX;
-    scrollEl.scrollTop = scrollTop - walkY;
-  };
-
-  const handleEnd = () => {
-    isDown = false;
-    scrollEl.classList.remove("dragging");
-    momentumID = requestAnimationFrame(momentumScroll);
-  };
-
-  // Mouse handlers
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    handleStart(e.pageX, e.pageY);
-  };
-
-  const handleMouseMove = (e) => {
-    e.preventDefault();
-    handleMove(e.pageX, e.pageY);
-  };
-
-  const handleMouseUp = (e) => {
-    e.preventDefault();
-    handleEnd();
-  };
-
-  const handleMouseLeave = (e) => {
-    if (isDown) {
+    scrollEl.addEventListener("mousedown", (e) => {
       e.preventDefault();
-      handleEnd();
-    }
-  };
+      handleStart(e.pageX, e.pageY);
+    });
+    scrollEl.addEventListener("mousemove", (e) => {
+      e.preventDefault();
+      handleMove(e.pageX, e.pageY);
+    });
+    scrollEl.addEventListener("mouseup", handleEnd);
+    scrollEl.addEventListener("mouseleave", handleEnd);
+    scrollEl.addEventListener("touchstart", (e) => handleStart(e.touches[0].pageX, e.touches[0].pageY), { passive: false });
+    scrollEl.addEventListener("touchmove", (e) => handleMove(e.touches[0].pageX, e.touches[0].pageY), { passive: false });
+    scrollEl.addEventListener("touchend", handleEnd);
 
-  // Touch handlers
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    handleStart(touch.pageX, touch.pageY);
-  };
-
-  const handleTouchMove = (e) => {
-    const touch = e.touches[0];
-    handleMove(touch.pageX, touch.pageY);
-  };
-
-  const handleTouchEnd = () => {
-    handleEnd();
-  };
-
-  scrollEl.addEventListener("mousedown", handleMouseDown);
-  scrollEl.addEventListener("mouseleave", handleMouseLeave);
-  scrollEl.addEventListener("mouseup", handleMouseUp);
-  scrollEl.addEventListener("mousemove", handleMouseMove);
-
-  scrollEl.addEventListener("touchstart", handleTouchStart, { passive: false });
-  scrollEl.addEventListener("touchmove", handleTouchMove, { passive: false });
-  scrollEl.addEventListener("touchend", handleTouchEnd);
-
-  return () => {
-    scrollEl.removeEventListener("mousedown", handleMouseDown);
-    scrollEl.removeEventListener("mouseleave", handleMouseLeave);
-    scrollEl.removeEventListener("mouseup", handleMouseUp);
-    scrollEl.removeEventListener("mousemove", handleMouseMove);
-
-    scrollEl.removeEventListener("touchstart", handleTouchStart);
-    scrollEl.removeEventListener("touchmove", handleTouchMove);
-    scrollEl.removeEventListener("touchend", handleTouchEnd);
-
-    cancelAnimationFrame(momentumID);
-  };
-}, []);
-
+    return () => {
+      scrollEl.removeEventListener("mousedown", handleStart);
+      scrollEl.removeEventListener("mousemove", handleMove);
+      scrollEl.removeEventListener("mouseup", handleEnd);
+      scrollEl.removeEventListener("mouseleave", handleEnd);
+      scrollEl.removeEventListener("touchstart", handleStart);
+      scrollEl.removeEventListener("touchmove", handleMove);
+      scrollEl.removeEventListener("touchend", handleEnd);
+      cancelAnimationFrame(momentumID);
+    };
+  }, []);
 
   return (
     <div className="chat-app">
-      <nav className="nav-quarter-circle" aria-label="Main navigation">
-        <button
-          className={`nav-circle-btn ${activeNav === "home" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 0 }}
-          title="Home"
-          onClick={() => navigate("/home")}
-        >
-          🏠
-        </button>
-        <button
-          className={`nav-circle-btn ${activeNav === "chat" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 1 }}
-          title="Chat"
-          onClick={() => navigate("/chat")}
-        >
-          💬
-        </button>
-        <button
-          className={`nav-circle-btn ${activeNav === "settings" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 2 }}
-          title="Settings"
-          onClick={() => navigate("/settings")}
-        >
-          ⚙️
-        </button>
-        <button
-          className={`nav-circle-btn ${activeNav === "help" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 3 }}
-          title="Help"
-          onClick={() => navigate("/help")}
-        >
-          ❓
-        </button>
-      </nav>
-
-      <header className="chat-header">
-        <div className="logo-circle">
-          <img src={logo} alt="Logo" />
-        </div>
-        Chat Timeline Interface
-        <AuthButton
-          isLoggedIn={!!user}
-          handleLogin={handleLogin}
-          handleLogout={handleLogout}
-        />
-
-      </header>
+      <TopOfPage />
 
       <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
         <div
           className="timeline-overlay"
           onClick={() => setTimelineExpanded(!timelineExpanded)}
-          ref={scrollRef} // ✅ Scrollable container for drag
+          ref={scrollRef}
         >
           {activeSession && (
-            <div
-              className="timeline-scroll"
-              role="log"
-              aria-live="polite"
-              style={{ position: "relative" }}
-            >
+            <div className="timeline-scroll" role="log" aria-live="polite" style={{ position: "relative" }}>
               {activeSession.messages.map(({ question, response, timestamp }, idx) => (
                 <div
                   className="timeline-card"
@@ -443,9 +288,7 @@ useEffect(() => {
             rows={2}
             className="prompt-input"
           />
-          <button type="submit" className="submit-button">
-            Send
-          </button>
+          <button type="submit" className="submit-button">Send</button>
         </div>
       </form>
 
@@ -470,9 +313,7 @@ useEffect(() => {
           className="context-menu"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
-          <div className="context-menu-item" onClick={handleDeleteClick}>
-            Delete
-          </div>
+          <div className="context-menu-item" onClick={handleDeleteClick}>Delete</div>
         </div>
       )}
 

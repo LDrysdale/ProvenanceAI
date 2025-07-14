@@ -1,32 +1,36 @@
+/* === GLOBAL STYLES === */
+/* Ensure full height layout and remove default spacing */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-
-
-
+/* === MAIN CONTAINER === */
+/* Wrapper for the entire Home page; controls overall padding and background */
 .home-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 20px;
-  padding: 40px 20px 40px 20px; /* increased top & bottom padding */
+  padding: 0px 00px 20px 00px; /* top, right, bottom, left */
   background-color: #f5f5f5;
   box-sizing: border-box;
 }
 
+/* === GRID LAYOUT === */
+/* Main dashboard grid: left column (profile + ideaboard), right column (diary) */
 .dashboard-grid {
-  flex-grow: 1; /* fills all vertical space left in container */
+  flex-grow: 1;
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 2fr; /* 1/3 left, 2/3 right */
+  grid-template-rows: 1fr 1fr;    /* Two rows for left column */
   gap: 20px;
   margin-top: 20px;
-  height: 100%; /* ensure it fills parent's height */
+  height: 100%;
 }
 
+/* === GENERIC CARD STYLE === */
+/* Shared style for all cards (profile, ideaboard, diary) */
 .card {
   background-color: white;
   border-radius: 16px;
@@ -36,6 +40,8 @@ html, body, #root {
   flex-direction: column;
 }
 
+/* === CARD HEADER === */
+/* Shared header layout for cards: icon + title */
 .card-header {
   display: flex;
   align-items: center;
@@ -43,21 +49,28 @@ html, body, #root {
   margin-bottom: 15px;
 }
 
+/* Icon used inside card headers (Lucide icons) */
 .icon {
   width: 24px;
   height: 24px;
 }
 
+/* === PROFILE CARD === */
+/* Top-left card: displays user info or login button */
 .profile-card {
   grid-row: 1 / 2;
   grid-column: 1 / 2;
 }
 
+/* === IDEABOARD CARD === */
+/* Bottom-left card: placeholder for ideaboard preview */
 .ideaboard-card {
   grid-row: 2 / 3;
   grid-column: 1 / 2;
 }
 
+/* === DIARY CARD === */
+/* Right-side card (spans two rows): contains diary input + entries */
 .diary-card {
   grid-row: 1 / 3;
   grid-column: 2 / 3;
@@ -68,24 +81,27 @@ html, body, #root {
   box-sizing: border-box;
 }
 
+/* === DIARY INPUT SECTION === */
+/* Container for textarea and add button */
 .diary-entry-input {
   flex-shrink: 0;
   margin-bottom: 10px;
 }
 
+/* Diary textarea styling */
 .diary-entry-input textarea {
   flex: 1;
   padding: 8px;
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  resize: vertical; /* allow user to resize vertically */
-  min-height: 60px; /* or adjust as you like */
+  resize: vertical;
+  min-height: 60px;
   width: 100%;
   box-sizing: border-box;
 }
 
-
+/* "Add" button next to diary textarea */
 .diary-entry-input button {
   padding: 8px 12px;
   background-color: #1aaf5d;
@@ -95,6 +111,7 @@ html, body, #root {
   cursor: pointer;
 }
 
+/* Optional character counter (if added later) */
 .char-counter {
   font-size: 12px;
   color: #666;
@@ -103,7 +120,8 @@ html, body, #root {
   margin-bottom: 10px;
 }
 
-
+/* === DIARY ENTRIES LIST === */
+/* Scrollable container for list of diary entries */
 .diary-entries {
   flex: 1;
   overflow-y: auto;
@@ -114,6 +132,8 @@ html, body, #root {
   box-sizing: border-box;
 }
 
+/* === INDIVIDUAL DIARY ENTRY === */
+/* Layout for each diary entry in the list */
 .diary-entry {
   display: flex;
   justify-content: space-between;
@@ -127,30 +147,25 @@ html, body, #root {
   gap: 10px;
 }
 
-
-
-
-
-
-
-
-
-
-
+/* Main text content of a diary entry */
 .entry-text {
   font-weight: 500;
 }
 
+/* Timestamp for diary entry */
 .entry-date {
   font-size: 12px;
   color: #777;
 }
 
+/* Message shown when there are no diary entries */
 .no-entries {
   color: #888;
   font-size: 14px;
 }
 
+/* === LOGIN / LOGOUT BUTTONS === */
+/* Common styles for login/logout buttons */
 .login-button,
 .logout-button {
   margin-top: 10px;
@@ -161,17 +176,20 @@ html, body, #root {
   cursor: pointer;
 }
 
+/* Google login button styling */
 .login-button {
   background-color: #4285f4;
   color: white;
 }
 
+/* Logout button styling */
 .logout-button {
   background-color: #e53e3e;
   color: white;
 }
 
-
+/* === DATE SELECTOR (inside Diary Card) === */
+/* Layout for the date picker and current date label */
 .date-selector {
   display: flex;
   align-items: center;
@@ -180,13 +198,10 @@ html, body, #root {
   font-size: 14px;
 }
 
+/* Styling for <input type="date"> element */
 .date-selector input[type="date"] {
   padding: 6px 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
 }
-
-
-
-

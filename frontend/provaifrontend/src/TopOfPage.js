@@ -1,16 +1,18 @@
-// src/TopOfPage.js
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+// frontend/provaifrontend/src/TopOfPage.js
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
-import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
-import { FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
+import "./Chat.css";
 import logo from "./logo.svg";
+import AuthButton from "./AuthButton";
 
-export default function TopOfPage({ title = "Chat Timeline Interface" }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
+export default function TopOfPage() {
   const [user, setUser] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const path = location.pathname;
+  const activeNav = path === "/" ? "home" : path.replace("/", "");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -36,15 +38,12 @@ export default function TopOfPage({ title = "Chat Timeline Interface" }) {
     }
   };
 
-  const path = location.pathname;
-  const activeNav = path === "/" ? "chat" : path.replace("/", "");
-
   return (
     <>
       <nav className="nav-quarter-circle" aria-label="Main navigation">
         <button
           className={`nav-circle-btn ${activeNav === "home" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 0 }}
+          style={{ "--i": 0 }}
           title="Home"
           onClick={() => navigate("/home")}
         >
@@ -52,7 +51,7 @@ export default function TopOfPage({ title = "Chat Timeline Interface" }) {
         </button>
         <button
           className={`nav-circle-btn ${activeNav === "chat" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 1 }}
+          style={{ "--i": 1 }}
           title="Chat"
           onClick={() => navigate("/chat")}
         >
@@ -60,7 +59,7 @@ export default function TopOfPage({ title = "Chat Timeline Interface" }) {
         </button>
         <button
           className={`nav-circle-btn ${activeNav === "settings" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 2 }}
+          style={{ "--i": 2 }}
           title="Settings"
           onClick={() => navigate("/settings")}
         >
@@ -68,7 +67,7 @@ export default function TopOfPage({ title = "Chat Timeline Interface" }) {
         </button>
         <button
           className={`nav-circle-btn ${activeNav === "help" ? "active-nav-icon" : ""}`}
-          style={{ '--i': 3 }}
+          style={{ "--i": 3 }}
           title="Help"
           onClick={() => navigate("/help")}
         >
@@ -80,16 +79,12 @@ export default function TopOfPage({ title = "Chat Timeline Interface" }) {
         <div className="logo-circle">
           <img src={logo} alt="Logo" />
         </div>
-        {title}
-
-        <div
-          className="auth-icon"
-          onClick={user ? handleLogout : handleLogin}
-          title={user ? "Logout" : "Login"}
-          style={{ position: "absolute", right: "1rem", top: "1rem", cursor: "pointer" }}
-        >
-          {user ? <FaSignOutAlt size={20} /> : <FaSignInAlt size={20} />}
-        </div>
+        Chat Timeline Interface
+        <AuthButton
+          isLoggedIn={!!user}
+          handleLogin={handleLogin}
+          handleLogout={handleLogout}
+        />
       </header>
     </>
   );
