@@ -1,16 +1,28 @@
-// src/Settings.js
 import React from "react";
 import TopOfPage from "./TopOfPage";
+import "./Settings.css";
+
+import UserProfile from "./components/UserProfile";
+import NotificationSettings from "./components/NotificationSettings";
+import ChangePassword from "./components/ChangePassword";
+import AccountManagement from "./components/AccountManagement";
 
 export default function Settings() {
   return (
     <div className="chat-app">
       <TopOfPage title="Settings" />
 
-      <main className="settings-container" style={{ padding: "2rem" }}>
-        <h2>Settings Page</h2>
-        <p>This is where you'll configure app preferences.</p>
-        {/* Add settings form or options here later */}
+      <main className="settings-page">
+        <div className="settings-document">
+          <h2>Settings</h2>
+          <UserProfile />
+          <hr />
+          <NotificationSettings />
+          <hr />
+          <ChangePassword />
+          <hr />
+          <AccountManagement />
+        </div>
       </main>
     </div>
   );

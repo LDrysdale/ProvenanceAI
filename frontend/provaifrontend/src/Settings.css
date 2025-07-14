@@ -1,27 +1,96 @@
 /* src/Settings.css */
+
 .settings-page {
-  padding: 2rem;
-}
-
-.settings-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  padding: 2rem;
+  padding-top: 5rem; 
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 100px); /* adjust for TopOfPage height if needed */
+}
+
+.settings-document {
+  background: white;
+  max-width: 800px;
+  width: 100%;
+  padding: 3rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Typography & section styling */
+.settings-document section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.settings-document h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+/* Labels and inputs */
+.settings-document label {
+  display: flex;
   align-items: center;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  color: #333;
 }
 
-.back-button {
-  padding: 0.5rem 1rem;
-  background-color: #eee;
+.settings-document input[type="text"],
+.settings-document input[type="password"],
+.settings-document input[type="email"],
+.settings-document input[type="checkbox"] {
+  margin-left: 0.25rem;
+  padding: 0.25rem 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.settings-document input[type="checkbox"] {
+  margin-right: 0.25rem;
+}
+
+/* Buttons */
+.settings-document button {
+  margin-top: 0.25rem;
+  margin-left: 0.25rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #0078d4;
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: bold;
+  transition: background-color 0.2s ease;
 }
 
-.settings-content {
-  margin-top: 1.5rem;
+.settings-document button:hover {
+  background-color: #005fa3;
 }
 
-.settings-content section {
-  margin-bottom: 2rem;
+/* Status messages */
+.settings-document p {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: #555;
 }
+
+/* Confirmation warning (e.g., for account deletion) */
+.settings-document .warning {
+  color: #d93025;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.settings-document hr {
+  display: none;
+}
+
+
