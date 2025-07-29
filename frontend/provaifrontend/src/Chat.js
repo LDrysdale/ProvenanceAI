@@ -1,8 +1,8 @@
-// frontend/provaifrontend/src/Chat.js
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
 import TopOfPage from "./TopOfPage";
+import useDragAndDrop from "./components/clickanddrag";
 
 export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -14,6 +14,7 @@ export default function Chat() {
   const endRef = useRef(null);
   const cardsRef = useRef([]);
   const scrollRef = useRef(null);
+  useDragAndDrop(scrollRef);
 
   const [contextMenu, setContextMenu] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -138,102 +139,6 @@ export default function Chat() {
     setShowDeleteConfirm(false);
     setSessionToDelete(null);
   };
-
-  // Drag scroll logic
-  useEffect(() => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl) return;
-
-    let isDown = false;
-    let startX, startY, scrollLeft, scrollTop;
-    let velocityX = 0, velocityY = 0;
-    let momentumID;
-    let lastMoveTime = 0, lastX = 0, lastY = 0;
-
-    const momentumScroll = () => {
-      velocityX *= 0.95;
-      velocityY *= 0.95;
-
-      if (Math.abs(velocityX) > 0.5 || Math.abs(velocityY) > 0.5) {
-        scrollEl.scrollLeft -= velocityX;
-        scrollEl.scrollTop -= velocityY;
-        momentumID = requestAnimationFrame(momentumScroll);
-      } else {
-        cancelAnimationFrame(momentumID);
-      }
-    };
-
-    const handleStart = (pageX, pageY) => {
-      isDown = true;
-      scrollEl.classList.add("dragging");
-      startX = pageX - scrollEl.offsetLeft;
-      startY = pageY - scrollEl.offsetTop;
-      scrollLeft = scrollEl.scrollLeft;
-      scrollTop = scrollEl.scrollTop;
-      lastX = pageX;
-      lastY = pageY;
-      lastMoveTime = Date.now();
-      cancelAnimationFrame(momentumID);
-      velocityX = 0;
-      velocityY = 0;
-    };
-
-    const handleMove = (pageX, pageY) => {
-      if (!isDown) return;
-
-      const now = Date.now();
-      const dt = now - lastMoveTime || 16;
-
-      const dx = pageX - lastX;
-      const dy = pageY - lastY;
-
-      velocityX = (dx / dt) * 16;
-      velocityY = (dy / dt) * 16;
-
-      lastX = pageX;
-      lastY = pageY;
-      lastMoveTime = now;
-
-      const x = pageX - scrollEl.offsetLeft;
-      const y = pageY - scrollEl.offsetTop;
-      const walkX = x - startX;
-      const walkY = y - startY;
-
-      scrollEl.scrollLeft = scrollLeft - walkX;
-      scrollEl.scrollTop = scrollTop - walkY;
-    };
-
-    const handleEnd = () => {
-      isDown = false;
-      scrollEl.classList.remove("dragging");
-      momentumID = requestAnimationFrame(momentumScroll);
-    };
-
-    scrollEl.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      handleStart(e.pageX, e.pageY);
-    });
-    scrollEl.addEventListener("mousemove", (e) => {
-      e.preventDefault();
-      handleMove(e.pageX, e.pageY);
-    });
-    scrollEl.addEventListener("mouseup", handleEnd);
-    scrollEl.addEventListener("mouseleave", handleEnd);
-    scrollEl.addEventListener("touchstart", (e) => handleStart(e.touches[0].pageX, e.touches[0].pageY), { passive: false });
-    scrollEl.addEventListener("touchmove", (e) => handleMove(e.touches[0].pageX, e.touches[0].pageY), { passive: false });
-    scrollEl.addEventListener("touchend", handleEnd);
-
-    return () => {
-      scrollEl.removeEventListener("mousedown", handleStart);
-      scrollEl.removeEventListener("mousemove", handleMove);
-      scrollEl.removeEventListener("mouseup", handleEnd);
-      scrollEl.removeEventListener("mouseleave", handleEnd);
-      scrollEl.removeEventListener("touchstart", handleStart);
-      scrollEl.removeEventListener("touchmove", handleMove);
-      scrollEl.removeEventListener("touchend", handleEnd);
-      cancelAnimationFrame(momentumID);
-    };
-  }, []);
 
   return (
     <div className="chat-app">
