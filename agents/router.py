@@ -16,28 +16,32 @@ def route_to_agent(category, message, pipeline, context="", image_paths=None):
         if category == "email":
             logger.debug("Instantiating EmailAgent")
             agent = EmailAgent(pipeline, context)
-            response = agent.handle(message)
+            message_with_context = f"{agent.build_context()}{message}"
+            response = agent.handle(message_with_context)
             logger.info("EmailAgent handled the request successfully")
             return response
 
         elif category == "summarization":
             logger.debug("Instantiating SummarizationAgent")
             agent = SummarizationAgent(pipeline, context)
-            response = agent.handle(message)
+            message_with_context = f"{agent.build_context()}{message}"
+            response = agent.handle(message_with_context)
             logger.info("SummarizationAgent handled the request successfully")
             return response
 
         elif category == "timeline":
             logger.debug("Instantiating TimelineAgent")
             agent = TimelineAgent(pipeline, context)
-            response = agent.handle(message)
+            message_with_context = f"{agent.build_context()}{message}"
+            response = agent.handle(message_with_context)
             logger.info("TimelineAgent handled the request successfully")
             return response
 
         elif category == "chat":
             logger.debug("Instantiating ChatAgent")
             agent = ChatAgent(pipeline, context)
-            response = agent.handle(message)
+            message_with_context = f"{agent.build_context()}{message}"
+            response = agent.handle(message_with_context)
             logger.info("ChatAgent handled the request successfully")
             return response
 
@@ -46,6 +50,7 @@ def route_to_agent(category, message, pipeline, context="", image_paths=None):
                 logger.warning("Insufficient images uploaded for image merging.")
                 return "Please upload at least two images for merging."
             logger.debug("Calling imagemerge_handle with multiple image support")
+            # Image merge agent might not need context structuring
             response = imagemerge_handle(message, context, image_paths=image_paths)
             logger.info("imagemerge_handle processed the request successfully")
             return response
@@ -55,5 +60,5 @@ def route_to_agent(category, message, pipeline, context="", image_paths=None):
             return f"Sorry, I don't have an agent for the category '{category}'."
 
     except Exception as e:
-        logger.error(f"Error in routing or handling: {str(e)}", exc_info=True)  # Full traceback
+        logger.error(f"Error in routing or handling: {str(e)}", exc_info=True)
         return "Sorry, something went wrong while processing your request."

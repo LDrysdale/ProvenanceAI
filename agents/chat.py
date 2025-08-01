@@ -15,3 +15,8 @@ Assistant: The capital of Italy is Rome.
 User: Tell me a joke.
 Assistant: Why don't scientists trust atoms? Because they make up everything!
 """
+
+    def build_context(self) -> str:
+        if not self.context:
+            return ""
+        return f"Previous chat context:\n{self.context}\n---\n"
