@@ -5,7 +5,7 @@ import os
 import re
 import aiofiles
 import shutil
-import uuid  # For generating chat_id
+import uuid
 from typing import List, Optional
 from datetime import datetime
 import json
@@ -30,20 +30,18 @@ from agents.utils import categorize_question
 
 from redis_chat_history import get_chat_history, store_diary_activity
 
-# --- Firebase Admin SDK ---
 import firebase_admin
 from firebase_admin import credentials, auth as firebase_auth
 
-# --- Upstash Redis ---
 import httpx
 
-# --- Configuration constants ---
+# --- Configuration ---
 USE_LOCAL_DATA = os.getenv("USE_LOCAL_DATA", "0") == "1"
 MOCK_USERS_FILE = os.getenv("MOCK_USERS_FILE", "tests/datasets/mock_users.json")
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 RATE_LIMIT = os.getenv("RATE_LIMIT", "5/minute")
 MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "5"))
-MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024  # Convert MB to bytes
+MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024
 ALLOWED_FILE_TYPES = os.getenv("ALLOWED_FILE_TYPES", "image/png,image/jpeg").split(",")
 
 FIREBASE_CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH", "credentials/firebase-adminsdk.json")
@@ -63,10 +61,7 @@ limiter = Limiter(key_func=get_remote_address)
 # --- Logging ---
 logger = logging.getLogger("app_logger")
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter(
-    "%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+formatter = logging.Formatter("%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 file_handler = logging.FileHandler("app.log")
@@ -74,7 +69,7 @@ file_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
-# --- FastAPI setup ---
+# --- FastAPI app ---
 app = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -152,7 +147,7 @@ def require_role(required_roles: List[str]):
         return {"role": role}
     return role_checker
 
-# --- Sanitization helpers ---
+# --- Sanitization ---
 def sanitize_input(text: str) -> str:
     clean = re.sub(r"[^\x20-\x7E\n\r\t]", "", text)
     return clean[:500].strip()
@@ -170,7 +165,7 @@ def validate_upload_file(upload_file: UploadFile):
     if upload_file.content_type not in ALLOWED_FILE_TYPES:
         raise HTTPException(400, detail=f"Unsupported file type: {upload_file.content_type}")
 
-# --- Firebase Token Verification Dependency ---
+# --- Firebase Token ---
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
@@ -184,7 +179,16 @@ async def get_user_id_from_token(credentials: HTTPAuthorizationCredentials = Dep
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired Firebase token")
 
-# --- New Redis chat storage function ---
+# --- Chat history helper ---
+def format_chat_history_as_context(history: List[dict], max_turns: int = 5) -> str:
+    context_lines = []
+    for turn in history[-max_turns:]:
+        q = turn.get("question", "")
+        a = turn.get("answer", "")
+        context_lines.append(f"User: {q}\nAI: {a}")
+    return "\n".join(context_lines)
+
+# --- Store chat ---
 async def store_chat_message(user_id, question, answer, chat_id, chat_subject):
     key = f"chat_history:{user_id}:{chat_id}"
     now_iso = datetime.utcnow().isoformat()
@@ -214,11 +218,7 @@ async def get_current_user(request: Request):
     user_role = request.headers.get("X-User-Role")
     if not user_id or not user_email or not user_role:
         raise HTTPException(status_code=401, detail="Unauthorized: Missing user headers")
-    return {
-        "user_id": user_id,
-        "email": user_email,
-        "role": user_role
-    }
+    return {"user_id": user_id, "email": user_email, "role": user_role}
 
 @app.post("/ask")
 @limiter.limit(RATE_LIMIT)
@@ -254,9 +254,30 @@ async def ask_endpoint(
 
     try:
         category = categorize_question(user_input, pipeline)
+
+        redis_key = f"chat_history:{user_id}:{chat_id}"
+        redis_history = await get_chat_history(redis_key, limit=10)
+        redis_context = format_chat_history_as_context(redis_history)
+
+        pinecone_context = ""
+        if vector_store is not None:
+            try:
+                docs = vector_store.similarity_search(user_input, k=3)
+                if docs:
+                    pinecone_context = "\n\n".join([doc.page_content for doc in docs])
+            except Exception as e:
+                logger.warning(f"Vector search failed or vector store empty: {e}")
+                pinecone_context = ""
+        else:
+            # Vector store not loaded or empty
+            pinecone_context = ""
+
+        combined_context = "\n\n".join([redis_context, pinecone_context, context or ""])
+
         response_text = route_to_agent(
-            category, user_input, pipeline, context, image_paths=saved_image_paths
+            category, user_input, pipeline, combined_context.strip(), image_paths=saved_image_paths
         )
+
         doc = Document(page_content=f"Q: {user_input}\nA: {response_text}")
         if vector_store is None:
             vector_store = FAISS.from_documents([doc], embedder)
@@ -265,7 +286,6 @@ async def ask_endpoint(
         persist_vector_store()
 
         try:
-            # <-- Here is the updated store call -->
             await store_chat_message(user_id, user_input, response_text, chat_id, chat_subject)
         except Exception as redis_exc:
             logger.error(f"Failed to store chat message in Redis: {redis_exc}")
@@ -288,10 +308,7 @@ async def fetch_chat_history(
     user_id: str = Depends(get_user_id_from_token),
     chat_id: Optional[str] = None
 ):
-    if chat_id:
-        key = f"chat_history:{user_id}:{chat_id}"
-    else:
-        key = f"chat_history:{user_id}"
+    key = f"chat_history:{user_id}:{chat_id}" if chat_id else f"chat_history:{user_id}"
     history = await get_chat_history(key, limit)
     return {
         "user_id": user_id,
@@ -299,12 +316,10 @@ async def fetch_chat_history(
         "history": history
     }
 
-# --- Diary API ---
-
 class DiaryEntryIn(BaseModel):
     chat_id: str
     diary_entry: str
-    diary_status: str  # "Entry" or "Deletion"
+    diary_status: str
     diary_date: str
 
 @app.post("/api/diary")
@@ -356,6 +371,7 @@ async def delete_chat_session(
     except Exception as e:
         logger.error("Delete chat failed", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to delete chat session")
+
 
 # Example of role check usage (not removing, just example):
 # @app.get("/admin_only")

@@ -1,3 +1,4 @@
 mistral-7b-instruct-v0.1.Q2_K.gguf
 serviceAccountKey.json
 gcp-dev.json
+venv/

@@ -5,7 +5,7 @@ Minimal Retrieval-Augmented Generation backend using FastAPI, LangChain-communit
 ## Setup
 
 # 1. Go to your project folder
-cd C:\Users\leodr\Desktop\ProvenanceAI
+cd C:\Users\leodr\Desktop\provenanceai-clean
 
 # 2. Create a virtual environment
 python -m venv venv

@@ -16,3 +16,4 @@ def save_vector_store(store):
 def clear_vector_store():
     if os.path.exists(VECTOR_STORE_PATH):
         os.remove(VECTOR_STORE_PATH)
+
