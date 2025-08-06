@@ -1,8 +1,9 @@
-// src/Help.js
 import React, { useState, useEffect } from "react";
-import TopOfPage from "./TopOfPage";
+import TopOfPage from "./components/TopOfPage";
 import { auth } from "./firebase";
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
+import "./Settings.css"; // Ensure you import the styles for .settings-document
+import "./Help.css";
 
 export default function Help() {
   const [user, setUser] = useState(null);
@@ -40,16 +41,30 @@ export default function Help() {
         handleLogout={handleLogout}
       />
 
-      <main className="help-container" style={{ padding: "2rem" }}>
-        <h2>FAQ</h2>
-        <ul>
-          <li><strong>Q:</strong> How do I log in?<br /><strong>A:</strong> Click the icon in the top right corner and sign in with Google.</li>
-          <li><strong>Q:</strong> What is this app for?<br /><strong>A:</strong> It helps you visualize and manage your chat timelines.</li>
-          <li><strong>Q:</strong> Where are my settings?<br /><strong>A:</strong> Click the ⚙️ icon to access your settings.</li>
-          <li><strong>Q:</strong> How do I log out?<br /><strong>A:</strong> Click the logout icon in the top right corner.</li>
-        </ul>
-        {/* Add more questions as needed */}
-      </main>
+        <main className="settings-page">
+          <div className="settings-document">
+            <h2>Frequently Asked Questions</h2>
+            <div className="faq-list">
+              <div className="faq-item">
+                <div className="faq-question">How do I log in?</div>
+                <div className="faq-answer">Click the icon in the top right corner and sign in with Google.</div>
+              </div>
+              <div className="faq-item">
+                <div className="faq-question">What is this app for?</div>
+                <div className="faq-answer">It helps you visualize and manage your chat timelines.</div>
+              </div>
+              <div className="faq-item">
+                <div className="faq-question">Where are my settings?</div>
+                <div className="faq-answer">Click the ⚙️ icon to access your settings.</div>
+              </div>
+              <div className="faq-item">
+                <div className="faq-question">How do I log out?</div>
+                <div className="faq-answer">Click the logout icon in the top right corner.</div>
+              </div>
+              {/* Add more questions as needed */}
+            </div>
+          </div>
+        </main>
     </div>
   );
 }

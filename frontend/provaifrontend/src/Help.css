@@ -1,0 +1,26 @@
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.faq-item {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.faq-question {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+}
+
+.faq-answer {
+  font-size: 1rem;
+  color: #334155;
+  margin-left: 0.5rem;
+}

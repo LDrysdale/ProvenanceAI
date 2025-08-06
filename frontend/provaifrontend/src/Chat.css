@@ -1,11 +1,14 @@
 /* Chat.css */
+/* General styles for the chat application */
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
   background-color: #f9fafb;
   color: #111827;
+  padding: 0.25rem;
 }
 
+/* Main chat application container */
 .chat-app {
   display: flex;
   flex-direction: column;
@@ -13,9 +16,10 @@ body {
   width: 100%;
   overflow: hidden; /* prevent scrollbars on main container */
   background-color: #f9fafb; /* or your preferred background */
+
 }
 
-
+/* Header styles */
 .chat-header {
   position: fixed;
   top: 0;
@@ -35,7 +39,7 @@ body {
   padding: 0 0px;
 }
 
-
+/* Chat history scroll area */
 .chat-history-scroll {
   position: fixed;
   bottom: 0px; /* or whatever height your .prompt-form is */
@@ -52,6 +56,7 @@ body {
 }
 
 /* Updated capsule style for stats below title */
+/* Chat capsule styles */
 .chat-capsule {
   flex: 0 0 auto;
   min-width: 180px;
@@ -68,11 +73,13 @@ body {
   gap: 0.3rem;
 }
 
+/* Hover effect for chat capsules */
 .chat-capsule:hover {
   background-color: #c7d2fe;
   transform: scale(1.03);
 }
 
+/* Active state for chat capsules */
 .chat-capsule.active {
   background-color: #e4eaf5;
   color: white;
@@ -80,12 +87,14 @@ body {
   text-align: center;
 }
 
+/* Capsule title and stats */
 .capsule-title {
   font-size: 0.95rem;
   font-weight: 600;
   color: #1e3a8a;
 }
 
+/* Capsule stats */
 .capsule-stats {
   font-size: 0.7rem;
   color: #4b5563;
@@ -96,6 +105,7 @@ body {
   word-break: break-word;
 }
 
+/* Timeline styles */
 .timeline-container {
   position: absolute;
   top: 50px;                /* directly below the 50px header */
@@ -109,19 +119,23 @@ body {
   
 }
 
-
+/* Timeline overlay styles */
+/* This is the overlay that appears when the timeline is expanded */
 .timeline-overlay {
   margin: 0 !important;
   padding: 0 !important;
 }
 
 
-
+/* Timeline expanded state */
+/* This state is applied when the timeline is expanded */
 .timeline-container.expanded {
   z-index: 10;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+/* Timeline scroll styles */
+/* This is the scrollable area for the timeline */
 .timeline-overlay {
   height: 100%;
   width: 100%;
@@ -140,12 +154,16 @@ body {
  
 }
 
+/* Timeline scroll styles */
+/* This is the scrollable area for the timeline */
 .timeline-scroll {
   display: flex;
   gap: 1.5rem;
   transition: transform 0.3s ease;
 }
 
+/* Timeline card styles */
+/* Each card represents a chat message or interaction */
 .timeline-card {
   width: 400px; /* fixed width, consistent size */
   background: #f3f4f6;
@@ -165,10 +183,16 @@ body {
   margin-bottom: auto;
 }
 
+
+/* Timeline card hover effect */
+/* This effect is applied when hovering over a timeline card */
 .timeline-card + .timeline-card {
   border-top: 1px solid #d1d5db;
 }
 
+
+/* Timeline overlay styles */
+/* This is the overlay that appears when the timeline is expanded */
 .timeline-overlay {
   overflow: auto;
   cursor: grab;
@@ -181,11 +205,14 @@ body {
   transition: transform 0.2s ease-out;
 }
 
+/* Timeline overlay dragging state */
+/* This state is applied when the timeline is being dragged */
 .timeline-overlay.dragging {
   cursor: grabbing;
 }
 
-
+/* Timeline card content styles */
+/* This styles the content inside each timeline card */
 .question {
   font-weight: 600;
   color: #1f2937;
@@ -193,12 +220,16 @@ body {
   margin-bottom: 0.25rem;
 }
 
+/* Answer styles */
+/* This styles the answer text inside each timeline card */
 .answer {
   color: #374151;
   position: relative;
   margin-bottom: 0.25rem;
 }
 
+/* Timestamp styles */
+/* This styles the timestamp text inside each timeline card */
 .timestamp {
   font-size: 0.75rem;
   color: #6b7280;
@@ -298,64 +329,6 @@ body {
 }
 
 
-.auth-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  padding: 8px;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 0 4px rgba(0,0,0,0.1);
-  
-}
-
-.logo-text-circle {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 160px;        /* outer circle size */
-  height: 160px;
-  border-radius: 50%;
-  border: 2px solid #8b91a9; /* circular text area border */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  background: transparent;
-}
-
-.logo-circle {
-  position: fixed;      /* fix it in viewport */
-  top: 10px;            /* 10px from top */
-  left: 10px;           /* 10px from left */
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  background-color: white;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;       /* above everything */
-}
-
-.logo-circle img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.auth-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  z-index: 1;
-  padding: 6px;
-}
-
 
 .context-menu {
   position: absolute;
@@ -410,72 +383,10 @@ body {
 }
 
 
-.nav-quarter-circle {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  pointer-events: auto;
-  z-index: 9999;
-  /* Removed background */
-  /* background: rgba(99, 102, 241, 0.15); */
-  display: block; /* remove flex, we position absolutely inside */
-  padding: 0; /* remove padding */
-  position: relative; /* keep this */
-}
-
-/* Style the icon buttons */
-.nav-circle-btn {
-  position: absolute;
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  font-size: 1.4rem;
-  color: white;
-  transform: translate(-50%, -50%);
-  transition: font-size 0.2s ease;
-}
-
-.nav-circle-btn.active-nav-icon {
-  font-size: 2rem;
-  color: #4f46e5;
-}
 
 
-/* Position each icon */
-.nav-circle-btn:nth-child(1) {
-  top: 25px;
-  left: 115px;
-}
 
-.nav-circle-btn:nth-child(2) {
-  top: 75px;
-  left: 115px;
-}
 
-.nav-circle-btn:nth-child(3) {
-  top: 115px;
-  left: 75px;
-}
-
-.nav-circle-btn:nth-child(4) {
-  top: 112px;
-  left: 20px;
-}
-
-.nav-circle-btn:hover {
-  color: #a5b4fc; /* or any hover effect */
-}
-
-.nav-header {
-  position: relative; /* or fixed if you want it to stay on top while scrolling */
-  z-index: 1000000; /* a high enough number to stay in front */
-}
 
 
 

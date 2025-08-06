@@ -1,5 +1,5 @@
 import React from "react";
-import TopOfPage from "./TopOfPage";
+import TopOfPage from "./components/TopOfPage";
 import "./Settings.css";
 
 import UserProfile from "./components/UserProfile";

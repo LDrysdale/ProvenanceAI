@@ -1,0 +1,129 @@
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 64px;
+  box-sizing: border-box;
+}
+
+.top-header__left {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 0.75rem;
+}
+
+.top-header__logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.top-header__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(106,130,251,0.08);
+  transition: transform 0.2s;
+}
+
+.top-header__title:hover {
+  transform: scale(1.04) rotate(-1deg);
+}
+
+.top-header__title:hover {
+  transform: scale(1.07) rotate(-2deg);
+}
+
+.top-header__nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.top-header__nav-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem 1.1rem;      /* Add horizontal padding for pill shape */
+  border-radius: 999px;        /* Pill shape covers icon + text */
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;                  /* Space between icon and text */
+}
+
+.top-header__nav-btn.active,
+.top-header__nav-btn:hover {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.top-header__auth {
+  margin-left: 1rem;
+}
+
+.top-header__left {
+  order: 1;
+}
+
+.top-header__nav {
+  order: 2;
+  margin-left: 1.5rem; /* space between title and buttons */
+  margin-right: 0;
+}
+
+.top-header__auth {
+  order: 3;
+  margin-left: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 700px) {
+  .top-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 0.5rem;
+    min-height: unset;
+  }
+  .top-header__left {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .top-header__nav {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  .top-header__auth {
+    display: flex;
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+
+/* Add to TopOfPage.css */
+.nav-label {
+  margin-left: 0.1em;
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  .nav-label {
+    display: none; /* Hide text on small screens if you want */
+  }
+}

@@ -1,11 +1,10 @@
-// frontend/provaifrontend/src/TopOfPage.js
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
-import "./Chat.css";
-import logo from "./logo.svg";
-import AuthButton from "./AuthButton";
+import { auth } from "../firebase";
+import "./TopOfPage.css";
+import logo from "../logo.svg";
+import AuthButton from "../AuthButton";
 
 export default function TopOfPage() {
   const [user, setUser] = useState(null);
@@ -39,53 +38,48 @@ export default function TopOfPage() {
   };
 
   return (
-    <>
-      <nav className="nav-quarter-circle" aria-label="Main navigation">
+    <header className="top-header">
+      <div className="top-header__left" onClick={() => navigate("/home")}>
+        <img src={logo} alt="Logo" className="top-header__logo" />
+        <span className="top-header__title">CerebralAI</span>
+      </div>
+          <nav className="top-header__nav" aria-label="Main navigation">
         <button
-          className={`nav-circle-btn ${activeNav === "home" ? "active-nav-icon" : ""}`}
-          style={{ "--i": 0 }}
+          className={`top-header__nav-btn${activeNav === "home" ? " active" : ""}`}
           title="Home"
           onClick={() => navigate("/home")}
         >
-          🏠
+          🏠 <span className="nav-label">Home</span>
         </button>
         <button
-          className={`nav-circle-btn ${activeNav === "chat" ? "active-nav-icon" : ""}`}
-          style={{ "--i": 1 }}
+          className={`top-header__nav-btn${activeNav === "chat" ? " active" : ""}`}
           title="Chat"
           onClick={() => navigate("/chat")}
         >
-          💬
+          💬 <span className="nav-label">Chat</span>
         </button>
         <button
-          className={`nav-circle-btn ${activeNav === "settings" ? "active-nav-icon" : ""}`}
-          style={{ "--i": 2 }}
+          className={`top-header__nav-btn${activeNav === "settings" ? " active" : ""}`}
           title="Settings"
           onClick={() => navigate("/settings")}
         >
-          ⚙️
+          ⚙️ <span className="nav-label">Settings</span>
         </button>
         <button
-          className={`nav-circle-btn ${activeNav === "help" ? "active-nav-icon" : ""}`}
-          style={{ "--i": 3 }}
+          className={`top-header__nav-btn${activeNav === "help" ? " active" : ""}`}
           title="Help"
           onClick={() => navigate("/help")}
         >
-          ❓
+          ❓ <span className="nav-label">Help</span>
         </button>
       </nav>
-
-      <header className="chat-header">
-        <div className="logo-circle">
-          <img src={logo} alt="Logo" />
-        </div>
-        Chat Timeline Interface
+      <div className="top-header__auth">
         <AuthButton
           isLoggedIn={!!user}
           handleLogin={handleLogin}
           handleLogout={handleLogout}
         />
-      </header>
-    </>
+      </div>
+    </header>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import TopOfPage from "./TopOfPage";
+import TopOfPage from "./components/TopOfPage";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { UserCircle, CalendarDays, Lightbulb } from "lucide-react";
 import "./Home.css";

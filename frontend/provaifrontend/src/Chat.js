@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
-import TopOfPage from "./TopOfPage";
+import TopOfPage from "./components/TopOfPage";
 import useDragAndDrop from "./components/clickanddrag";
 
 export default function Chat() {

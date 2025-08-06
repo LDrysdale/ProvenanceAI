@@ -1,8 +1,6 @@
 fastapi
 uvicorn
 langchain-community
-llama-cpp-python
-faiss-cpu
 nltk
 wikipedia
 pydantic
@@ -15,5 +13,11 @@ slowapi
 firebase-admin
 apscheduler
 httpx
-
-
+google-auth
+requests
+python-dotenv
+redis
+google-cloud-aiplatform
+pinecone-client
+google-cloud-bigquery
+google-cloud-storage
