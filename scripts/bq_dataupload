@@ -1,0 +1,41 @@
+import json
+from google.cloud import bigquery
+from datetime import datetime
+
+# Initialize BigQuery client
+client = bigquery.Client()
+
+PROJECT_ID = "your-gcp-project"
+DATASET_ID = "your_dataset"
+TABLE_ID = "chat_history"
+
+table_ref = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
+
+def insert_chat_messages_from_json(json_filepath):
+    with open(json_filepath, 'r') as f:
+        messages = json.load(f)
+
+    # Convert timestamps to ISO format strings if needed
+    rows_to_insert = []
+    for msg in messages:
+        ts = msg.get('timestamp')
+        # If timestamp is already string in ISO format, keep it; else convert if datetime
+        if isinstance(ts, datetime):
+            ts = ts.isoformat()
+        rows_to_insert.append({
+            "conversation_id": msg["conversation_id"],
+            "sender": msg["sender"],
+            "message_text": msg["message_text"],
+            "timestamp": ts,
+        })
+
+    errors = client.insert_rows_json(table_ref, rows_to_insert)
+    if errors:
+        print("Errors occurred while inserting rows:")
+        for error in errors:
+            print(error)
+    else:
+        print(f"Successfully inserted {len(rows_to_insert)} rows from {json_filepath}")
+
+if __name__ == "__main__":
+    insert_chat_messages_from_json("chat_messages.json")

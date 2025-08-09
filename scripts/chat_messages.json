@@ -1,0 +1,19 @@
+[
+  {
+    "question": "Hello, how are you?",
+    "answer": "I'm good, thanks! How can I assist you today?",
+    "createdAt": "2025-08-09T12:00:00Z",
+    "chat_id": "chat_1001",
+    "chat_subject": "General Greeting",
+    "activityCategory": "conversation"
+  },
+  {
+    "question": "Tell me about BigQuery.",
+    "answer": "BigQuery is Google’s fully-managed data warehouse...",
+    "createdAt": "2025-08-09T12:01:00Z",
+    "chat_id": "chat_1002",
+    "chat_subject": "Data Warehousing",
+    "activityCategory": "information"
+  }
+]
+

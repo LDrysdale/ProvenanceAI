@@ -17,6 +17,10 @@ set -euo pipefail
 #   --confirm             Apply changes
 #   --aggressive          Re-add public invoker IAM binding for HTTP Cloud Functions
 
+#./gcp-resume.sh --project=my-project-12345 --confirm
+
+
+
 PROJECT="provaichathistory"
 DRY_RUN=true
 CONFIRM=false

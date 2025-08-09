@@ -291,7 +291,10 @@ async def fetch_chat_history(
         JSON containing user_id, optional chat_id, and message history list
     """
     key = f"chat_history:{user_id}:{chat_id}" if chat_id else f"chat_history:{user_id}"
-    history = await get_chat_history(key, limit)
+
+    # Use the combined get_chat_history to fetch from both Redis and BigQuery
+    history = await get_chat_history(user_id=user_id, chat_id=chat_id, limit=limit)
+
     return {
         "user_id": user_id,
         "chat_id": chat_id,
