@@ -1,8 +1,15 @@
-import dotenv
+import os
 from pinecone import Pinecone, ServerlessSpec
 
+# Load environment variables
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+PINECONE_ENV = os.getenv("PINECONE_ENV")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 
-pc = Pinecone(api_key="********-****-****-****-************")
+
+
+
+pc = Pinecone(api_key="YOUR_API_KEY")
 
 
 index_name = "developer-quickstart-py"
@@ -18,15 +25,13 @@ if not pc.has_index(index_name):
         }
     )
 
-#Upsert_Records
+# Upsert_Records
 
-from pinecone import Pinecone
 
-pc = Pinecone(api_key="YOUR_API_KEY")
 
 # To get the unique host for an index, 
 # see https://docs.pinecone.io/guides/manage-data/target-an-index
-index = pc.Index(host="INDEX_HOST")
+index = pc.Index(PINECONE_INDEX_NAME)
 
 # Upsert records into a namespace
 # `chunk_text` fields are converted to dense vectors
@@ -57,7 +62,7 @@ index.upsert_records(
     ]
 ) 
 
-#Batch Records Upsert
+# Batch Records Upsert
 import random
 import itertools
 from pinecone.grpc import PineconeGRPC as Pinecone

@@ -2,7 +2,7 @@ import os
 import asyncio
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
-import pinecone
+from pinecone import Pinecone, ServerlessSpec
 
 # Load Pinecone environment variables
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -10,8 +10,8 @@ PINECONE_ENV = os.getenv("PINECONE_ENV")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 
 # Initialize Pinecone client and index
-pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENV)
-index = pinecone.Index(PINECONE_INDEX_NAME)
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX_NAME)
 
 # Load model once
 model = SentenceTransformer("all-MiniLM-L6-v2")
