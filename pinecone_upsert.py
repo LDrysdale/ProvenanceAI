@@ -2,29 +2,28 @@ import os
 import asyncio
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 
 # Load Pinecone environment variables
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-PINECONE_ENV = os.getenv("PINECONE_ENV")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+PINECONE_ENV = os.getenv("PINECONE_ENV")
 
 # Initialize Pinecone client and index
-pc = Pinecone(api_key=PINECONE_API_KEY)
+pc = Pinecone(api_key=PINECONE_API_KEY,environment=PINECONE_ENV)
 index = pc.Index(PINECONE_INDEX_NAME)
 
-# Load model once
+# Load embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 def chunk_text(text, max_words=100):
-    """Split text into smaller chunks of max_words length"""
+    """Split text into smaller chunks of max_words length."""
     words = text.split()
     return [" ".join(words[i:i + max_words]) for i in range(0, len(words), max_words)]
 
 async def upsert_to_pinecone(user_id: str, chat_id: str, prompt: str, answer: str, vector_id: str):
-    """Embeds and upserts a prompt/answer pair to Pinecone, with chunking if needed"""
+    """Embed and upsert prompt/answer pairs to Pinecone, with chunking."""
     chunks = chunk_text(prompt)
-
     loop = asyncio.get_event_loop()
     tasks = []
 

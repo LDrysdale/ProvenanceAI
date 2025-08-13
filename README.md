@@ -72,3 +72,40 @@ npm install express
 
 # Installing React Icons
 npm install react-icons
+
+
+
+
+
+
+
+# Loading frontend with backend in Local Testing Environment
+1. Start your backend server
+Navigate to your backend folder (where main.py is):
+
+cd path\to\your\backend
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+
+
+2. Start your React frontend
+Open a new PowerShell window, navigate to your React frontend folder:
+cd path\to\your\frontend
+npm start
+
+3. Open browser
+Go to:
+http://localhost:3000
+
+
+4. Monitor outputs
+Watch backend PowerShell for API request logs/errors.
+Watch frontend PowerShell for React build errors or warnings.
+Use browser dev tools (Console and Network tabs) to inspect requests/responses.
+
+
+
+
+
+
+
+

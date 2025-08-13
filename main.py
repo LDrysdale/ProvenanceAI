@@ -185,9 +185,13 @@ async def ask_endpoint(
     try:
         category = categorize_question(user_input, gemini_generate)
 
-        redis_key = f"chat_history:{user_id}:{chat_id}"
-        redis_history = await get_chat_history(redis_key, limit=10)
-        redis_context = format_chat_history_as_context(redis_history)
+        # Option A: NO chat history context
+        redis_context = ""
+
+        # Option B: if you want chat history as context, pass proper args:
+        # redis_history = await get_chat_history(user_id, chat_id, limit=10)
+        # redis_context = format_chat_history_as_context(redis_history)
+
 
         pinecone_results = query_pinecone(user_id, user_input, top_k=3)
         pinecone_context = "\n\n".join([res["prompt"] + "\n" + res["answer"] for res in pinecone_results])
@@ -220,7 +224,7 @@ async def ask_endpoint(
 
 @app.get("/chat/history")
 async def fetch_chat_history(
-    limit: int = 50,
+    limit: int = 20,
     user_id: str = Depends(get_user_id_from_token),
     chat_id: Optional[str] = None
 ):

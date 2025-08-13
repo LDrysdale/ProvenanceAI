@@ -1,44 +1,62 @@
 import os
-from google.cloud import aiplatform
-from google.oauth2 import service_account
+import traceback
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
-LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro-preview-0409")
-SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "credentials/gcp-key.json")
+# Load environment variables from .env file
+load_dotenv()
 
-credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-def gemini_generate(prompt: str) -> str:
-    client = aiplatform.gapic.PredictionServiceClient(credentials=credentials)
-    endpoint = f"projects/{PROJECT_ID}/locations/{LOCATION}/publishers/google/models/{GEMINI_MODEL}"
-    
-    instance = {"prompt": prompt}
-    
-    # Apply medium safety settings
-    safety_settings = [
-        {"category": "HARM_CATEGORY_DEROGATORY", "threshold": 3},
-        {"category": "HARM_CATEGORY_TOXICITY", "threshold": 3},
-        {"category": "HARM_CATEGORY_VIOLENCE", "threshold": 3},
-        {"category": "HARM_CATEGORY_SEXUAL", "threshold": 3},
-        {"category": "HARM_CATEGORY_MEDICAL", "threshold": 3},
-        {"category": "HARM_CATEGORY_DANGEROUS", "threshold": 3},
-        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": 3},
-        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": 3},
-    ]
-    
-    parameters = {
-        "temperature": 0.7,
-        "maxOutputTokens": 2048,
-        "topP": 0.95,
-        "topK": 40,
-        "safetySettings": safety_settings,
-    }
+if not CREDENTIALS_PATH or not os.path.exists(CREDENTIALS_PATH):
+    raise ValueError("Missing or invalid GOOGLE_APPLICATION_CREDENTIALS path in environment variables.")
 
-    response = client.predict(
-        endpoint=endpoint,
-        instances=[instance],
-        parameters=parameters,
-    )
+# The SDK will automatically use the credentials JSON from the environment variable
+# No need to call genai.configure(api_key=...)
 
-    return response.predictions[0]["content"]
+def gemini_generate(prompt: str, max_output_tokens: int = 2048, temperature: float = 0.7) -> str:
+    """
+    Sends a prompt to Gemini and returns the generated text.
+    Uses the google.generativeai SDK with a service account JSON.
+    """
+    try:
+        print("\n[DEBUG] Initializing Gemini client...")
+        print(f"[DEBUG] Model: {GEMINI_MODEL}")
+        print(f"[DEBUG] Prompt length: {len(prompt)} characters")
+        print(f"[DEBUG] Parameters: max_output_tokens={max_output_tokens}, temperature={temperature}")
+
+        # Medium safety settings
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"}
+        ]
+
+        model = genai.GenerativeModel(GEMINI_MODEL)
+
+        print("[DEBUG] Sending request to Gemini API...")
+        response = model.generate_content(
+            prompt,
+            generation_config={
+                "max_output_tokens": max_output_tokens,
+                "temperature": temperature,
+                "top_p": 0.95,
+                "top_k": 40
+            },
+            safety_settings=safety_settings
+        )
+
+        if hasattr(response, "text") and response.text:
+            output = response.text.strip()
+        else:
+            output = str(response)
+
+        print("[DEBUG] Gemini API call succeeded.")
+        return output
+
+    except Exception as e:
+        print("\n[ERROR] Gemini API call failed:", e)
+        traceback.print_exc()
+        return "Error: Gemini model generation failed"

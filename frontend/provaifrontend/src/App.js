@@ -11,6 +11,9 @@ import Settings from "./Settings";
 import Home from "./Home";
 import Help from "./Help";
 
+/* DEV ONLY - Delete at QA Stage */
+import GetTokenPage from "./frontend_testing/get_token_page";
+
 function ProtectedRoute({ children }) {
   const [user, loading] = useAuthState(auth);
 
@@ -38,6 +41,9 @@ export default function App() {
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+
+        {/* DEV ONLY - Delete at QA Stage */}
+        <Route path="/get-token" element={<GetTokenPage />} />
 
         {/* Catch-all redirects */}
         <Route path="*" element={<Navigate to="/" replace />} />

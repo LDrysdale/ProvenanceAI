@@ -24,3 +24,4 @@ google-cloud-storage
 diffusers
 pinecone
 python-multipart
+google

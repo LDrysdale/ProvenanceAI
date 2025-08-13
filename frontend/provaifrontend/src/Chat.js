@@ -3,6 +3,9 @@ import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
 import TopOfPage from "./components/TopOfPage";
 import useDragAndDrop from "./components/clickanddrag";
+import { auth } from './firebase'; // import your Firebase auth instance
+
+
 
 export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -53,13 +56,46 @@ export default function Chat() {
     return () => window.removeEventListener("resize", handleResize);
   }, [updateConnectors]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!prompt.trim()) return;
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!prompt.trim()) return;
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please sign in first.");
+      return;
+    }
+
+    const token = await user.getIdToken(true); // get fresh Firebase ID token
+
+    const currentSession = chatSessions.find(s => s.id === activeSessionId);
+    const chat_id = currentSession ? currentSession.id : null;
+    const chat_subject = currentSession ? currentSession.title : "General";
+
+    const res = await fetch("http://localhost:8000/ask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,  // Include the token here
+      },
+      body: JSON.stringify({
+        message: prompt,
+        context: "",
+        chat_id,
+        chat_subject,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Backend error: ${res.statusText}`);
+    }
+
+    const data = await res.json();
 
     const newMessage = {
-      question: prompt,
-      response: `Creative reply to: "${prompt}"`,
+      question: data.message,
+      response: data.response,
       timestamp: new Date().toLocaleString([], {
         year: "numeric",
         month: "short",
@@ -69,10 +105,10 @@ export default function Chat() {
       }),
     };
 
-    if (!activeSessionId) {
+    if (!activeSessionId || !currentSession) {
       const newSession = {
-        id: Date.now().toString(),
-        title: prompt.length > 20 ? prompt.slice(0, 17) + "..." : prompt,
+        id: data.chat_id,
+        title: data.chat_subject || (prompt.length > 20 ? prompt.slice(0, 17) + "..." : prompt),
         messages: [newMessage],
       };
       setChatSessions((prev) => [newSession, ...prev]);
@@ -97,7 +133,10 @@ export default function Chat() {
     }
 
     setPrompt("");
-  };
+  } catch (error) {
+    console.error("Error submitting prompt:", error);
+  }
+};
 
   const handleSelectSession = (id) => {
     setActiveSessionId(id);

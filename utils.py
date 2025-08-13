@@ -3,6 +3,8 @@ import aiofiles
 import os
 from fastapi import UploadFile, HTTPException
 import logging
+from gemini_model import gemini_generate
+
 
 logger = logging.getLogger("app_logger")
 

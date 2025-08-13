@@ -88,7 +88,7 @@ UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL")
 UPSTASH_REDIS_REST_TOKEN = os.getenv("UPSTASH_REDIS_REST_TOKEN")
 HEADERS = {"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"}
 
-async def get_chat_history(user_id: str, chat_id: str, limit: int = 50):
+async def get_chat_history(user_id: str, chat_id: str, limit: int = 20):
     """
     Fetch chat history from both Redis (Upstash) and BigQuery, merge, and sort by createdAt (desc).
 

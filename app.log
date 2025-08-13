@@ -34,3 +34,300 @@
 2025-08-11 16:20:00 INFO [main.py:86] - Embedder loaded successfully
 2025-08-11 16:24:13 INFO [main.py:86] - Embedder loaded successfully
 2025-08-11 16:26:50 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 09:43:08 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 10:16:14 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 10:32:34 ERROR [main.py:210] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 189, in ask_endpoint
+    redis_history = await get_chat_history(redis_key, limit=10)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_chat_history() missing 1 required positional argument: 'chat_id'
+2025-08-12 10:38:10 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 10:38:34 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 10:53:03 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 10:53:03 ERROR [main.py:210] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 189, in ask_endpoint
+    redis_history = await get_chat_history(redis_key, limit=10)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_chat_history() missing 1 required positional argument: 'chat_id'
+2025-08-12 10:53:16 ERROR [main.py:210] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 189, in ask_endpoint
+    redis_history = await get_chat_history(redis_key, limit=10)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_chat_history() missing 1 required positional argument: 'chat_id'
+2025-08-12 10:55:46 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 10:55:46 ERROR [main.py:210] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 189, in ask_endpoint
+    redis_history = await get_chat_history(redis_key, limit=10)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_chat_history() missing 1 required positional argument: 'chat_id'
+2025-08-12 11:00:03 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 11:04:34 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 11:05:01 INFO [main.py:86] - Embedder loaded successfully
+2025-08-12 11:05:52 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 14:47:31 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 14:47:58 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 14:50:19 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 14:50:22 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 14:50:22 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 14:50:22 ERROR [router.py:63] - Error in routing or handling: gemini_generate() got an unexpected keyword argument 'max_tokens'
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agents\router.py", line 44, in route_to_agent
+    response = agent.handle(message_with_context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agent_base.py", line 18, in handle
+    return self.pipeline(prompt, max_tokens=150, temperature=0.9).strip()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: gemini_generate() got an unexpected keyword argument 'max_tokens'
+2025-08-13 14:50:22 ERROR [main.py:214] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 206, in ask_endpoint
+    await upsert_to_pinecone(user_id, chat_id, user_input, response_text, vector_id)
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\pinecone_upsert.py", line 48, in upsert_to_pinecone
+    await asyncio.gather(*tasks)
+  File "C:\Program Files\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\pinecone_upsert.py", line 45, in <lambda>
+    task = loop.run_in_executor(None, lambda: index.upsert(vectors=upsert_data))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\utils\error_handling.py", line 30, in inner_func
+    raise e from e
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\utils\error_handling.py", line 15, in inner_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\db_data\index.py", line 212, in upsert
+    return self._upsert_batch(vectors, namespace, _check_type, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\db_data\index.py", line 238, in _upsert_batch
+    return self._vector_api.upsert_vectors(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\endpoint.py", line 102, in __call__
+    return self.callable(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\core\openapi\db_data\api\vector_operations_api.py", line 675, in __upsert_vectors
+    return self.call_with_http_info(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\endpoint.py", line 134, in call_with_http_info
+    return self.api_client.call_api(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 306, in call_api
+    return self.__call_api(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 182, in __call_api
+    raise e
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 170, in __call_api
+    response_data = self.request(
+                    ^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 386, in request
+    return self.rest_client.POST(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_utils.py", line 146, in POST
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_urllib3.py", line 267, in request
+    return raise_exceptions_or_return(r)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_utils.py", line 49, in raise_exceptions_or_return
+    raise PineconeApiException(http_resp=r)
+pinecone.exceptions.exceptions.PineconeApiException: (400)
+Reason: Bad Request
+HTTP response headers: HTTPHeaderDict({'Date': 'Wed, 13 Aug 2025 13:50:22 GMT', 'Content-Type': 'application/json', 'Content-Length': '103', 'Connection': 'keep-alive', 'x-pinecone-request-latency-ms': '35', 'x-pinecone-request-id': '9132175088263103934', 'x-envoy-upstream-service-time': '35', 'server': 'envoy'})
+HTTP response body: {"code":3,"message":"Vector dimension 384 does not match the dimension of the index 1024","details":[]}
+
+2025-08-13 14:55:20 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 14:55:56 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 14:58:09 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:00:38 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:02:44 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:03:12 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:03:37 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:04:00 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:05:20 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:05:46 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:06:20 ERROR [main.py:214] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 196, in ask_endpoint
+    pinecone_results = query_pinecone(user_id, user_input, top_k=3)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\pinecone_query.py", line 20, in query_pinecone
+    response = index.query(
+               ^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\utils\error_handling.py", line 30, in inner_func
+    raise e from e
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\utils\error_handling.py", line 15, in inner_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\db_data\index.py", line 345, in query
+    response = self._query(
+               ^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\db_data\index.py", line 395, in _query
+    return self._vector_api.query_vectors(request, **self._openapi_kwargs(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\endpoint.py", line 102, in __call__
+    return self.callable(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\core\openapi\db_data\api\vector_operations_api.py", line 388, in __query_vectors
+    return self.call_with_http_info(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\endpoint.py", line 134, in call_with_http_info
+    return self.api_client.call_api(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 306, in call_api
+    return self.__call_api(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 182, in __call_api
+    raise e
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 170, in __call_api
+    response_data = self.request(
+                    ^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 386, in request
+    return self.rest_client.POST(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_utils.py", line 146, in POST
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_urllib3.py", line 267, in request
+    return raise_exceptions_or_return(r)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_utils.py", line 49, in raise_exceptions_or_return
+    raise PineconeApiException(http_resp=r)
+pinecone.exceptions.exceptions.PineconeApiException: (400)
+Reason: Bad Request
+HTTP response headers: HTTPHeaderDict({'Date': 'Wed, 13 Aug 2025 14:06:19 GMT', 'Content-Type': 'application/json', 'Content-Length': '103', 'Connection': 'keep-alive', 'x-pinecone-request-latency-ms': '43', 'x-pinecone-request-id': '1701911495037608742', 'x-envoy-upstream-service-time': '38', 'server': 'envoy'})
+HTTP response body: {"code":3,"message":"Vector dimension 384 does not match the dimension of the index 1024","details":[]}
+
+2025-08-13 15:08:41 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:14:53 ERROR [main.py:214] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 196, in ask_endpoint
+    pinecone_results = query_pinecone(user_id, user_input, top_k=3)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\pinecone_query.py", line 20, in query_pinecone
+    response = index.query(
+               ^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\utils\error_handling.py", line 30, in inner_func
+    raise e from e
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\utils\error_handling.py", line 15, in inner_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\db_data\index.py", line 345, in query
+    response = self._query(
+               ^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\db_data\index.py", line 395, in _query
+    return self._vector_api.query_vectors(request, **self._openapi_kwargs(kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\endpoint.py", line 102, in __call__
+    return self.callable(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\core\openapi\db_data\api\vector_operations_api.py", line 388, in __query_vectors
+    return self.call_with_http_info(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\endpoint.py", line 134, in call_with_http_info
+    return self.api_client.call_api(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 306, in call_api
+    return self.__call_api(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 182, in __call_api
+    raise e
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 170, in __call_api
+    response_data = self.request(
+                    ^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\api_client.py", line 386, in request
+    return self.rest_client.POST(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_utils.py", line 146, in POST
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_urllib3.py", line 267, in request
+    return raise_exceptions_or_return(r)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\venv\Lib\site-packages\pinecone\openapi_support\rest_utils.py", line 38, in raise_exceptions_or_return
+    raise UnauthorizedException(http_resp=r)
+pinecone.exceptions.exceptions.UnauthorizedException: (401)
+Reason: Unauthorized
+HTTP response headers: HTTPHeaderDict({'Date': 'Wed, 13 Aug 2025 14:14:52 GMT', 'Content-Type': 'text/plain', 'Content-Length': '12', 'Connection': 'keep-alive', 'x-pinecone-auth-rejected-reason': 'Malformed domain', 'www-authenticate': 'Malformed domain', 'server': 'envoy'})
+HTTP response body: Unauthorized
+
+2025-08-13 15:17:40 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:18:08 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:18:29 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:20:04 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:20:05 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:20:05 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:20:05 ERROR [router.py:63] - Error in routing or handling: gemini_generate() got an unexpected keyword argument 'maxOutputTokens'
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agents\router.py", line 44, in route_to_agent
+    response = agent.handle(message_with_context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agent_base.py", line 18, in handle
+    return self.pipeline(
+           ^^^^^^^^^^^^^^
+TypeError: gemini_generate() got an unexpected keyword argument 'maxOutputTokens'
+2025-08-13 15:22:22 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:22:23 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:22:23 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:22:23 ERROR [router.py:63] - Error in routing or handling: gemini_generate() got an unexpected keyword argument 'maxOutputTokens'
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agents\router.py", line 44, in route_to_agent
+    response = agent.handle(message_with_context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agent_base.py", line 18, in handle
+    return self.pipeline(
+           ^^^^^^^^^^^^^^
+TypeError: gemini_generate() got an unexpected keyword argument 'maxOutputTokens'
+2025-08-13 15:25:02 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:26:26 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:29:01 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:29:02 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:29:02 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:29:03 INFO [router.py:45] - ChatAgent handled the request successfully
+2025-08-13 15:29:03 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:29:03 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:29:04 INFO [router.py:45] - ChatAgent handled the request successfully
+2025-08-13 15:32:05 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:32:50 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:33:30 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:33:30 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:33:30 ERROR [router.py:63] - Error in routing or handling: gemini_generate() got an unexpected keyword argument 'max_output_tokens'
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agents\router.py", line 44, in route_to_agent
+    response = agent.handle(message_with_context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\agent_base.py", line 25, in handle
+    return self.pipeline(
+           ^^^^^^^^^^^^^^
+TypeError: gemini_generate() got an unexpected keyword argument 'max_output_tokens'
+2025-08-13 15:35:41 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:35:42 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:35:42 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:35:43 INFO [router.py:45] - ChatAgent handled the request successfully
+2025-08-13 15:38:24 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:45:14 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:47:45 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:48:39 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:48:40 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:48:40 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:48:51 INFO [router.py:45] - ChatAgent handled the request successfully
+2025-08-13 15:51:49 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:53:56 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 15:54:50 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 15:54:50 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 15:55:00 INFO [router.py:45] - ChatAgent handled the request successfully
+2025-08-13 15:55:26 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 16:15:40 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 16:34:25 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 16:35:00 ERROR [main.py:214] - Ask endpoint failed
+Traceback (most recent call last):
+  File "C:\Users\leodr\Desktop\ProvAIall\provenanceai-clean\main.py", line 186, in ask_endpoint
+    category = categorize_question(user_input, gemini_generate)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: categorize_question() takes 1 positional argument but 2 were given
+2025-08-13 16:37:25 INFO [main.py:86] - Embedder loaded successfully
+2025-08-13 16:37:53 INFO [router.py:13] - Routing request with category 'chat' and message: 'Hello from test script!'
+2025-08-13 16:37:53 DEBUG [router.py:41] - Instantiating ChatAgent
+2025-08-13 16:38:07 INFO [router.py:45] - ChatAgent handled the request successfully
