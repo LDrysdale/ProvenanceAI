@@ -3,9 +3,8 @@ import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
 import TopOfPage from "./components/TopOfPage";
 import useDragAndDrop from "./components/clickanddrag";
-import { auth } from './firebase'; // import your Firebase auth instance
 
-
+import { Eye, EyeOff } from "lucide-react"; // 👁️ icons
 
 export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -13,6 +12,15 @@ export default function Chat() {
   const [prompt, setPrompt] = useState("");
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [connectors, setConnectors] = useState([]);
+  const [selected, setSelected] = useState(false);
+
+
+  const [focusedCard, setFocusedCard] = useState(null); /* Focus Card Addition */
+  const toggleFocus = (id) => {
+  setFocusedCard(focusedCard === id ? null : id);
+};
+
+  
 
   const endRef = useRef(null);
   const cardsRef = useRef([]);
@@ -37,14 +45,18 @@ export default function Chat() {
       const current = cardsRef.current[i];
       const next = cardsRef.current[i + 1];
       if (current && next) {
-        const top = current.offsetTop + current.offsetHeight / 2 - 1;
-        const left = current.offsetLeft + current.offsetWidth;
-        const width = next.offsetLeft - left;
-        newConnectors.push({ top, left, width });
+        const startX = current.offsetLeft + current.offsetWidth; // right edge center
+        const startY = current.offsetTop + current.offsetHeight / 2;
+
+        const endX = next.offsetLeft; // left edge center
+        const endY = next.offsetTop + next.offsetHeight / 2;
+
+        newConnectors.push({ startX, startY, endX, endY });
       }
     }
     setConnectors(newConnectors);
   }, [activeSession]);
+
 
   useEffect(() => {
     updateConnectors();
@@ -56,46 +68,13 @@ export default function Chat() {
     return () => window.removeEventListener("resize", handleResize);
   }, [updateConnectors]);
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!prompt.trim()) return;
-
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please sign in first.");
-      return;
-    }
-
-    const token = await user.getIdToken(true); // get fresh Firebase ID token
-
-    const currentSession = chatSessions.find(s => s.id === activeSessionId);
-    const chat_id = currentSession ? currentSession.id : null;
-    const chat_subject = currentSession ? currentSession.title : "General";
-
-    const res = await fetch("http://localhost:8000/ask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,  // Include the token here
-      },
-      body: JSON.stringify({
-        message: prompt,
-        context: "",
-        chat_id,
-        chat_subject,
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Backend error: ${res.statusText}`);
-    }
-
-    const data = await res.json();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
 
     const newMessage = {
-      question: data.message,
-      response: data.response,
+      question: prompt,
+      response: `Creative reply to: "${prompt}"`,
       timestamp: new Date().toLocaleString([], {
         year: "numeric",
         month: "short",
@@ -105,10 +84,10 @@ export default function Chat() {
       }),
     };
 
-    if (!activeSessionId || !currentSession) {
+    if (!activeSessionId) {
       const newSession = {
-        id: data.chat_id,
-        title: data.chat_subject || (prompt.length > 20 ? prompt.slice(0, 17) + "..." : prompt),
+        id: Date.now().toString(),
+        title: prompt.length > 20 ? prompt.slice(0, 17) + "..." : prompt,
         messages: [newMessage],
       };
       setChatSessions((prev) => [newSession, ...prev]);
@@ -133,10 +112,7 @@ export default function Chat() {
     }
 
     setPrompt("");
-  } catch (error) {
-    console.error("Error submitting prompt:", error);
-  }
-};
+  };
 
   const handleSelectSession = (id) => {
     setActiveSessionId(id);
@@ -184,73 +160,116 @@ export default function Chat() {
       <TopOfPage />
 
       <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
-        <div
-          className="timeline-overlay"
-          onClick={() => setTimelineExpanded(!timelineExpanded)}
-          ref={scrollRef}
-        >
+        <div className="timeline-overlay" ref={scrollRef}>
           {activeSession && (
             <div className="timeline-scroll" role="log" aria-live="polite" style={{ position: "relative" }}>
               {activeSession.messages.map(({ question, response, timestamp }, idx) => (
                 <div
-                  className="timeline-card"
+                  className={`timeline-card ${focusedCard === idx ? "focused" : ""}`}
                   key={idx}
                   ref={(el) => (cardsRef.current[idx] = el)}
                 >
+                  {/* 👁️ Eye toggle button */}
+                  <button
+                    className="focus-btn"
+                    onClick={() => toggleFocus(idx)}
+                  >
+                    {focusedCard === idx ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+
                   <div className="timestamp">{timestamp}</div>
                   <div className="question">{question}</div>
                   <div className="answer">{response}</div>
                 </div>
               ))}
-              {connectors.map(({ top, left, width }, i) => (
-                <div
-                  key={`connector-${i}`}
-                  className="connector-line"
-                  style={{ top, left, width }}
-                />
-              ))}
+
+              {connectors.length > 0 && (
+                <svg
+                  className="connector-svg"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    pointerEvents: "none",
+                    overflow: "visible"
+                  }}
+                >
+                  {connectors.map(({ startX, startY, endX, endY }, i) => (
+                    <line
+                      key={`connector-${i}`}
+                      x1={startX}
+                      y1={startY}
+                      x2={endX}
+                      y2={endY}
+                      stroke="#6366f1"
+                      strokeWidth="2"
+                    />
+                  ))}
+                </svg>
+              )}
+
               <div ref={endRef} />
             </div>
           )}
         </div>
+
+        {/* Overlay to close focus */}
+        {focusedCard !== null && (
+          <div className="card-overlay" onClick={() => setFocusedCard(null)} />
+        )}
       </main>
 
-      <form className="prompt-form" onSubmit={handleSubmit}>
-        <div className="input-button-wrapper">
-          <button
-            type="button"
-            className="new-chat-icon-button"
-            onClick={handleNewChat}
-            title="New Chat"
-          >
-            <FaPlus />
-          </button>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Ask something..."
-            rows={2}
-            className="prompt-input"
-          />
-          <button type="submit" className="submit-button">Send</button>
-        </div>
-      </form>
+<form className="prompt-toolbar" onSubmit={handleSubmit}>
+  <div className="toolbar-content">
+    {/* Selectable Square (standalone) */}
+    <div
+      className={`selectable-square ${selected ? "selected" : ""}`}
+      onClick={() => setSelected(!selected)}
+      title="Toggle selection"
+    />
 
-      <section className="chat-history-scroll">
-        {chatSessions.map((session) => (
-          <div
-            key={session.id}
-            className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
-            onClick={() => handleSelectSession(session.id)}
-            onContextMenu={(e) => handleRightClick(e, session.id)}
-          >
-            <div className="capsule-title">{session.title}</div>
-            <div className="capsule-stats">
-              <span>{session.messages.length} Questions</span>
-            </div>
+    {/* Chat History Toolbar (moved above pill) */}
+    <section className="chat-history-scroll">
+      {chatSessions.map((session) => (
+        <div
+          key={session.id}
+          className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
+          onClick={() => handleSelectSession(session.id)}
+          onContextMenu={(e) => handleRightClick(e, session.id)}
+        >
+          <div className="capsule-title">{session.title}</div>
+          <div className="capsule-stats">
+            <span>{session.messages.length} Questions</span>
           </div>
-        ))}
-      </section>
+        </div>
+      ))}
+    </section>
+
+    {/* Pill containing New Chat, Textarea, Send */}
+    <div className="pill-container">
+      <button
+        type="button"
+        className="new-chat-icon-button"
+        onClick={handleNewChat}
+        title="New Chat"
+      >
+        <FaPlus />
+      </button>
+
+      <textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Ask something..."
+        rows={1}
+        className="prompt-input"
+      />
+
+      <button type="submit" className="submit-button">Send</button>
+    </div>
+  </div>
+</form>
 
       {contextMenu && (
         <div

@@ -1,4 +1,4 @@
-// frontend/provaifrontend/src/components/clickanddrag.js
+// clickanddrag.js
 import { useEffect } from "react";
 
 export default function useDragAndDrop(scrollRef) {
@@ -72,16 +72,28 @@ export default function useDragAndDrop(scrollRef) {
     };
 
     const mouseDown = (e) => {
+      if (e.target.closest(".timeline-card")) return; // ignore drag inside cards
       e.preventDefault();
       handleStart(e.pageX, e.pageY);
     };
+
     const mouseMove = (e) => {
-      e.preventDefault();
+      if (!isDown) return;
       handleMove(e.pageX, e.pageY);
+      e.preventDefault(); // prevent text selection while dragging
     };
 
-    const touchStart = (e) => handleStart(e.touches[0].pageX, e.touches[0].pageY);
-    const touchMove = (e) => handleMove(e.touches[0].pageX, e.touches[0].pageY);
+    const touchStart = (e) => {
+      if (e.target.closest(".timeline-card")) return; // ignore drag inside cards
+      handleStart(e.touches[0].pageX, e.touches[0].pageY);
+    };
+
+
+    const touchMove = (e) => {
+      if (!isDown) return;
+      handleMove(e.touches[0].pageX, e.touches[0].pageY);
+      e.preventDefault();
+    };
 
     scrollEl.addEventListener("mousedown", mouseDown);
     scrollEl.addEventListener("mousemove", mouseMove);

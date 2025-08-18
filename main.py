@@ -23,7 +23,7 @@ from slowapi.errors import RateLimitExceeded
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from agents.router import route_to_agent
-from agents.utils import categorize_question
+from agents.agent_categorization import categorize_question
 
 from redis_chat_history import get_chat_history, store_diary_activity
 
