@@ -1,0 +1,250 @@
+/* Main layout: sidebar + calendar feed */
+.diary-main-layout {
+  display: flex;
+  height: calc(100vh - 80px); /* adjust for top header */
+  gap: 16px;
+}
+
+/* Left sidebar panel */
+.diary-entry-panel {
+  width: 260px;
+  min-width: 260px;
+  background-color: #f0f0f0;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.diary-entry-panel h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.diary-entry-panel input[type="date"] {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.diary-entry-panel textarea {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  resize: none;
+}
+
+.diary-entry-panel button {
+  padding: 8px 12px;
+  background-color: #1aaf5d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.diary-entry-panel button:hover {
+  background-color: #178f4a;
+}
+
+/* Scrollable container that holds all months */
+.months-outer {
+  flex: 1;                   /* stretch to fill remaining width */
+  overflow-y: scroll;        /* vertical scrolling */
+  overflow-x: hidden;        /* no horizontal scroll */
+  overscroll-behavior: contain;
+  cursor: default;           /* default arrow when not dragging */
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.months-outer::-webkit-scrollbar {
+  display: none;             /* Chrome/Safari/Edge */
+}
+
+/* Change cursor to grab when hovering outside day boxes */
+.months-outer:hover {
+  cursor: grab;
+}
+
+/* When dragging */
+.months-outer.dragging {
+  cursor: grabbing;          /* hand closes while dragging */
+}
+
+/* Each month card stacked vertically */
+.month-card {
+  height: 100vh;             /* each month fills viewport height */
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Month label */
+.month-label {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Weekdays row */
+.weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Each week row */
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+
+/* Calendar day box */
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  min-height: 120px;
+  max-height: 200px;   /* prevents vertical expansion */
+  overflow-y: auto;     /* scroll inside day box */
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  cursor: default !important;
+
+  /* hide default scrollbar */
+  scrollbar-width: thin;         /* Firefox */
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+.calendar-day::-webkit-scrollbar {
+  width: 6px;
+}
+
+.calendar-day::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-day::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.calendar-day:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.4);
+}
+
+/* Empty day slots */
+.calendar-day.empty {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+/* Entries inside each day */
+.calendar-entries {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Diary entries */
+.calendar-entries .diary-entry {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 6px;
+  background: #fefefe;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  cursor: default; /* classic arrow inside entries */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Calendar day header with focus button */
+.calendar-day-header {
+  position: relative;      
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.focus-btn {
+  position: absolute;       
+  top: 2px;
+  right: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* MORPH modal for full entry view */
+.entry-morph-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.entry-morph-container {
+  max-width: 600px;
+  width: 90%;
+  max-height: 80%;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: morph-in 0.3s ease forwards;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Morph animation */
+@keyframes morph-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Diary entry inside modal */
+.entry-morph-container .diary-entry {
+  flex-direction: column;
+  border: 1px solid #ddd;
+  background-color: #fefefe;
+  padding: 8px;
+}
+
+.entry-morph-container .diary-entry .entry-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

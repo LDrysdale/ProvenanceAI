@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import TopOfPage from "./components/TopOfPage";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { UserCircle, CalendarDays, Lightbulb } from "lucide-react";
@@ -6,11 +7,11 @@ import "./Home.css";
 
 const auth = getAuth();
 
-export default function Home() {
+export default function Home({ diaryEntries, setDiaryEntries }) {
   const [user, setUser] = useState(null);
-  const [diaryEntries, setDiaryEntries] = useState({});
   const [entryText, setEntryText] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -69,7 +70,6 @@ export default function Home() {
     isDragging.current = true;
     startY.current = e.clientY;
     scrollTop.current = diaryRef.current.scrollTop;
-    // Prevent text selection while dragging
     diaryRef.current.style.userSelect = "none";
   };
 
@@ -172,7 +172,6 @@ export default function Home() {
               rows={3}
               maxLength={500}
             />
-
             <button onClick={addEntry}>Add</button>
           </div>
 
@@ -195,6 +194,14 @@ export default function Home() {
               ))
             )}
           </div>
+
+          {/* ✅ See All Entries button */}
+          <button
+            className="see-all-button"
+            onClick={() => navigate("/diary")}
+          >
+            See All Entries
+          </button>
         </div>
       </div>
     </div>

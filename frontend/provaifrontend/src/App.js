@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
@@ -10,6 +10,7 @@ import PasswordReset from "./PasswordReset";
 import Settings from "./Settings";
 import Home from "./Home";
 import Help from "./Help";
+import DiaryPage from "./DiaryPage"; // ✅ new import
 
 /* DEV ONLY - Delete at QA Stage */
 import GetTokenPage from "./frontend_testing/get_token_page";
@@ -27,6 +28,9 @@ function ProtectedRoute({ children }) {
 export default function App() {
   const [user, loading] = useAuthState(auth);
 
+  // ✅ Centralised diary state so Home & DiaryPage share it
+  const [diaryEntries, setDiaryEntries] = useState({});
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -37,7 +41,24 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<PasswordReset />} />
 
-        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home diaryEntries={diaryEntries} setDiaryEntries={setDiaryEntries} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/diary"
+          element={
+            <ProtectedRoute>
+              <DiaryPage diaryEntries={diaryEntries} />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
