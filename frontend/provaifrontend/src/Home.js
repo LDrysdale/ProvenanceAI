@@ -128,14 +128,23 @@ export default function Home({ diaryEntries, setDiaryEntries }) {
           )}
         </div>
 
-        {/* Bottom-Left: IdeaBoard Preview */}
-        <div className="card ideaboard-card">
-          <div className="card-header">
-            <Lightbulb className="icon" />
-            <h2>IdeaBoard Preview</h2>
+          {/* Bottom-Left: IdeaBoard Preview */}
+          <div className="card ideaboard-card">
+            <div className="card-header">
+              <Lightbulb className="icon" />
+              <h2>IdeaBoard Preview</h2>
+            </div>
+            <p>Preview coming soon...</p>
+
+            {/* ✅ Button to go to IdeaBoard page */}
+            <button
+              className="open-ideaboard-button"
+              onClick={() => navigate("/ideaboard")}
+            >
+              Open IdeaBoard
+            </button>
           </div>
-          <p>Preview coming soon...</p>
-        </div>
+
 
         {/* Right Side: Diary (spanning both rows) */}
         <div

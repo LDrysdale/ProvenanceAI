@@ -10,7 +10,8 @@ import PasswordReset from "./PasswordReset";
 import Settings from "./Settings";
 import Home from "./Home";
 import Help from "./Help";
-import DiaryPage from "./DiaryPage"; // ✅ new import
+import DiaryPage from "./DiaryPage"; 
+import IdeaBoard from "./ideaboard";
 
 /* DEV ONLY - Delete at QA Stage */
 import GetTokenPage from "./frontend_testing/get_token_page";
@@ -55,6 +56,16 @@ export default function App() {
           element={
             <ProtectedRoute>
               <DiaryPage diaryEntries={diaryEntries} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ New IdeaBoard route */}
+        <Route
+          path="/ideaboard"
+          element={
+            <ProtectedRoute>
+              <IdeaBoard />
             </ProtectedRoute>
           }
         />
