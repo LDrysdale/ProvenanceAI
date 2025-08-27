@@ -3,7 +3,7 @@ import os
 load_dotenv()
 
 import asyncio
-from redis_chat_history import store_chat_message, get_chat_history
+from chat_history import store_chat_message, get_chat_history
 
 async def test_redis_chat_history():
     user_id = "testuser123"

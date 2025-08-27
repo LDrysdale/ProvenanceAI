@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pinecone_query import query_pinecone
 from pinecone_upsert import upsert_to_pinecone
-from redis_chat_history import store_chat_message, get_chat_history
+from chat_history import store_chat_message, get_chat_history
 from sentence_transformers import SentenceTransformer
 
 # Load model once

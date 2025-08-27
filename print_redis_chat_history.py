@@ -1,7 +1,7 @@
 import asyncio
 import os
 from dotenv import load_dotenv
-from redis_chat_history import get_chat_history
+from chat_history import get_chat_history
 
 # Load environment variables from .env file
 load_dotenv()
