@@ -16,8 +16,7 @@ html, body {
   height: 100vh; /* full viewport height */
   width: 100%;
   overflow: hidden; /* prevent scrollbars on main container */
-  background-color: #f9fafb; /* or your preferred background */
-
+  background-color: #f9fafb;
 }
 
 /* Header styles */
@@ -46,7 +45,7 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 50px;         /* fixed height */
+  height: 50px;
   overflow-x: auto;
   display: flex;
   gap: 1rem;
@@ -56,7 +55,6 @@ html, body {
   z-index: 1000;
 }
 
-/* Updated capsule style for stats below title */
 /* Chat capsule styles */
 .chat-capsule {
   flex: 0 0 auto; /* prevent shrinking */
@@ -95,7 +93,6 @@ html, body {
   color: #1e3a8a;
 }
 
-/* Capsule stats */
 .capsule-stats {
   font-size: 0.7rem;
   color: #4b5563;
@@ -109,7 +106,7 @@ html, body {
 /* Timeline styles */
 .timeline-container {
   position: absolute;
-  top: 80px;                /* directly below the 50px header */
+  top: 80px;
   left: 0;
   right: 0;
   bottom: 145px;
@@ -117,19 +114,15 @@ html, body {
   background-color: #ffffff;
   width: 100%;
   z-index: 10;
-  
 }
 
-
-
 /* Timeline expanded state */
-/* This state is applied when the timeline is expanded */
 .timeline-container.expanded {
   z-index: 10;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Timeline scroll container (no blur or dark background!) */
+/* Timeline scroll container */
 .timeline-overlay {
   height: 100%;
   width: 100%;
@@ -137,30 +130,25 @@ html, body {
   padding: 2rem;
   display: flex;
   align-items: stretch;
-  background: transparent;    /* remove blur/dark background */
-  backdrop-filter: none;      /* remove blur */
+  background: transparent;
+  backdrop-filter: none;
   box-shadow: none;
   border: none;
   outline: none;
   cursor: grab;
-  transform-origin: 0 0; 
+  transform-origin: 0 0;
   transition: transform 0.2s ease-out;
 }
 
-/* Dragging state stays as-is */
 .timeline-overlay.dragging {
   cursor: grabbing;
 }
 
 .timeline-scroll > .timeline-card:first-child {
-  margin-left: 2.5rem; /* match timeline-overlay padding */
+  margin-left: 2.5rem;
 }
 
-
-
-
 /* Timeline scroll styles */
-/* This is the scrollable area for the timeline */
 .timeline-scroll {
   display: flex;
   gap: 1.5rem;
@@ -168,9 +156,8 @@ html, body {
 }
 
 /* Timeline card styles */
-/* Each card represents a chat message or interaction */
 .timeline-card {
-  width: 500px; /* fixed width, consistent size */
+  width: 500px;
   background: #f3f4f6;
   padding: 1rem;
   border-radius: 16px;
@@ -183,24 +170,18 @@ html, body {
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  height: auto; /* allow vertical growth */
+  height: auto;
   margin-top: auto;
   margin-bottom: auto;
-  cursor: default; /* traditional arrow */
+  cursor: default;
+  z-index: 2;
 }
 
-/* Timeline card hover effect */
-/* This effect is applied when hovering over a timeline card */
 .timeline-card + .timeline-card {
   border-top: 1px solid #d1d5db;
 }
 
-
-
-
-/* Morphing Timeline Card */
-/* Focused state for timeline cards */
-/* Focused card morphing */
+/* Focused timeline card */
 .timeline-card.focused {
   position: fixed;
   top: 50%;
@@ -208,29 +189,27 @@ html, body {
   width: 70%;
   max-width: 700px;
   transform: translate(-50%, -50%) scale(1.05);
-  z-index: 2000; /* make sure it's above everything else */
+  z-index: 2000;
   background: #fff;
   box-shadow: 0 12px 24px rgba(0,0,0,0.3);
   transition: all 0.8s ease;
 }
 
-/* New overlay that only shows when a card is focused */
 .card-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);  /* subtle dim */
-  backdrop-filter: blur(2px);    /* optional blur for background */
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
   z-index: 1500;
   animation: fadeIn 0.3s ease;
 }
 
-/* Fade animation */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Focus button styles */
+/* Focus button */
 .focus-btn {
   position: absolute;
   top: 0.5rem;
@@ -241,32 +220,7 @@ html, body {
   z-index: 10;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Timeline card content styles */
-/* This styles the content inside each timeline card */
+/* Timeline card content */
 .question {
   font-weight: 600;
   color: #1f2937;
@@ -274,16 +228,12 @@ html, body {
   margin-bottom: 0.25rem;
 }
 
-/* Answer styles */
-/* This styles the answer text inside each timeline card */
 .answer {
   color: #374151;
   position: relative;
   margin-bottom: 0.25rem;
 }
 
-/* Timestamp styles */
-/* This styles the timestamp text inside each timeline card */
 .timestamp {
   font-size: 0.75rem;
   color: #6b7280;
@@ -292,74 +242,7 @@ html, body {
   bottom: -1.25rem;
 }
 
-.prompt-form {
-  position: fixed;
-  bottom: 100px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-  background-color: #ffffff;
-  width: 100%;
-  z-index: 1001; /* Make sure it’s above other elements */
-  border-top: 1px solid #e5e7eb;
-}
-
-.input-button-wrapper {
-  display: flex;
-  width: 50vw;         /* one-third viewport width */
-  max-width: 900px;
-  border-radius: 30px;
-  overflow: hidden;
-  box-shadow: 0 0 0 1px #d1d5db;
-  background: #f9fafb;
-  box-shadow: none;         /* <-- no shadow */
-  border: none;             /* <-- no border */
-  outline: none; 
-}
-
-.prompt-input {
-  flex-grow: 1;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border-radius: 0;       /* no radius inside wrapper */
-  outline: none;
-  background: transparent;
-  box-sizing: border-box;
-  resize: none;
-}
-
-.prompt-input:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: none;
-}
-
-.submit-button {
-  background-color: #6366f1;
-  color: white;
-  padding: 0 1.5rem;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  border-radius: 0 30px 30px 0; /* round right side only */
-  transition: background-color 0.2s ease;
-}
-
-.submit-button:hover {
-  background-color: #4f46e5;
-}
-
-.connector-svg {
-  z-index: 1; /* behind cards but above background */
-}
-.timeline-card {
-  z-index: 2; /* keep cards above connectors */
-}
-
-
+/* Buttons */
 .new-chat-icon-button {
   background-color: #e5e7eb;
   color: #374151;
@@ -378,33 +261,34 @@ html, body {
   background-color: #d1d5db;
 }
 
-
-.context-menu {
-  position: absolute;
-  background: #fff;
-  border: 1px solid #ccc;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.context-menu-item {
-  padding: 8px 12px;
+.submit-button {
+  background-color: #6366f1;
+  color: white;
+  padding: 0 1.5rem;
+  border: none;
   cursor: pointer;
+  font-weight: 600;
+  border-radius: 0 30px 30px 0;
+  transition: background-color 0.2s ease;
 }
 
-.context-menu-item:hover {
-  background-color: #f5f5f5;
+.submit-button:hover {
+  background-color: #4f46e5;
 }
 
+/* Connector SVG */
+.connector-svg {
+  z-index: 1;
+}
+
+/* Confirm popup */
 .confirm-popup {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0,0,0,0.3);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -431,36 +315,68 @@ html, body {
   cursor: pointer;
 }
 
-
-/* Toolbar */
+/* Toolbar layout */
 .prompt-toolbar {
   position: fixed;
-  bottom: 80px; /* height of chat history */
+  bottom: 80px;
   left: 0;
   right: 0;
   background: #fff;
-  padding: 10px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  min-height: 70px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 1001; /* above chat history */
-  min-height: 50px;
-  max-height: 100px;
+  z-index: 1001;
 }
 
 .toolbar-content {
   display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Three equal sections: left/middle/right */
+.toolbar-left,
+.toolbar-middle,
+.toolbar-right {
+  flex-basis: 33.33%;
+  display: flex;
+  align-items: center;
+}
+
+/* Left: squares */
+.toolbar-left {
+  justify-content: flex-start;
+  padding-left: 16px;
+}
+
+.squares-container {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 800px; /* optional max width for large screens */
-  margin: 0 auto;
-  gap: 16px
+  padding-right: 8px;
+}
+
+.square-with-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.square-label {
+  margin-top: 4px;
+  font-size: 16px;
+  color: #374151;
 }
 
 .selectable-square {
   width: 48px;
   height: 48px;
-  background: #f0f0f0; /* light gray */
+  background: #f0f0f0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -473,17 +389,32 @@ html, body {
   background: #3f51b5;
 }
 
+/* Middle: prompt pill */
+.toolbar-middle {
+  justify-content: center;
+}
+
 .pill-container {
   display: flex;
   flex: 1;
   background: #fff;
-  border-radius: 50px; /* pill shape */
+  border-radius: 50px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  height: 48px;
+  min-width: 250px;
+  height: 56px;
 }
 
-.new-chat-icon-button,
+.prompt-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 1rem;
+  background: transparent;
+  line-height: 1.4;
+}
+
 .submit-button {
   border: none;
   background: #3f51b5;
@@ -495,13 +426,18 @@ html, body {
   justify-content: center;
   padding: 0 16px;
   flex-shrink: 0;
+  border-radius: 0 30px 30px 0;
 }
 
-.prompt-input {
-  flex: 1;
+.new-chat-icon-button {
   border: none;
-  outline: none;
-  padding: 0 12px;
+  background: #3f51b5;
+  color: #fff;
+  cursor: pointer;
   font-size: 1rem;
-  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  flex-shrink: 0;
 }

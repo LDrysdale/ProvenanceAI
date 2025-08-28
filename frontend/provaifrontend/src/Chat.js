@@ -12,15 +12,12 @@ export default function Chat() {
   const [prompt, setPrompt] = useState("");
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [connectors, setConnectors] = useState([]);
-  const [selected, setSelected] = useState(false);
-
+  const [selectedSquare, setSelectedSquare] = useState(null);
 
   const [focusedCard, setFocusedCard] = useState(null); /* Focus Card Addition */
   const toggleFocus = (id) => {
-  setFocusedCard(focusedCard === id ? null : id);
-};
-
-  
+    setFocusedCard(focusedCard === id ? null : id);
+  };
 
   const endRef = useRef(null);
   const cardsRef = useRef([]);
@@ -56,7 +53,6 @@ export default function Chat() {
     }
     setConnectors(newConnectors);
   }, [activeSession]);
-
 
   useEffect(() => {
     updateConnectors();
@@ -169,7 +165,6 @@ export default function Chat() {
                   key={idx}
                   ref={(el) => (cardsRef.current[idx] = el)}
                 >
-                  {/* 👁️ Eye toggle button */}
                   <button
                     className="focus-btn"
                     onClick={() => toggleFocus(idx)}
@@ -215,61 +210,80 @@ export default function Chat() {
           )}
         </div>
 
-        {/* Overlay to close focus */}
         {focusedCard !== null && (
           <div className="card-overlay" onClick={() => setFocusedCard(null)} />
         )}
       </main>
 
-<form className="prompt-toolbar" onSubmit={handleSubmit}>
-  <div className="toolbar-content">
-    {/* Selectable Square (standalone) */}
-    <div
-      className={`selectable-square ${selected ? "selected" : ""}`}
-      onClick={() => setSelected(!selected)}
-      title="Toggle selection"
-    />
-
-    {/* Chat History Toolbar (moved above pill) */}
-    <section className="chat-history-scroll">
-      {chatSessions.map((session) => (
-        <div
-          key={session.id}
-          className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
-          onClick={() => handleSelectSession(session.id)}
-          onContextMenu={(e) => handleRightClick(e, session.id)}
-        >
-          <div className="capsule-title">{session.title}</div>
-          <div className="capsule-stats">
-            <span>{session.messages.length} Questions</span>
+      {/* Chat history capsules */}
+      <section className="chat-history-scroll">
+        {chatSessions.map((session) => (
+          <div
+            key={session.id}
+            className={`chat-capsule ${session.id === activeSessionId ? "active" : ""}`}
+            onClick={() => handleSelectSession(session.id)}
+            onContextMenu={(e) => handleRightClick(e, session.id)}
+          >
+            <div className="capsule-title">{session.title}</div>
+            <div className="capsule-stats">
+              <span>{session.messages.length} Questions</span>
+            </div>
           </div>
+        ))}
+      </section>
+
+      {/* Prompt toolbar */}
+      <form className="prompt-toolbar" onSubmit={handleSubmit}>
+        <div className="toolbar-content">
+          {/* Left third: squares with text */}
+          <div className="toolbar-left">
+            <div className="squares-container">
+              {[
+                { id: 1, label: "Ideas Generator" },
+                { id: 2, label: "Knowledge Base" },
+                { id: 3, label: "Creative Brainstorm" },
+                { id: 4, label: "Quick Reply" },
+              ].map(({ id, label }) => (
+                <div key={id} className="square-with-text">
+                  <div
+                    className={`selectable-square ${selectedSquare === id ? "selected" : ""}`}
+                    onClick={() => setSelectedSquare(id)}
+                    title={label}
+                  />
+                  <span className="square-label">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Middle third: prompt input pill */}
+          <div className="toolbar-middle">
+            <div className="pill-container">
+              <button
+                type="button"
+                className="new-chat-icon-button"
+                onClick={handleNewChat}
+                title="New Chat"
+              >
+                <FaPlus />
+              </button>
+
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Ask something..."
+                rows={1}
+                className="prompt-input"
+              />
+
+              <button type="submit" className="submit-button">Send</button>
+            </div>
+          </div>
+
+          {/* Right third: empty */}
+          <div className="toolbar-right"></div>
         </div>
-      ))}
-    </section>
-
-    {/* Pill containing New Chat, Textarea, Send */}
-    <div className="pill-container">
-      <button
-        type="button"
-        className="new-chat-icon-button"
-        onClick={handleNewChat}
-        title="New Chat"
-      >
-        <FaPlus />
-      </button>
-
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Ask something..."
-        rows={1}
-        className="prompt-input"
-      />
-
-      <button type="submit" className="submit-button">Send</button>
-    </div>
-  </div>
-</form>
+      </form>
 
       {contextMenu && (
         <div
