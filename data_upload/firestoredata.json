@@ -1,0 +1,12 @@
+[
+  {
+    "uid": "u001",
+    "username": "Testing",
+    "email": "testinguser@test.com",
+    "display_name": "Test User",
+    "profile_pic_url": "https://example.com/testing.png",
+    "tier": "free",
+    "addon_psychologist": false,
+    "addon_unlimited": false
+  }
+]
