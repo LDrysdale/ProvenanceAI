@@ -50,7 +50,7 @@ html, body {
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  background-color: #f1f5f9;
+  background-color: #f3f8fcc0;
   border-top: 1px solid #e2e8f0;
   z-index: 1000;
 }
@@ -64,7 +64,7 @@ html, body {
   align-items: center;
   min-width: 120px;
   height: 100%; /* fill the fixed height */
-  background-color: #fff;
+  background-color: #e3eff64d;
   border-radius: 9999px; /* pill shape */
   padding: 0 16px;
   cursor: pointer;
@@ -74,14 +74,14 @@ html, body {
 
 /* Hover effect for chat capsules */
 .chat-capsule:hover {
-  background-color: #c7d2fe;
+  background-color: #bddff5e3;
   transform: scale(1.03);
 }
 
 /* Active state for chat capsules */
 .chat-capsule.active {
-  background-color: #e4eaf5;
-  color: white;
+  background-color: #bddff55c;
+  color: rgb(11, 26, 163);
   font-weight: 600;
   text-align: center;
 }
@@ -111,10 +111,29 @@ html, body {
   right: 0;
   bottom: 145px;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #F9FAF6; /* off-white base */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  background-size: 40px 40px; /* spacing of the diagonal lines */
   width: 100%;
   z-index: 10;
 }
+
+
+
 
 /* Timeline expanded state */
 .timeline-container.expanded {
@@ -158,7 +177,7 @@ html, body {
 /* Timeline card styles */
 .timeline-card {
   width: 500px;
-  background: #f3f4f6;
+  background: #ffffff;
   padding: 1rem;
   border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -191,15 +210,15 @@ html, body {
   transform: translate(-50%, -50%) scale(1.05);
   z-index: 2000;
   background: #fff;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.741);
   transition: all 0.8s ease;
 }
 
 .card-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(2px);
+  background: rgba(48, 48, 48, 0.144);
+  backdrop-filter: blur(1.5px);
   z-index: 1500;
   animation: fadeIn 0.3s ease;
 }
@@ -376,7 +395,7 @@ html, body {
 .selectable-square {
   width: 48px;
   height: 48px;
-  background: #f0f0f0;
+  background: #d0d0d068;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -386,7 +405,7 @@ html, body {
 }
 
 .selectable-square.selected {
-  background: #3f51b5;
+  background: #4db5e253;
 }
 
 /* Middle: prompt pill */

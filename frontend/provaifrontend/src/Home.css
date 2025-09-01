@@ -13,7 +13,23 @@ html, body, #root {
   flex-direction: column;
   min-height: 100vh;
   padding: 0px 00px 20px 00px; /* top, right, bottom, left */
-  background-color: #f5f5f5;
+  background-color: #F9FAF6; /* off-white base */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  background-size: 40px 40px; /* spacing of the diagonal lines */
   box-sizing: border-box;
 }
 

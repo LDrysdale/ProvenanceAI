@@ -30,7 +30,23 @@
   width: 100%;
   height: calc(100vh - 60px);
   overflow: auto;
-  background-color: #f0f0f0;
+  background-color: #F9FAF6; /* off-white base */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  background-size: 40px 40px; /* spacing of the diagonal lines */
 }
 
 .connection-layer {
@@ -44,7 +60,7 @@
 
 .note {
   position: absolute;
-  background-color: #fff8b0;
+  background-color: #f9f8e4;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   padding: 8px;

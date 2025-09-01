@@ -4,7 +4,7 @@ import "./Chat.css";
 import TopOfPage from "./components/TopOfPage";
 import useDragAndDrop from "./components/clickanddrag";
 
-import { Eye, EyeOff } from "lucide-react"; // 👁️ icons
+import { Eye, EyeOff, RadioTower, NotebookText, Hourglass, Brain } from "lucide-react"; // 👁️ + new icons
 
 export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -42,10 +42,10 @@ export default function Chat() {
       const current = cardsRef.current[i];
       const next = cardsRef.current[i + 1];
       if (current && next) {
-        const startX = current.offsetLeft + current.offsetWidth; // right edge center
+        const startX = current.offsetLeft + current.offsetWidth;
         const startY = current.offsetTop + current.offsetHeight / 2;
 
-        const endX = next.offsetLeft; // left edge center
+        const endX = next.offsetLeft;
         const endY = next.offsetTop + next.offsetHeight / 2;
 
         newConnectors.push({ startX, startY, endX, endY });
@@ -235,21 +235,23 @@ export default function Chat() {
       {/* Prompt toolbar */}
       <form className="prompt-toolbar" onSubmit={handleSubmit}>
         <div className="toolbar-content">
-          {/* Left third: squares with text */}
+          {/* Left third: squares with icons */}
           <div className="toolbar-left">
             <div className="squares-container">
               {[
-                { id: 1, label: "Ideas Generator" },
-                { id: 2, label: "Knowledge Base" },
-                { id: 3, label: "Creative Brainstorm" },
-                { id: 4, label: "Quick Reply" },
-              ].map(({ id, label }) => (
+                { id: 1, label: "Ideas Generator", icon: <RadioTower size={20} /> },
+                { id: 2, label: "Momentum Manager", icon: <Hourglass size={20} /> },
+                { id: 3, label: "Business Plan Generator", icon: <NotebookText size={20} /> },
+                { id: 4, label: "Psychologist", icon: <Brain size={20} /> },
+              ].map(({ id, label, icon }) => (
                 <div key={id} className="square-with-text">
                   <div
                     className={`selectable-square ${selectedSquare === id ? "selected" : ""}`}
                     onClick={() => setSelectedSquare(id)}
                     title={label}
-                  />
+                  >
+                    {icon}
+                  </div>
                   <span className="square-label">{label}</span>
                 </div>
               ))}

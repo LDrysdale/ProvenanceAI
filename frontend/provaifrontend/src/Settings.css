@@ -5,7 +5,23 @@
   justify-content: center;
   padding: 2rem;
   padding-top: 1rem; 
-  background-color: #f0f2f5;
+  background-color: #F9FAF6; /* off-white base */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  background-size: 40px 40px; /* spacing of the diagonal lines */
   min-height: calc(100vh - 100px); /* adjust for TopOfPage height if needed */
 }
 
