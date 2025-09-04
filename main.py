@@ -31,7 +31,7 @@ from firebase_admin import credentials, auth as firebase_auth
 import httpx
 
 from pinecone_query import query_pinecone
-from pinecone_upsert import upsert_to_pinecone
+from pinecone_upsert import upsert_to_pinecone, analyze_with_gemini
 
 from gemini_model import gemini_generate
 
@@ -39,7 +39,14 @@ from chat_history import get_chat_history, store_diary_activity, store_ideaboard
 from diary_history import get_diary_history
 from ideaboard_history import get_ideaboard_history
 
+from datetime import timedelta
 
+from google.cloud import bigquery
+
+# Initialize BigQuery client
+bq_client = bigquery.Client()
+
+from pinecone import Pinecone
 
 # --- Configuration ---
 USE_LOCAL_DATA = os.getenv("USE_LOCAL_DATA", "0") == "1"
@@ -47,6 +54,13 @@ MOCK_USERS_FILE = os.getenv("MOCK_USERS_FILE", "tests/datasets/mock_users.json")
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8000").split(",")
 RATE_LIMIT = os.getenv("RATE_LIMIT", "5/minute")
 FIREBASE_CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH", "credentials/firebase-adminsdk.json")
+
+
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+PINECONE_ENV = os.getenv("PINECONE_ENV")
+pc = Pinecone(api_key=PINECONE_API_KEY, environment=PINECONE_ENV)
+index = pc.Index(PINECONE_INDEX_NAME)
 
 # --- Firebase Initialization ---
 if not firebase_admin._apps:
@@ -80,6 +94,29 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Global sync tracking ---
+last_sync_times = {
+    "diary": {},
+    "ideaboard": {}
+}
+SYNC_INTERVAL = timedelta(minutes=30)
+
+def can_run_sync(user_id: str, section: str):
+    now = datetime.utcnow()
+    last_sync = last_sync_times[section].get(user_id)
+
+    if last_sync and now - last_sync < SYNC_INTERVAL:
+        return False, {
+            "status": "recent",
+            "last_sync": last_sync.isoformat(),
+            "next_sync_available": (last_sync + SYNC_INTERVAL).isoformat()
+        }
+
+    # Allow sync and record timestamp
+    last_sync_times[section][user_id] = now
+    return True, {"status": "due", "last_sync": now.isoformat()}
+
 
 # --- Embedding Model ---
 try:
@@ -277,12 +314,27 @@ async def fetch_chat_history(
 async def diary_endpoint(data: DiaryEntryIn, user_id: str = Depends(get_user_id_from_token)):
     if data.diary_status not in ("Entry", "Deletion"):
         raise HTTPException(status_code=400, detail="Invalid diary_status")
+
     try:
+        # Store in Redis
         await store_diary_activity(user_id, data.chat_id, data.diary_entry, data.diary_status, data.diary_date)
+
+        # Store in Pinecone (only if not deletion)
+        if data.diary_status == "Entry":
+            vector_id = str(uuid.uuid4())
+            await upsert_to_pinecone(
+                user_id=user_id,
+                entry_type="diary",
+                text=data.diary_entry,
+                vector_id=vector_id,
+                chat_id=data.chat_id
+            )
     except Exception as e:
-        logger.error(f"Failed to store diary activity: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to store diary activity")
+        logger.error(f"Failed to process diary activity: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to process diary activity")
+
     return {"success": True}
+
 
 @app.get("/diary/history")
 async def fetch_diary_history(
@@ -297,6 +349,7 @@ async def fetch_diary_history(
 @app.post("/api/ideaboard")
 async def ideaboard_endpoint(data: IdeaboardEntryIn, user_id: str = Depends(get_user_id_from_token)):
     try:
+        # Store in Redis
         entry_id = getattr(data, "entry_id", None)
         entry_id = await store_ideaboard_activity(
             user_id,
@@ -309,9 +362,21 @@ async def ideaboard_endpoint(data: IdeaboardEntryIn, user_id: str = Depends(get_
             data.height,
             entry_id=entry_id
         )
+
+        # Store in Pinecone
+        vector_id = str(uuid.uuid4())
+        await upsert_to_pinecone(
+            user_id=user_id,
+            entry_type="ideaboard",
+            text=data.entry_text,
+            vector_id=vector_id,
+            chat_id=data.chat_id
+        )
+
     except Exception as e:
-        logger.error(f"Failed to store ideaboard activity: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to store ideaboard activity")
+        logger.error(f"Failed to process ideaboard activity: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to process ideaboard activity")
+
     return {"success": True, "entry_id": entry_id}
 
 
@@ -345,3 +410,159 @@ async def delete_chat_session(request: Request, user_id: str = Depends(get_user_
     except Exception as e:
         logger.error("Delete chat failed", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to delete chat session")
+
+
+from datetime import datetime, timedelta
+
+# --- Global sync timers ---
+last_sync_times = {
+    "diary": {},
+    "ideaboard": {}
+}
+SYNC_INTERVAL = timedelta(minutes=30)
+
+
+# --- Sync Diary to Pinecone ---
+@app.post("/api/sync/diary-to-pinecone")
+async def sync_diary_to_pinecone(
+    user_id: str = Depends(get_user_id_from_token),
+    chat_id: str = None
+):
+    # --- Timer check ---
+    now = datetime.utcnow()
+    last_sync = last_sync_times["diary"].get(user_id)
+    if last_sync and now - last_sync < SYNC_INTERVAL:
+        return {
+            "status": "recent",
+            "last_sync": last_sync.isoformat(),
+            "next_sync_available": (last_sync + SYNC_INTERVAL).isoformat()
+        }
+    last_sync_times["diary"][user_id] = now
+
+    try:
+        # --- Step 1: Fetch from Redis ---
+        redis_entries = await get_diary_history(user_id=user_id, chat_id=chat_id, limit=1000)
+
+        # --- Step 2: Fetch from BigQuery ---
+        query = f"""
+            SELECT chat_id, entry_text, entry_title, createdAt
+            FROM `{os.getenv('BIGQUERY_PROJECT')}.{os.getenv('BIGQUERY_DATASET')}.diary_entries`
+            WHERE user_id = @user_id
+            { "AND chat_id = @chat_id" if chat_id else "" }
+        """
+        query_params = [bigquery.ScalarQueryParameter("user_id", "STRING", user_id)]
+        if chat_id:
+            query_params.append(bigquery.ScalarQueryParameter("chat_id", "STRING", chat_id))
+
+        job_config = bigquery.QueryJobConfig(query_parameters=query_params)
+        results = bq_client.query(query, job_config=job_config).result()
+        bq_entries = [dict(row) for row in results]
+
+        # --- Step 3: Combine entries ---
+        all_entries = redis_entries + bq_entries
+
+        # --- Step 4: Check Pinecone & Upsert missing entries ---
+        for entry in all_entries:
+            vector_id = f"{entry['chat_id']}_{entry['createdAt']}"
+            res = index.fetch(ids=[vector_id])
+            if vector_id in res.vectors:
+                continue  # Already exists
+
+            # Enrich with sentiment/mood
+            analysis = analyze_with_gemini(entry["entry_text"])
+            sentiment = analysis.get("sentiment", "neutral")
+            mood_tags = analysis.get("mood_tags", [])
+
+            # Upsert to Pinecone
+            await upsert_to_pinecone(
+                user_id=user_id,
+                chat_id=entry["chat_id"],
+                text=entry["entry_text"],
+                vector_id=vector_id,
+                entry_type="diary",
+                sentiment=sentiment,
+                mood_tags=mood_tags
+            )
+
+        return {
+            "status": "ok",
+            "last_sync": now.isoformat(),
+            "total_entries_checked": len(all_entries)
+        }
+
+    except Exception as e:
+        logger.error("Sync diary to Pinecone failed", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to sync diary entries")
+
+
+# --- Sync Ideaboard to Pinecone ---
+@app.post("/api/sync/ideaboard-to-pinecone")
+async def sync_ideaboard_to_pinecone(
+    user_id: str = Depends(get_user_id_from_token),
+    chat_id: str = None
+):
+    # --- Timer check ---
+    now = datetime.utcnow()
+    last_sync = last_sync_times["ideaboard"].get(user_id)
+    if last_sync and now - last_sync < SYNC_INTERVAL:
+        return {
+            "status": "recent",
+            "last_sync": last_sync.isoformat(),
+            "next_sync_available": (last_sync + SYNC_INTERVAL).isoformat()
+        }
+    last_sync_times["ideaboard"][user_id] = now
+
+    try:
+        # --- Step 1: Fetch from Redis ---
+        redis_entries = await get_ideaboard_history(user_id=user_id, chat_id=chat_id, limit=1000)
+
+        # --- Step 2: Fetch from BigQuery ---
+        query = f"""
+            SELECT chat_id, entry_text, entry_title, x, y, width, height, createdAt
+            FROM `{os.getenv('BIGQUERY_PROJECT')}.{os.getenv('BIGQUERY_DATASET')}.ideaboard_entries`
+            WHERE user_id = @user_id
+            { "AND chat_id = @chat_id" if chat_id else "" }
+        """
+        query_params = [bigquery.ScalarQueryParameter("user_id", "STRING", user_id)]
+        if chat_id:
+            query_params.append(bigquery.ScalarQueryParameter("chat_id", "STRING", chat_id))
+
+        job_config = bigquery.QueryJobConfig(query_parameters=query_params)
+        results = bq_client.query(query, job_config=job_config).result()
+        bq_entries = [dict(row) for row in results]
+
+        # --- Step 3: Combine entries ---
+        all_entries = redis_entries + bq_entries
+
+        # --- Step 4: Check Pinecone & Upsert missing entries ---
+        for entry in all_entries:
+            vector_id = f"{entry['chat_id']}_{entry['createdAt']}"
+            res = index.fetch(ids=[vector_id])
+            if vector_id in res.vectors:
+                continue  # Already exists
+
+            # Enrich with sentiment/mood
+            analysis = analyze_with_gemini(entry["entry_text"])
+            sentiment = analysis.get("sentiment", "neutral")
+            mood_tags = analysis.get("mood_tags", [])
+
+            # Upsert to Pinecone
+            await upsert_to_pinecone(
+                user_id=user_id,
+                chat_id=entry["chat_id"],
+                text=entry["entry_text"],
+                vector_id=vector_id,
+                entry_type="ideaboard",
+                sentiment=sentiment,
+                mood_tags=mood_tags
+            )
+
+        return {
+            "status": "ok",
+            "last_sync": now.isoformat(),
+            "total_entries_checked": len(all_entries)
+        }
+
+    except Exception as e:
+        logger.error("Sync ideaboard to Pinecone failed", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to sync ideaboard entries")
