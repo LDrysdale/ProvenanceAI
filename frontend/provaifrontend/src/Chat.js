@@ -4,7 +4,7 @@ import "./Chat.css";
 import TopOfPage from "./components/TopOfPage";
 import useDragAndDrop from "./components/clickanddrag";
 
-import { Eye, EyeOff, RadioTower, NotebookText, Hourglass, Brain } from "lucide-react"; // 👁️ + new icons
+import { Eye, EyeOff, RadioTower, NotebookText, Hourglass, Brain, Dumbbell, MessageCircleHeart, Bot, ArrowBigUpDash } from "lucide-react"; // 👁️ + new icons
 
 export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
@@ -29,6 +29,9 @@ export default function Chat() {
   const [sessionToDelete, setSessionToDelete] = useState(null);
 
   const activeSession = chatSessions.find((s) => s.id === activeSessionId);
+
+  const [selectedLeftSquare, setSelectedLeftSquare] = useState(null);
+  const [selectedRightSquare, setSelectedRightSquare] = useState(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", inline: "end" });
@@ -237,26 +240,32 @@ export default function Chat() {
         <div className="toolbar-content">
           {/* Left third: squares with icons */}
           <div className="toolbar-left">
-            <div className="squares-container">
-              {[
-                { id: 1, label: "Ideas Generator", icon: <RadioTower size={20} /> },
-                { id: 2, label: "Momentum Manager", icon: <Hourglass size={20} /> },
-                { id: 3, label: "Business Plan Generator", icon: <NotebookText size={20} /> },
-                { id: 4, label: "Psychologist", icon: <Brain size={20} /> },
-              ].map(({ id, label, icon }) => (
-                <div key={id} className="square-with-text">
-                  <div
-                    className={`selectable-square ${selectedSquare === id ? "selected" : ""}`}
-                    onClick={() => setSelectedSquare(id)}
-                    title={label}
-                  >
-                    {icon}
+            <div className="toolbar-section">
+              <div className="toolbar-section-title">Tools</div>
+              <div className="squares-container">
+                {[
+                  { id: 1, label: "Ideas Generator", icon: <RadioTower size={25} /> },
+                  { id: 2, label: "Momentum Manager", icon: <Hourglass size={25} /> },
+                  { id: 3, label: "Business Plan Generator", icon: <NotebookText size={25} /> },
+                  { id: 4, label: "Psychologist", icon: <Brain size={25} /> },
+                ].map(({ id, label, icon }) => (
+                  <div key={id} className="square-with-text">
+                    <div
+                      className={`selectable-square ${selectedLeftSquare === id ? "selected" : ""}`}
+                      onClick={() =>
+                        setSelectedLeftSquare(selectedLeftSquare === id ? null : id)
+                      }
+                      title={label}
+                    >
+                      {icon}
+                    </div>
+                    <span className="square-label">{label}</span>
                   </div>
-                  <span className="square-label">{label}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
+
 
           {/* Middle third: prompt input pill */}
           <div className="toolbar-middle">
@@ -283,7 +292,33 @@ export default function Chat() {
           </div>
 
           {/* Right third: empty */}
-          <div className="toolbar-right"></div>
+          <div className="toolbar-right">
+            <div className="toolbar-section">
+              <div className="toolbar-section-title">Coaches</div>
+              <div className="squares-container">
+                {[
+                  { id: 1, label: "Tough Love", icon: <Dumbbell size={25} /> },
+                  { id: 2, label: "Positive Pusher", icon: <ArrowBigUpDash size={25} /> },
+                  { id: 3, label: "Empathy Builder", icon: <MessageCircleHeart size={25} /> },
+                  { id: 4, label: "Adaptor", icon: <Bot size={25} /> },
+                ].map(({ id, label, icon }) => (
+                  <div key={id} className="square-with-text">
+                    <div
+                      className={`selectable-square ${selectedRightSquare === id ? "selected" : ""}`}
+                      onClick={() =>
+                        setSelectedRightSquare(selectedRightSquare === id ? null : id)
+                      }
+                      title={label}
+                    >
+                      {icon}
+                    </div>
+                    <span className="square-label">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </form>
 
