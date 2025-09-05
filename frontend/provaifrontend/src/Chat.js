@@ -12,7 +12,6 @@ export default function Chat() {
   const [prompt, setPrompt] = useState("");
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [connectors, setConnectors] = useState([]);
-  const [selectedSquare, setSelectedSquare] = useState(null);
 
   const [focusedCard, setFocusedCard] = useState(null); /* Focus Card Addition */
   const toggleFocus = (id) => {
