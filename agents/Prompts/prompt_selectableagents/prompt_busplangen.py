@@ -13,7 +13,7 @@ Include these sections (with headings):
 8. Next Steps (actionable tasks for this week)
 
 For each section, provide concise and clear content (2-4 sentences each) that 
-captures the essence of the idea.
+captures the essence of the idea and outlines a practical approach to implementation.
 
 After the business plan, include a section titled:
 "🧠 Questions for You"
