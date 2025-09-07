@@ -2,7 +2,6 @@ import tweepy
 import os
 import json
 import datetime
-import time
 
 # Authenticate with X API
 client = tweepy.Client(
@@ -13,10 +12,10 @@ client = tweepy.Client(
 )
 
 # Load scheduled posts from JSON
-with open("quotes.json", "r", encoding="utf-8") as f:
+with open("x_uploads/quotes.json", "r", encoding="utf-8") as f:
     quotes = json.load(f)
 
-# Current time in UTC (timezone-aware)
+# Current UTC date
 now = datetime.datetime.now(datetime.timezone.utc)
 
 for i, entry in enumerate(quotes, start=1):
@@ -26,25 +25,13 @@ for i, entry in enumerate(quotes, start=1):
     # Convert to timezone-aware datetime
     dt = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
 
-    # Skip past posts
-    if dt <= now:
-        print(f"⏩ Skipping past timestamp: {timestamp} | Quote: {quote}")
+    # Only post if the date matches today (UTC)
+    if dt.date() != now.date():
+        print(f"⏩ Skipping quote scheduled for {dt.date()}: '{quote}'")
         continue
-
-    # Wait until the scheduled time
-    wait_seconds = (dt - now).total_seconds()
-    print(f"⏳ Waiting {wait_seconds:.0f} seconds until {timestamp}...")
-
-    time.sleep(wait_seconds)
 
     try:
         response = client.create_tweet(text=quote)
-        print(f"✅ {i} of {len(quotes)} --> Posted: '{quote}' at {dt}")
+        print(f"✅ Posted {i} of {len(quotes)}: '{quote}' at {now}")
     except Exception as e:
-        print(f"⚠️ Failed to post '{quote}' at {dt}: {e}")
-
-    # Update "now" after posting
-    now = datetime.datetime.now(datetime.timezone.utc)
-
-    # Delay to avoid rate limiting
-    time.sleep(5)
+        print(f"⚠️ Failed to post '{quote}' at {now}: {e}")
