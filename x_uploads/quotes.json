@@ -1,92 +1,362 @@
 [
-  { "timestamp": "2025-09-01T15:00:00Z", "quote": "In the midst of chaos, there is also opportunity. — Sun Tzu" },
-  { "timestamp": "2025-09-02T15:00:00Z", "quote": "Waste no more time arguing about what a good man should be. Be one. — Marcus Aurelius" },
-  { "timestamp": "2025-09-03T15:00:00Z", "quote": "He who conquers himself is the mightiest warrior. — Confucius" },
-  { "timestamp": "2025-09-04T15:00:00Z", "quote": "The unexamined life is not worth living. — Socrates" },
-  { "timestamp": "2025-09-05T15:00:00Z", "quote": "Luck is what happens when preparation meets opportunity. — Seneca" },
-  { "timestamp": "2025-09-06T15:00:00Z", "quote": "Be kind, for everyone you meet is fighting a harder battle. — Plato" },
-  { "timestamp": "2025-09-07T15:00:00Z", "quote": "Courage, above all things, is the first quality of a warrior. — Carl von Clausewitz" },
-  { "timestamp": "2025-09-08T15:00:00Z", "quote": "Man suffers more in imagination than in reality. — Seneca" },
-  { "timestamp": "2025-09-09T15:00:00Z", "quote": "Knowing yourself is the beginning of all wisdom. — Aristotle" },
-  { "timestamp": "2025-09-10T15:00:00Z", "quote": "Do not pray for an easy life, pray for the strength to endure a difficult one. — Bruce Lee" },
-  { "timestamp": "2025-09-11T15:00:00Z", "quote": "To know your Enemy, you must become your Enemy. — Sun Tzu" },
-  { "timestamp": "2025-09-12T15:00:00Z", "quote": "The best revenge is not to be like your enemy. — Marcus Aurelius" },
-  { "timestamp": "2025-09-13T15:00:00Z", "quote": "Wealth consists not in having great possessions, but in having few wants. — Epictetus" },
-  { "timestamp": "2025-09-14T15:00:00Z", "quote": "It is not death that a man should fear, but he should fear never beginning to live. — Marcus Aurelius" },
-  { "timestamp": "2025-09-15T15:00:00Z", "quote": "Appear weak when you are strong, and strong when you are weak. — Sun Tzu" },
-  { "timestamp": "2025-09-16T15:00:00Z", "quote": "Fortune favors the bold. — Latin Proverb" },
-  { "timestamp": "2025-09-17T15:00:00Z", "quote": "He who opens a school door, closes a prison. — Victor Hugo" },
-  { "timestamp": "2025-09-18T15:00:00Z", "quote": "We are what we repeatedly do. Excellence, then, is not an act, but a habit. — Aristotle" },
-  { "timestamp": "2025-09-19T15:00:00Z", "quote": "Even death is not to be feared by one who has lived wisely. — Buddha" },
-  { "timestamp": "2025-09-20T15:00:00Z", "quote": "Do what you can, with what you have, where you are. — Theodore Roosevelt" },
-  { "timestamp": "2025-09-21T15:00:00Z", "quote": "Opportunities multiply as they are seized. — Sun Tzu" },
-  { "timestamp": "2025-09-22T15:00:00Z", "quote": "The brave man is not he who does not feel afraid, but he who conquers that fear. — Nelson Mandela" },
-  { "timestamp": "2025-09-23T15:00:00Z", "quote": "A room without books is like a body without a soul. — Cicero" },
-  { "timestamp": "2025-09-24T15:00:00Z", "quote": "Throw me to the wolves and I will return leading the pack. — Seneca" },
-  { "timestamp": "2025-09-25T15:00:00Z", "quote": "Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat. — Sun Tzu" },
-  { "timestamp": "2025-09-26T15:00:00Z", "quote": "The man who moves a mountain begins by carrying away small stones. — Confucius" },
-  { "timestamp": "2025-09-27T15:00:00Z", "quote": "Live as if you were to die tomorrow. Learn as if you were to live forever. — Mahatma Gandhi" },
-  { "timestamp": "2025-09-28T15:00:00Z", "quote": "First say to yourself what you would be; and then do what you have to do. — Epictetus" },
-  { "timestamp": "2025-09-29T15:00:00Z", "quote": "Victory is reserved for those who are willing to pay its price. — Sun Tzu" },
-  { "timestamp": "2025-09-30T15:00:00Z", "quote": "The soul becomes dyed with the color of its thoughts. — Marcus Aurelius" },
-  { "timestamp": "2025-10-01T15:00:00Z", "quote": "Knowledge without justice ought to be called cunning rather than wisdom. — Plato" },
-  { "timestamp": "2025-10-02T15:00:00Z", "quote": "What we achieve inwardly will change outer reality. — Plutarch" },
-  { "timestamp": "2025-10-03T15:00:00Z", "quote": "No man has a good enough memory to be a successful liar. — Abraham Lincoln" },
-  { "timestamp": "2025-10-04T15:00:00Z", "quote": "Poverty is the parent of revolution and crime. — Aristotle" },
-  { "timestamp": "2025-10-05T15:00:00Z", "quote": "Cowards die many times before their deaths; the valiant never taste of death but once. — Julius Caesar" },
-  { "timestamp": "2025-10-06T15:00:00Z", "quote": "The more you sweat in peace, the less you bleed in war. — Norman Schwarzkopf" },
-  { "timestamp": "2025-10-07T15:00:00Z", "quote": "We are more often frightened than hurt; and we suffer more in imagination than in reality. — Seneca" },
-  { "timestamp": "2025-10-08T15:00:00Z", "quote": "The greatest victory is to conquer yourself. — Aristotle" },
-  { "timestamp": "2025-10-09T15:00:00Z", "quote": "Wars begin in the minds of men. — UNESCO preamble" },
-  { "timestamp": "2025-10-10T15:00:00Z", "quote": "If you are far from the enemy, make him believe you are near. — Sun Tzu" },
-  { "timestamp": "2025-10-11T15:00:00Z", "quote": "He who has a why to live can bear almost any how. — Friedrich Nietzsche" },
-  { "timestamp": "2025-10-12T15:00:00Z", "quote": "Discipline is the soul of an army. — George Washington" },
-  { "timestamp": "2025-10-13T15:00:00Z", "quote": "Happiness depends upon ourselves. — Aristotle" },
-  { "timestamp": "2025-10-14T15:00:00Z", "quote": "Better to fight for something than live for nothing. — George S. Patton" },
-  { "timestamp": "2025-10-15T15:00:00Z", "quote": "An ounce of practice is worth more than tons of preaching. — Mahatma Gandhi" },
-  { "timestamp": "2025-10-16T15:00:00Z", "quote": "The way is not in the sky. The way is in the heart. — Buddha" },
-  { "timestamp": "2025-10-17T15:00:00Z", "quote": "History is written by the victors. — Winston Churchill" },
-  { "timestamp": "2025-10-18T15:00:00Z", "quote": "The supreme art of war is to subdue the enemy without fighting. — Sun Tzu" },
-  { "timestamp": "2025-10-19T15:00:00Z", "quote": "Liberty means responsibility. That is why most men dread it. — George Bernard Shaw" },
-  { "timestamp": "2025-10-20T15:00:00Z", "quote": "A man who dares to waste one hour of time has not discovered the value of life. — Charles Darwin" },
-  { "timestamp": "2025-10-21T15:00:00Z", "quote": "Do not go where the path may lead, go instead where there is no path and leave a trail. — Ralph Waldo Emerson" },
-  { "timestamp": "2025-10-22T15:00:00Z", "quote": "Live life as though nobody is watching, and express yourself as though everyone is listening. — Nelson Mandela" },
-  { "timestamp": "2025-10-23T15:00:00Z", "quote": "Power tends to corrupt, and absolute power corrupts absolutely. — Lord Acton" },
-  { "timestamp": "2025-10-24T15:00:00Z", "quote": "He who is not courageous enough to take risks will accomplish nothing in life. — Muhammad Ali" },
-  { "timestamp": "2025-10-25T15:00:00Z", "quote": "Glory is fleeting, but obscurity is forever. — Napoleon Bonaparte" },
-  { "timestamp": "2025-10-26T15:00:00Z", "quote": "Be as you wish to seem. — Socrates" },
-  { "timestamp": "2025-10-27T15:00:00Z", "quote": "No man is free who is not a master of himself. — Epictetus" },
-  { "timestamp": "2025-10-28T15:00:00Z", "quote": "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment. — Buddha" },
-  { "timestamp": "2025-10-29T15:00:00Z", "quote": "There is nothing impossible to him who will try. — Alexander the Great" },
-  { "timestamp": "2025-10-30T15:00:00Z", "quote": "Perseverance, secret of all triumphs. — Victor Hugo" },
-  { "timestamp": "2025-10-31T15:00:00Z", "quote": "Freedom is nothing else but a chance to be better. — Albert Camus" },
-  { "timestamp": "2025-11-01T15:00:00Z", "quote": "We must all suffer one of two things: the pain of discipline or the pain of regret. — Jim Rohn" },
-  { "timestamp": "2025-11-02T15:00:00Z", "quote": "Bravery is the solution to regret. — Robin Sharma" },
-  { "timestamp": "2025-11-03T15:00:00Z", "quote": "The future depends on what you do today. — Mahatma Gandhi" },
-  { "timestamp": "2025-11-04T15:00:00Z", "quote": "Fall seven times and stand up eight. — Japanese Proverb" },
-  { "timestamp": "2025-11-05T15:00:00Z", "quote": "The wise man does at once what the fool does finally. — Niccolò Machiavelli" },
-  { "timestamp": "2025-11-06T15:00:00Z", "quote": "It always seems impossible until it’s done. — Nelson Mandela" },
-  { "timestamp": "2025-11-07T15:00:00Z", "quote": "Silence is a true friend who never betrays. — Confucius" },
-  { "timestamp": "2025-11-08T15:00:00Z", "quote": "Our life is what our thoughts make it. — Marcus Aurelius" },
-  { "timestamp": "2025-11-09T15:00:00Z", "quote": "Do not wait to strike till the iron is hot, but make it hot by striking. — William Butler Yeats" },
-  { "timestamp": "2025-11-10T15:00:00Z", "quote": "Action is the foundational key to all success. — Pablo Picasso" },
-  { "timestamp": "2025-11-11T15:00:00Z", "quote": "You must be the change you wish to see in the world. — Mahatma Gandhi" },
-  { "timestamp": "2025-11-12T15:00:00Z", "quote": "A hero is no braver than an ordinary man, but he is brave five minutes longer. — Ralph Waldo Emerson" },
-  { "timestamp": "2025-11-13T15:00:00Z", "quote": "The harder the conflict, the greater the triumph. — George Washington" },
-  { "timestamp": "2025-11-14T15:00:00Z", "quote": "Do not go gentle into that good night. — Dylan Thomas" },
-  { "timestamp": "2025-11-15T15:00:00Z", "quote": "It is not length of life, but depth of life. — Ralph Waldo Emerson" },
-  { "timestamp": "2025-11-16T15:00:00Z", "quote": "We are masters of the unsaid words, but slaves of those we let slip out. — Winston Churchill" },
-  { "timestamp": "2025-11-17T15:00:00Z", "quote": "Victory belongs to the most persevering. — Napoleon Bonaparte" },
-  { "timestamp": "2025-11-18T15:00:00Z", "quote": "A leader is one who knows the way, goes the way, and shows the way. — John C. Maxwell" },
-  { "timestamp": "2025-11-19T15:00:00Z", "quote": "Do not let what you cannot do interfere with what you can do. — John Wooden" },
-  { "timestamp": "2025-11-20T15:00:00Z", "quote": "Experience is the teacher of all things. — Julius Caesar" },
-  { "timestamp": "2025-11-21T15:00:00Z", "quote": "An army of sheep led by a lion is better than an army of lions led by a sheep. — Alexander the Great" },
-  { "timestamp": "2025-11-22T15:00:00Z", "quote": "Strength does not come from physical capacity. It comes from an indomitable will. — Mahatma Gandhi" },
-  { "timestamp": "2025-11-23T15:00:00Z", "quote": "Character is destiny. — Heraclitus" },
-  { "timestamp": "2025-11-24T15:00:00Z", "quote": "A warrior is worthless unless he rises above others and stands strong in the midst of a storm. — Yamamoto Tsunetomo" },
-  { "timestamp": "2025-11-25T15:00:00Z", "quote": "There is nothing more powerful than an idea whose time has come. — Victor Hugo" },
-  { "timestamp": "2025-11-26T15:00:00Z", "quote": "To improve is to change; to be perfect is to change often. — Winston Churchill" },
-  { "timestamp": "2025-11-27T15:00:00Z", "quote": "Energy and persistence conquer all things. — Benjamin Franklin" },
-  { "timestamp": "2025-11-28T15:00:00Z", "quote": "Success is how high you bounce when you hit bottom. — George S. Patton" },
-  { "timestamp": "2025-11-29T15:00:00Z", "quote": "What we think, we become. — Buddha" }
+  {
+    "timestamp": "2025-09-08T15:00:00Z",
+    "quote": "In the midst of chaos, there is also opportunity. — Sun Tzu\n\n#positivity #selflove #inspire #successquotes #confidence #successmindset #PositiveVibes #mentalhealth #businessquotes #AncientWisdom #discipline #growthmindset #PurposeDriven #StayPositive #determination #motivation"
+  },
+  {
+    "timestamp": "2025-09-09T15:00:00Z",
+    "quote": "Waste no more time arguing about what a good man should be. Be one. — Marcus Aurelius\n\n#growthmindset #StayFocused #motivation #strength #selfcare #businessquotes #mindfulness #lifestyle #KeepPushing #resilience #confidence #ambition #hustle #warriormindset #believeinyourself"
+  },
+  {
+    "timestamp": "2025-09-10T15:00:00Z",
+    "quote": "He who conquers himself is the mightiest warrior. — Confucius\n\n#selfdiscipline #inspiration #wisdom #DreamBig #believeinyourself #mentalhealth #power #leadership #AncientWisdom #selfgrowth #StayFocused #growthmindset #ambition #StayPositive #mindfulness #quotes #KeepPushing"
+  },
+  {
+    "timestamp": "2025-09-11T15:00:00Z",
+    "quote": "The unexamined life is not worth living. — Socrates\n\n#LifeLessons #selflove #dailyquote #leadership #determination #businessquotes #PurposeDriven #StayPositive #wisdom #StayFocused #selfcare #successquotes #inspire #resilience #courage #selfgrowth #leadershipquotes #focus"
+  },
+  {
+    "timestamp": "2025-09-12T15:00:00Z",
+    "quote": "Luck is what happens when preparation meets opportunity. — Seneca\n\n#successmindset #entrepreneurship #DreamBig #businessquotes #lifestyle #resilience #positivity #leadershipquotes #inspiration #StayPositive #power #successquotes #GoalSetting #selfcare #strength #MondayMotivation"
+  },
+  {
+    "timestamp": "2025-09-13T15:00:00Z",
+    "quote": "Be kind, for everyone you meet is fighting a harder battle. — Plato\n\n#quotes #dailyquote #wisdom #PurposeDriven #KeepPushing #nevergiveup #mindset #discipline #mindfulness #MondayMotivation #motivation #believeinyourself #leadership #successquotes #strength #StayFocused"
+  },
+  {
+    "timestamp": "2025-09-14T15:00:00Z",
+    "quote": "Courage, above all things, is the first quality of a warrior. — Carl von Clausewitz\n\n#selfimprovement #lifestyle #selfdiscipline #successmindset #courage #GoalSetting #successquotes #discipline #positivity #wisdom #selfgrowth #nevergiveup #resilience #StayFocused #strength"
+  },
+  {
+    "timestamp": "2025-09-15T15:00:00Z",
+    "quote": "Man suffers more in imagination than in reality. — Seneca\n\n#strength #LifeLessons #wisdom #ambition #leadership #warriormindset #AncientWisdom #hustle #successquotes #GoalSetting #inspire #discipline #power #entrepreneurship #leadershipquotes #dailyquote #mindfulness #courage"
+  },
+  {
+    "timestamp": "2025-09-16T15:00:00Z",
+    "quote": "Knowing yourself is the beginning of all wisdom. — Aristotle\n\n#motivation #warriormindset #AncientWisdom #selflove #strength #wisdom #entrepreneurship #power #quotes #focus #discipline #selfgrowth #believeinyourself #PositiveVibes #inspiration #KeepPushing #confidence #grind"
+  },
+  {
+    "timestamp": "2025-09-17T15:00:00Z",
+    "quote": "Do not pray for an easy life, pray for the strength to endure a difficult one. — Bruce Lee\n\n#LifeLessons #lifestyle #leadershipquotes #StayFocused #wisdom #believeinyourself #successmindset #strategy #strength #AncientWisdom #warriormindset #selfgrowth #motivation #selfdiscipline"
+  },
+  {
+    "timestamp": "2025-09-18T15:00:00Z",
+    "quote": "To know your Enemy, you must become your Enemy. — Sun Tzu\n\n#inspiration #inspire #DreamBig #successmindset #selfimprovement #strength #discipline #power #growthmindset #MondayMotivation #hustle #motivation #selfdiscipline #lifestyle #resilience #courage #confidence #grind"
+  },
+  {
+    "timestamp": "2025-09-19T15:00:00Z",
+    "quote": "The best revenge is not to be like your enemy. — Marcus Aurelius\n\n#power #DreamBig #hustle #nevergiveup #StayPositive #strength #courage #KeepPushing #entrepreneurship #ambition #warriormindset #motivationalquotes #PurposeDriven #LifeLessons #motivation #PositiveVibes #mindset"
+  },
+  {
+    "timestamp": "2025-09-20T15:00:00Z",
+    "quote": "Wealth consists not in having great possessions, but in having few wants. — Epictetus\n\n#PurposeDriven #inspiration #lifestyle #successquotes #motivationalquotes #businessquotes #discipline #strategy #ambition #StayFocused #mindfulness #selfgrowth #GoalSetting #entrepreneurship"
+  },
+  {
+    "timestamp": "2025-09-21T15:00:00Z",
+    "quote": "It is not death that a man should fear, but he should fear never beginning to live. — Marcus Aurelius\n\n#GoalSetting #lifestyle #determination #successquotes #growthmindset #selfimprovement #resilience #grind #mindset #inspire #quotes #PositiveVibes #nevergiveup #dailyquote"
+  },
+  {
+    "timestamp": "2025-09-22T15:00:00Z",
+    "quote": "Appear weak when you are strong, and strong when you are weak. — Sun Tzu\n\n#mindfulness #confidence #selflove #warriormindset #nevergiveup #grind #entrepreneurship #ambition #selfgrowth #leadership #selfcare #growthmindset #selfimprovement #leadershipquotes #mentalhealth #DreamBig"
+  },
+  {
+    "timestamp": "2025-09-23T15:00:00Z",
+    "quote": "Fortune favors the bold. — Latin Proverb\n\n#successquotes #successmindset #positivity #StayPositive #selflove #inspiration #KeepPushing #focus #inspire #leadership #determination #selfimprovement #selfcare #warriormindset #growthmindset #strategy #discipline #motivationalquotes"
+  },
+  {
+    "timestamp": "2025-09-24T15:00:00Z",
+    "quote": "He who opens a school door, closes a prison. — Victor Hugo\n\n#quotes #dailyquote #leadership #selfcare #LifeLessons #inspire #believeinyourself #PositiveVibes #entrepreneurship #successquotes #MondayMotivation #lifestyle #wisdom #GoalSetting #businessquotes #DreamBig #StayPositive"
+  },
+  {
+    "timestamp": "2025-09-25T15:00:00Z",
+    "quote": "We are what we repeatedly do. Excellence, then, is not an act, but a habit. — Aristotle\n\n#mentalhealth #GoalSetting #successquotes #entrepreneurship #dailyquote #leadership #mindfulness #confidence #courage #ambition #MondayMotivation #growthmindset #AncientWisdom #focus"
+  },
+  {
+    "timestamp": "2025-09-26T15:00:00Z",
+    "quote": "Even death is not to be feared by one who has lived wisely. — Buddha\n\n#believeinyourself #growthmindset #StayPositive #power #strategy #leadershipquotes #leadership #selflove #motivation #quotes #PositiveVibes #mentalhealth #warriormindset #successmindset #courage #mindset"
+  },
+  {
+    "timestamp": "2025-09-27T15:00:00Z",
+    "quote": "Do what you can, with what you have, where you are. — Theodore Roosevelt\n\n#power #successmindset #ambition #successquotes #determination #hustle #GoalSetting #warriormindset #LifeLessons #quotes #discipline #believeinyourself #leadershipquotes #growthmindset #grind #courage"
+  },
+  {
+    "timestamp": "2025-09-28T15:00:00Z",
+    "quote": "Opportunities multiply as they are seized. — Sun Tzu\n\n#discipline #LifeLessons #strategy #PurposeDriven #selfdiscipline #resilience #focus #nevergiveup #businessquotes #leadershipquotes #dailyquote #ambition #AncientWisdom #grind #hustle #positivity #selfimprovement #KeepPushing"
+  },
+  {
+    "timestamp": "2025-09-29T15:00:00Z",
+    "quote": "The brave man is not he who does not feel afraid, but he who conquers that fear. — Nelson Mandela\n\n#discipline #focus #GoalSetting #confidence #leadership #determination #entrepreneurship #AncientWisdom #selflove #courage #StayPositive #KeepPushing #motivation #PurposeDriven"
+  },
+  {
+    "timestamp": "2025-09-30T15:00:00Z",
+    "quote": "A room without books is like a body without a soul. — Cicero\n\n#nevergiveup #strategy #leadership #selflove #DreamBig #courage #hustle #successquotes #discipline #selfcare #AncientWisdom #PositiveVibes #warriormindset #mindfulness #selfgrowth #GoalSetting #strength #determination"
+  },
+  {
+    "timestamp": "2025-10-01T15:00:00Z",
+    "quote": "Throw me to the wolves and I will return leading the pack. — Seneca\n\n#KeepPushing #PurposeDriven #inspiration #AncientWisdom #focus #hustle #ambition #warriormindset #leadershipquotes #successquotes #mentalhealth #motivation #motivationalquotes #DreamBig #selfimprovement #courage"
+  },
+  {
+    "timestamp": "2025-10-02T15:00:00Z",
+    "quote": "Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat. — Sun Tzu\n\n#confidence #leadership #believeinyourself #wisdom #lifestyle #mindset #strategy #grind #mindfulness #AncientWisdom #PurposeDriven #selfgrowth #KeepPushing"
+  },
+  {
+    "timestamp": "2025-10-03T15:00:00Z",
+    "quote": "The man who moves a mountain begins by carrying away small stones. — Confucius\n\n#warriormindset #PurposeDriven #businessquotes #DreamBig #resilience #courage #hustle #mindset #inspiration #StayFocused #growthmindset #nevergiveup #dailyquote #motivationalquotes #KeepPushing"
+  },
+  {
+    "timestamp": "2025-10-04T15:00:00Z",
+    "quote": "Live as if you were to die tomorrow. Learn as if you were to live forever. — Mahatma Gandhi\n\n#warriormindset #determination #growthmindset #PurposeDriven #inspiration #AncientWisdom #StayPositive #discipline #strength #focus #selfdiscipline #strategy #mindfulness #ambition"
+  },
+  {
+    "timestamp": "2025-10-05T15:00:00Z",
+    "quote": "First say to yourself what you would be; and then do what you have to do. — Epictetus\n\n#warriormindset #ambition #strategy #dailyquote #successquotes #nevergiveup #selfdiscipline #LifeLessons #courage #selflove #leadership #leadershipquotes #mindset #KeepPushing #DreamBig"
+  },
+  {
+    "timestamp": "2025-10-06T15:00:00Z",
+    "quote": "Victory is reserved for those who are willing to pay its price. — Sun Tzu\n\n#selfgrowth #leadershipquotes #PurposeDriven #power #believeinyourself #nevergiveup #motivation #dailyquote #motivationalquotes #entrepreneurship #KeepPushing #DreamBig #StayPositive #selflove #LifeLessons"
+  },
+  {
+    "timestamp": "2025-10-07T15:00:00Z",
+    "quote": "The soul becomes dyed with the color of its thoughts. — Marcus Aurelius\n\n#selfdiscipline #mentalhealth #strength #believeinyourself #strategy #discipline #wisdom #nevergiveup #motivation #quotes #determination #motivationalquotes #StayPositive #AncientWisdom #positivity"
+  },
+  {
+    "timestamp": "2025-10-08T15:00:00Z",
+    "quote": "Knowledge without justice ought to be called cunning rather than wisdom. — Plato\n\n#wisdom #strategy #nevergiveup #focus #mindfulness #LifeLessons #successquotes #warriormindset #power #inspire #lifestyle #GoalSetting #AncientWisdom #leadership #confidence #selfcare"
+  },
+  {
+    "timestamp": "2025-10-09T15:00:00Z",
+    "quote": "What we achieve inwardly will change outer reality. — Plutarch\n\n#motivation #selflove #focus #mindset #courage #DreamBig #positivity #mentalhealth #believeinyourself #MondayMotivation #dailyquote #selfdiscipline #wisdom #successmindset #resilience #AncientWisdom #leadership"
+  },
+  {
+    "timestamp": "2025-10-10T15:00:00Z",
+    "quote": "No man has a good enough memory to be a successful liar. — Abraham Lincoln\n\n#LifeLessons #courage #positivity #mindfulness #selfcare #StayFocused #GoalSetting #PositiveVibes #determination #selfdiscipline #lifestyle #mentalhealth #selfgrowth #MondayMotivation #inspiration"
+  },
+  {
+    "timestamp": "2025-10-11T15:00:00Z",
+    "quote": "Poverty is the parent of revolution and crime. — Aristotle\n\n#confidence #successmindset #grind #inspiration #StayPositive #leadership #selfdiscipline #LifeLessons #resilience #successquotes #selfimprovement #positivity #selfgrowth #focus #entrepreneurship #MondayMotivation"
+  },
+  {
+    "timestamp": "2025-10-12T15:00:00Z",
+    "quote": "Cowards die many times before their deaths; the valiant never taste of death but once. — Julius Caesar\n\n#entrepreneurship #AncientWisdom #motivation #discipline #focus #successmindset #hustle #resilience #successquotes #businessquotes #courage #PositiveVibes #quotes #power"
+  },
+  {
+    "timestamp": "2025-10-13T15:00:00Z",
+    "quote": "The more you sweat in peace, the less you bleed in war. — Norman Schwarzkopf\n\n#entrepreneurship #motivationalquotes #PurposeDriven #resilience #wisdom #grind #leadershipquotes #selfgrowth #LifeLessons #successmindset #believeinyourself #focus #businessquotes #mentalhealth"
+  },
+  {
+    "timestamp": "2025-10-14T15:00:00Z",
+    "quote": "We are more often frightened than hurt; and we suffer more in imagination than in reality. — Seneca\n\n#MondayMotivation #mindset #believeinyourself #focus #warriormindset #PurposeDriven #dailyquote #entrepreneurship #discipline #confidence #strength #motivationalquotes"
+  },
+  {
+    "timestamp": "2025-10-15T15:00:00Z",
+    "quote": "The greatest victory is to conquer yourself. — Aristotle\n\n#mindset #grind #StayPositive #MondayMotivation #successmindset #DreamBig #hustle #determination #courage #confidence #successquotes #selfcare #selfgrowth #strength #ambition #dailyquote #leadership #KeepPushing"
+  },
+  {
+    "timestamp": "2025-10-16T15:00:00Z",
+    "quote": "Wars begin in the minds of men. — UNESCO preamble\n\n#mentalhealth #confidence #StayPositive #inspiration #GoalSetting #power #warriormindset #dailyquote #DreamBig #selflove #mindfulness #motivation #believeinyourself #selfgrowth #lifestyle #hustle #positivity #growthmindset"
+  },
+  {
+    "timestamp": "2025-10-17T15:00:00Z",
+    "quote": "If you are far from the enemy, make him believe you are near. — Sun Tzu\n\n#StayPositive #mentalhealth #motivationalquotes #leadership #selfgrowth #determination #confidence #GoalSetting #strength #courage #leadershipquotes #selfcare #grind #nevergiveup #LifeLessons #selfdiscipline"
+  },
+  {
+    "timestamp": "2025-10-18T15:00:00Z",
+    "quote": "He who has a why to live can bear almost any how. — Friedrich Nietzsche\n\n#ambition #GoalSetting #LifeLessons #successquotes #PurposeDriven #DreamBig #quotes #lifestyle #motivationalquotes #growthmindset #motivation #determination #KeepPushing #businessquotes #discipline #mindset"
+  },
+  {
+    "timestamp": "2025-10-19T15:00:00Z",
+    "quote": "Discipline is the soul of an army. — George Washington\n\n#motivation #resilience #PositiveVibes #DreamBig #successmindset #strength #motivationalquotes #mindset #grind #PurposeDriven #power #strategy #dailyquote #LifeLessons #quotes #growthmindset #ambition #leadershipquotes"
+  },
+  {
+    "timestamp": "2025-10-20T15:00:00Z",
+    "quote": "Happiness depends upon ourselves. — Aristotle\n\n#mindfulness #discipline #wisdom #motivationalquotes #confidence #grind #selflove #resilience #MondayMotivation #successmindset #growthmindset #selfcare #PurposeDriven #nevergiveup #quotes #leadership #mindset #determination #power"
+  },
+  {
+    "timestamp": "2025-10-21T15:00:00Z",
+    "quote": "Better to fight for something than live for nothing. — George S. Patton\n\n#resilience #hustle #grind #positivity #discipline #successquotes #confidence #mentalhealth #KeepPushing #successmindset #leadershipquotes #selfimprovement #motivationalquotes #inspire #warriormindset"
+  },
+  {
+    "timestamp": "2025-10-22T15:00:00Z",
+    "quote": "An ounce of practice is worth more than tons of preaching. — Mahatma Gandhi\n\n#focus #motivationalquotes #believeinyourself #mindset #successquotes #LifeLessons #inspiration #nevergiveup #dailyquote #entrepreneurship #businessquotes #growthmindset #ambition #discipline"
+  },
+  {
+    "timestamp": "2025-10-23T15:00:00Z",
+    "quote": "The way is not in the sky. The way is in the heart. — Buddha\n\n#inspire #successmindset #ambition #strategy #determination #quotes #discipline #resilience #DreamBig #PurposeDriven #selflove #selfgrowth #motivationalquotes #LifeLessons #KeepPushing #mentalhealth #believeinyourself"
+  },
+  {
+    "timestamp": "2025-10-24T15:00:00Z",
+    "quote": "History is written by the victors. — Winston Churchill\n\n#dailyquote #grind #leadershipquotes #selfcare #StayPositive #leadership #selfimprovement #confidence #StayFocused #entrepreneurship #MondayMotivation #mentalhealth #selfgrowth #resilience #power #motivationalquotes"
+  },
+  {
+    "timestamp": "2025-10-25T15:00:00Z",
+    "quote": "The supreme art of war is to subdue the enemy without fighting. — Sun Tzu\n\n#selfimprovement #PurposeDriven #wisdom #motivation #warriormindset #leadership #positivity #strength #mindfulness #inspire #confidence #dailyquote #AncientWisdom #growthmindset #focus #resilience"
+  },
+  {
+    "timestamp": "2025-10-26T15:00:00Z",
+    "quote": "Liberty means responsibility. That is why most men dread it. — George Bernard Shaw\n\n#successquotes #focus #StayPositive #successmindset #PurposeDriven #hustle #positivity #motivationalquotes #AncientWisdom #inspire #wisdom #selfcare #KeepPushing #mindfulness #selfgrowth"
+  },
+  {
+    "timestamp": "2025-10-27T15:00:00Z",
+    "quote": "A man who dares to waste one hour of time has not discovered the value of life. — Charles Darwin\n\n#motivation #selfcare #dailyquote #positivity #resilience #lifestyle #leadership #LifeLessons #wisdom #selfimprovement #discipline #ambition #courage #businessquotes #successquotes"
+  },
+  {
+    "timestamp": "2025-10-28T15:00:00Z",
+    "quote": "Do not go where the path may lead, go instead where there is no path and leave a trail. — Ralph Waldo Emerson\n\n#believeinyourself #discipline #resilience #lifestyle #grind #wisdom #selfimprovement #leadership #selflove #strength #quotes #growthmindset #PurposeDriven #nevergiveup"
+  },
+  {
+    "timestamp": "2025-10-29T15:00:00Z",
+    "quote": "Live life as though nobody is watching, and express yourself as though everyone is listening. — Nelson Mandela\n\n#StayPositive #discipline #inspiration #businessquotes #positivity #entrepreneurship #motivationalquotes #warriormindset #focus #mindset #ambition #selfcare #inspire"
+  },
+  {
+    "timestamp": "2025-10-30T15:00:00Z",
+    "quote": "Power tends to corrupt, and absolute power corrupts absolutely. — Lord Acton\n\n#focus #successmindset #resilience #PositiveVibes #StayPositive #selfgrowth #lifestyle #MondayMotivation #strategy #determination #wisdom #selfimprovement #confidence #DreamBig #ambition #mentalhealth"
+  },
+  {
+    "timestamp": "2025-10-31T15:00:00Z",
+    "quote": "He who is not courageous enough to take risks will accomplish nothing in life. — Muhammad Ali\n\n#focus #AncientWisdom #MondayMotivation #PositiveVibes #growthmindset #quotes #StayFocused #entrepreneurship #dailyquote #motivationalquotes #KeepPushing #selfgrowth #mentalhealth"
+  },
+  {
+    "timestamp": "2025-11-01T15:00:00Z",
+    "quote": "Glory is fleeting, but obscurity is forever. — Napoleon Bonaparte\n\n#wisdom #believeinyourself #confidence #MondayMotivation #strength #motivationalquotes #focus #LifeLessons #PositiveVibes #selfcare #selfgrowth #PurposeDriven #nevergiveup #mindset #grind #strategy #mentalhealth"
+  },
+  {
+    "timestamp": "2025-11-02T15:00:00Z",
+    "quote": "Be as you wish to seem. — Socrates\n\n#determination #strategy #selfimprovement #hustle #strength #mindfulness #entrepreneurship #positivity #wisdom #dailyquote #StayPositive #power #courage #mentalhealth #lifestyle #selfcare #selfgrowth #PositiveVibes #ambition #confidence"
+  },
+  {
+    "timestamp": "2025-11-03T15:00:00Z",
+    "quote": "No man is free who is not a master of himself. — Epictetus\n\n#MondayMotivation #selfcare #quotes #motivationalquotes #lifestyle #PurposeDriven #LifeLessons #growthmindset #successquotes #inspiration #businessquotes #leadershipquotes #confidence #motivation #GoalSetting"
+  },
+  {
+    "timestamp": "2025-11-04T15:00:00Z",
+    "quote": "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment. — Buddha\n\n#quotes #StayPositive #mindset #believeinyourself #PositiveVibes #businessquotes #selfgrowth #MondayMotivation #strategy #DreamBig #entrepreneurship #AncientWisdom"
+  },
+  {
+    "timestamp": "2025-11-05T15:00:00Z",
+    "quote": "There is nothing impossible to him who will try. — Alexander the Great\n\n#DreamBig #power #PurposeDriven #mindfulness #motivationalquotes #grind #selfgrowth #positivity #believeinyourself #selfcare #selfdiscipline #selflove #KeepPushing #StayPositive #focus #warriormindset"
+  },
+  {
+    "timestamp": "2025-11-06T15:00:00Z",
+    "quote": "Perseverance, secret of all triumphs. — Victor Hugo\n\n#selfdiscipline #believeinyourself #strength #PurposeDriven #focus #warriormindset #confidence #selfgrowth #StayFocused #courage #successmindset #dailyquote #nevergiveup #inspiration #PositiveVibes #successquotes #determination"
+  },
+  {
+    "timestamp": "2025-11-07T15:00:00Z",
+    "quote": "Freedom is nothing else but a chance to be better. — Albert Camus\n\n#grind #selfimprovement #LifeLessons #selfdiscipline #believeinyourself #power #warriormindset #StayPositive #strategy #inspire #selfcare #mentalhealth #DreamBig #nevergiveup #ambition #leadershipquotes #lifestyle"
+  },
+  {
+    "timestamp": "2025-11-08T15:00:00Z",
+    "quote": "We must all suffer one of two things: the pain of discipline or the pain of regret. — Jim Rohn\n\n#ambition #businessquotes #dailyquote #successquotes #focus #mentalhealth #warriormindset #selfimprovement #resilience #grind #determination #motivation #courage #inspire"
+  },
+  {
+    "timestamp": "2025-11-09T15:00:00Z",
+    "quote": "Bravery is the solution to regret. — Robin Sharma\n\n#selflove #ambition #courage #motivation #resilience #positivity #warriormindset #successmindset #StayPositive #selfimprovement #selfgrowth #strength #mindset #believeinyourself #motivationalquotes #quotes #lifestyle #discipline"
+  },
+  {
+    "timestamp": "2025-11-10T15:00:00Z",
+    "quote": "The future depends on what you do today. — Mahatma Gandhi\n\n#successquotes #leadership #selfcare #warriormindset #hustle #lifestyle #ambition #power #LifeLessons #focus #mindset #resilience #mentalhealth #StayPositive #discipline #strength #believeinyourself #selfgrowth"
+  },
+  {
+    "timestamp": "2025-11-11T15:00:00Z",
+    "quote": "Fall seven times and stand up eight. — Japanese Proverb\n\n#discipline #power #grind #wisdom #strength #confidence #StayPositive #nevergiveup #motivation #successmindset #selfimprovement #leadership #growthmindset #AncientWisdom #PositiveVibes #KeepPushing #positivity #GoalSetting"
+  },
+  {
+    "timestamp": "2025-11-12T15:00:00Z",
+    "quote": "The wise man does at once what the fool does finally. — Niccolò Machiavelli\n\n#focus #KeepPushing #PositiveVibes #confidence #growthmindset #wisdom #believeinyourself #mindset #ambition #nevergiveup #LifeLessons #selflove #grind #resilience #quotes #inspiration #selfgrowth"
+  },
+  {
+    "timestamp": "2025-11-13T15:00:00Z",
+    "quote": "It always seems impossible until it’s done. — Nelson Mandela\n\n#MondayMotivation #selfimprovement #selflove #determination #AncientWisdom #quotes #leadershipquotes #mindfulness #PurposeDriven #warriormindset #growthmindset #courage #grind #PositiveVibes #successmindset"
+  },
+  {
+    "timestamp": "2025-11-14T15:00:00Z",
+    "quote": "Silence is a true friend who never betrays. — Confucius\n\n#StayPositive #motivation #selflove #MondayMotivation #focus #lifestyle #PurposeDriven #quotes #leadership #growthmindset #LifeLessons #inspire #positivity #discipline #confidence #strategy #GoalSetting #grind #courage"
+  },
+  {
+    "timestamp": "2025-11-15T15:00:00Z",
+    "quote": "Our life is what our thoughts make it. — Marcus Aurelius\n\n#selfcare #courage #quotes #StayFocused #focus #DreamBig #positivity #growthmindset #believeinyourself #nevergiveup #PositiveVibes #determination #confidence #resilience #PurposeDriven #MondayMotivation #power #strategy"
+  },
+  {
+    "timestamp": "2025-11-16T15:00:00Z",
+    "quote": "Do not wait to strike till the iron is hot, but make it hot by striking. — William Butler Yeats\n\n#businessquotes #selflove #MondayMotivation #selfdiscipline #StayPositive #discipline #believeinyourself #successquotes #PositiveVibes #mentalhealth #growthmindset #mindfulness"
+  },
+  {
+    "timestamp": "2025-11-17T15:00:00Z",
+    "quote": "Action is the foundational key to all success. — Pablo Picasso\n\n#determination #leadershipquotes #selfdiscipline #dailyquote #nevergiveup #mindset #PositiveVibes #GoalSetting #KeepPushing #selfcare #StayFocused #successquotes #selfgrowth #positivity #quotes #resilience"
+  },
+  {
+    "timestamp": "2025-11-18T15:00:00Z",
+    "quote": "You must be the change you wish to see in the world. — Mahatma Gandhi\n\n#selfdiscipline #inspiration #StayFocused #PositiveVibes #warriormindset #confidence #entrepreneurship #strategy #mindset #inspire #leadership #selfimprovement #GoalSetting #resilience #AncientWisdom"
+  },
+  {
+    "timestamp": "2025-11-19T15:00:00Z",
+    "quote": "A hero is no braver than an ordinary man, but he is brave five minutes longer. — Ralph Waldo Emerson\n\n#dailyquote #StayPositive #businessquotes #successquotes #selfdiscipline #warriormindset #PositiveVibes #mentalhealth #nevergiveup #LifeLessons #quotes #grind #AncientWisdom"
+  },
+  {
+    "timestamp": "2025-11-20T15:00:00Z",
+    "quote": "The harder the conflict, the greater the triumph. — George Washington\n\n#inspiration #strategy #quotes #ambition #strength #motivation #mentalhealth #believeinyourself #businessquotes #discipline #motivationalquotes #mindfulness #focus #confidence #PurposeDriven #resilience"
+  },
+  {
+    "timestamp": "2025-11-21T15:00:00Z",
+    "quote": "Do not go gentle into that good night. — Dylan Thomas\n\n#inspiration #leadershipquotes #businessquotes #wisdom #motivation #believeinyourself #motivationalquotes #MondayMotivation #PositiveVibes #StayPositive #DreamBig #quotes #AncientWisdom #nevergiveup #StayFocused"
+  },
+  {
+    "timestamp": "2025-11-22T15:00:00Z",
+    "quote": "It is not length of life, but depth of life. — Ralph Waldo Emerson\n\n#DreamBig #StayFocused #believeinyourself #hustle #courage #power #leadershipquotes #grind #selfimprovement #lifestyle #successmindset #confidence #LifeLessons #GoalSetting #resilience #selflove #quotes"
+  },
+  {
+    "timestamp": "2025-11-23T15:00:00Z",
+    "quote": "We are masters of the unsaid words, but slaves of those we let slip out. — Winston Churchill\n\n#positivity #selfimprovement #businessquotes #inspire #KeepPushing #LifeLessons #confidence #StayPositive #focus #DreamBig #entrepreneurship #selfgrowth #lifestyle #mindfulness #quotes"
+  },
+  {
+    "timestamp": "2025-11-24T15:00:00Z",
+    "quote": "Victory belongs to the most persevering. — Napoleon Bonaparte\n\n#StayFocused #KeepPushing #hustle #dailyquote #selfimprovement #leadership #mindset #determination #motivation #believeinyourself #selfdiscipline #LifeLessons #grind #selflove #entrepreneurship #selfgrowth"
+  },
+  {
+    "timestamp": "2025-11-25T15:00:00Z",
+    "quote": "A leader is one who knows the way, goes the way, and shows the way. — John C. Maxwell\n\n#focus #discipline #MondayMotivation #strength #leadershipquotes #leadership #quotes #nevergiveup #hustle #selfcare #wisdom #power #businessquotes #mindset #AncientWisdom #lifestyle"
+  },
+  {
+    "timestamp": "2025-11-26T15:00:00Z",
+    "quote": "Do not let what you cannot do interfere with what you can do. — John Wooden\n\n#selfgrowth #focus #discipline #lifestyle #PurposeDriven #motivationalquotes #hustle #mentalhealth #StayFocused #KeepPushing #believeinyourself #dailyquote #wisdom #nevergiveup #grind #DreamBig"
+  },
+  {
+    "timestamp": "2025-11-27T15:00:00Z",
+    "quote": "Experience is the teacher of all things. — Julius Caesar\n\n#ambition #LifeLessons #businessquotes #DreamBig #believeinyourself #dailyquote #mindset #StayFocused #positivity #power #focus #GoalSetting #wisdom #mindfulness #strength #determination #selfdiscipline #motivationalquotes"
+  },
+  {
+    "timestamp": "2025-11-28T15:00:00Z",
+    "quote": "An army of sheep led by a lion is better than an army of lions led by a sheep. — Alexander the Great\n\n#selflove #StayFocused #focus #hustle #selfgrowth #businessquotes #AncientWisdom #positivity #growthmindset #entrepreneurship #quotes #mindset #resilience #motivation"
+  },
+  {
+    "timestamp": "2025-11-29T15:00:00Z",
+    "quote": "Strength does not come from physical capacity. It comes from an indomitable will. — Mahatma Gandhi\n\n#motivation #confidence #hustle #mentalhealth #StayFocused #inspiration #DreamBig #dailyquote #PurposeDriven #warriormindset #LifeLessons #strategy #inspire #KeepPushing"
+  },
+  {
+    "timestamp": "2025-11-30T15:00:00Z",
+    "quote": "Character is destiny. — Heraclitus\n\n#power #strategy #motivation #strength #nevergiveup #GoalSetting #positivity #lifestyle #leadershipquotes #KeepPushing #PositiveVibes #grind #resilience #selflove #wisdom #LifeLessons #StayPositive #MondayMotivation #AncientWisdom"
+  },
+  {
+    "timestamp": "2025-12-01T15:00:00Z",
+    "quote": "A warrior is worthless unless he rises above others and stands strong in the midst of a storm. — Yamamoto Tsunetomo\n\n#mindfulness #leadership #inspiration #courage #resilience #wisdom #positivity #selfdiscipline #quotes #MondayMotivation #LifeLessons #power #successquotes"
+  },
+  {
+    "timestamp": "2025-12-02T15:00:00Z",
+    "quote": "There is nothing more powerful than an idea whose time has come. — Victor Hugo\n\n#growthmindset #selfdiscipline #PurposeDriven #nevergiveup #DreamBig #mindfulness #GoalSetting #courage #determination #selflove #inspiration #grind #StayFocused #wisdom #warriormindset #StayPositive"
+  },
+  {
+    "timestamp": "2025-12-03T15:00:00Z",
+    "quote": "To improve is to change; to be perfect is to change often. — Winston Churchill\n\n#dailyquote #selfgrowth #strategy #KeepPushing #motivation #selfdiscipline #businessquotes #wisdom #ambition #PurposeDriven #MondayMotivation #inspire #strength #PositiveVibes #nevergiveup #mindset"
+  },
+  {
+    "timestamp": "2025-12-04T15:00:00Z",
+    "quote": "Energy and persistence conquer all things. — Benjamin Franklin\n\n#successquotes #PositiveVibes #mindfulness #mindset #PurposeDriven #strength #discipline #resilience #entrepreneurship #confidence #selfgrowth #strategy #businessquotes #hustle #courage #warriormindset #DreamBig"
+  },
+  {
+    "timestamp": "2025-12-05T15:00:00Z",
+    "quote": "Success is how high you bounce when you hit bottom. — George S. Patton\n\n#MondayMotivation #dailyquote #warriormindset #positivity #resilience #believeinyourself #growthmindset #successmindset #mindfulness #focus #nevergiveup #strategy #PurposeDriven #selfcare #mentalhealth"
+  },
+  {
+    "timestamp": "2025-12-06T15:00:00Z",
+    "quote": "What we think, we become. — Buddha\n\n#motivationalquotes #growthmindset #strategy #resilience #StayPositive #leadershipquotes #inspiration #MondayMotivation #grind #StayFocused #power #dailyquote #courage #inspire #nevergiveup #believeinyourself #KeepPushing #successmindset"
+  }
 ]

@@ -51,4 +51,4 @@ def generate_quotes_json(start_date: str, days: int, post_time: str = "15:00:00"
     print(f"✅ Generated {filename} with {days} entries (quotes + hashtags, capped at 280 chars).")
 
 if __name__ == "__main__":
-    generate_quotes_json("2025-09-01", days=90, post_time="15:00:00")
+    generate_quotes_json("2025-09-08", days=90, post_time="15:00:00")

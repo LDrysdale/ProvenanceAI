@@ -16,14 +16,14 @@ client = tweepy.Client(
 with open("quotes.json", "r", encoding="utf-8") as f:
     quotes = json.load(f)
 
-# Current time in UTC
-now = datetime.datetime.utcnow()
+# Current time in UTC (timezone-aware)
+now = datetime.datetime.now(datetime.timezone.utc)
 
-for entry in quotes:
+for i, entry in enumerate(quotes, start=1):
     quote = entry["quote"]
     timestamp = entry["timestamp"]  # e.g., "2025-09-01T15:00:00Z"
 
-    # Convert to datetime
+    # Convert to timezone-aware datetime
     dt = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
 
     # Skip past posts
@@ -31,17 +31,20 @@ for entry in quotes:
         print(f"⏩ Skipping past timestamp: {timestamp} | Quote: {quote}")
         continue
 
-    # Convert to RFC3339 (required by X API)
-    scheduled_at = dt.isoformat("T") + "Z"
+    # Wait until the scheduled time
+    wait_seconds = (dt - now).total_seconds()
+    print(f"⏳ Waiting {wait_seconds:.0f} seconds until {timestamp}...")
+
+    time.sleep(wait_seconds)
 
     try:
-        response = client.create_tweet(
-            text=quote,
-            scheduled_at=scheduled_at
-        )
-        print(f"✅ Scheduled: '{quote}' at {scheduled_at}")
+        response = client.create_tweet(text=quote)
+        print(f"✅ {i} of {len(quotes)} --> Posted: '{quote}' at {dt}")
     except Exception as e:
-        print(f"⚠️ Failed to schedule '{quote}' at {scheduled_at}: {e}")
+        print(f"⚠️ Failed to post '{quote}' at {dt}: {e}")
+
+    # Update "now" after posting
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     # Delay to avoid rate limiting
     time.sleep(5)
