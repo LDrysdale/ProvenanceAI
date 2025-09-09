@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is the purpose of CerebralAI?",
+    "answer": "This app is designed to be an AI coach/mentor where you can interact with your personal AI assistant to build your very own business/side-hustle from nothing. Take notes, track your progress over time and CerebralAI will match your passion to generate new ideas and turn those ideas into a fully fledged business plan that turns your passion into a moneymaker."
+  },
+  {
+    "question": "How is this site structured?",
+    "answer": "Think of CerebralAI as having 3 different distinct sections.\n1. You have the main chat screen where you can go backwards and forwards with AI.\n2. You have the Ideaboard, which can be accessed via the Home page, where you can brainstorm and organize your thoughts.\n3. You have the Diary page, which can be accessed via the Home page, where you can add your thoughts/ideas into a plan that will help turn your idea into your business/side-hustle.\n\nFrom the chat section, you can update both the Ideaboard and the Diary making it a more seamless experience. The more information you put into the Diary or Ideaboard, the more the ideas will relate to you and the better the outcomes will be."
+  },
+  {
+    "question": "How do I use the main Chat page?",
+    "answer": "The main Chat page is where you interact with your AI assistant. You have the main navigation bar at the top of the page where you can access other pages of this site including the Home page. The middle of the page is where the questions and answers are displayed.\nEach question(q) and answer(a) pairing start on the left with the next q-a pairing appearing further and further right. Click-and-drag has been enabled when the q-a pairings go beyond the right edge of the screen.\n\nBelow the q-a pairings section there is a toolbar section split into 3 parts:\n- Left: select \"agents\" to assist you.\n- Middle: prompt input box with + for new chat and send button.\n- Right: future features coming.\n\nBelow the toolbar is chat history. Click on the pill-shaped boxes to restore a chat."
+  },
+  {
+    "question": "Where are my settings?",
+    "answer": "Click the ⚙️ icon to access your settings."
+  },
+  {
+    "question": "How do I log out?",
+    "answer": "Click the logout icon in the top right corner."
+  }
+]

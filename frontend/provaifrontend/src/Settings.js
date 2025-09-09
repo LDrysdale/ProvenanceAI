@@ -13,14 +13,21 @@ export default function Settings() {
       <TopOfPage title="Settings" />
 
       <main className="settings-page">
-        <div className="settings-document">
-          <h2>Settings</h2>
+        <h2 className="settings-title">⚙️ Settings</h2>
+
+        <div className="settings-section">
           <UserProfile />
-          <hr />
+        </div>
+
+        <div className="settings-section">
           <NotificationSettings />
-          <hr />
+        </div>
+
+        <div className="settings-section">
           <ChangePassword />
-          <hr />
+        </div>
+
+        <div className="settings-section danger">
           <AccountManagement />
         </div>
       </main>

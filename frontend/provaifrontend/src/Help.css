@@ -55,3 +55,16 @@
   letter-spacing: 0.5px;
 }
 
+/* White page container */
+.settings-document {
+  max-width: 1000px;        /* optional, prevents it from being too wide on large screens */
+  width: 50%;               /* middle half of the screen */
+  margin: 0 auto;           /* center horizontally */
+  min-height: 100vh;        /* full viewport height */
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
