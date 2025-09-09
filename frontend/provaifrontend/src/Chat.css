@@ -494,3 +494,49 @@ html, body {
 }
 
 
+/* 🔒 Disabled squares */
+.selectable-square.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+  pointer-events: auto; /* still allows hover tooltip */
+}
+
+/* Optional: add a small lock icon overlay */
+.selectable-square.disabled::after {
+  content: "🔒";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 14px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Tooltip styling */
+.selectable-square.disabled:hover::before {
+  content: "Locked - Upgrade or add addon";
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 1;
+}
+
+/* Small arrow below tooltip */
+.selectable-square.disabled:hover::after {
+  content: "🔒"; /* lock icon stays */
+}
+
+.square-with-text .square-label {
+  display: block;
+  text-align: center;
+  margin-top: 4px;
+}

@@ -1,22 +1,67 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
 import TopOfPage from "./components/TopOfPage";
 import useDragAndDrop from "./components/clickanddrag";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-import { Eye, EyeOff, RadioTower, NotebookText, Hourglass, Brain, Dumbbell, MessageCircleHeart, Bot, ArrowBigUpDash } from "lucide-react"; // 👁️ + new icons
+import {
+  Eye,
+  EyeOff,
+  RadioTower,
+  NotebookText,
+  Hourglass,
+  Brain,
+  Dumbbell,
+  MessageCircleHeart,
+  Bot,
+  ArrowBigUpDash,
+} from "lucide-react"; 
 
 export default function Chat() {
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [prompt, setPrompt] = useState("");
-  const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [timelineExpanded] = useState(false); // ESLint fix: removed unused setter
   const [connectors, setConnectors] = useState([]);
 
-  const [focusedCard, setFocusedCard] = useState(null); /* Focus Card Addition */
+  const [focusedCard, setFocusedCard] = useState(null);
   const toggleFocus = (id) => {
     setFocusedCard(focusedCard === id ? null : id);
   };
+
+  // 🔐 User subscription info
+  const [userTier, setUserTier] = useState(null);
+  const [userAddons, setUserAddons] = useState([]);
+
+  // 🔒 Compute disabled items with reasons
+  const { disabledTools, disabledCoaches } = useMemo(() => {
+    const tools = [];
+    const coaches = [];
+
+    if (!userTier) return { disabledTools: tools, disabledCoaches: coaches };
+
+    const tier = userTier.toLowerCase();
+
+    if (tier === "free") {
+      tools.push({ label: "Momentum Manager", reason: "Free tier only" });
+      tools.push({ label: "Business Plan Generator", reason: "Free tier only" });
+      tools.push({ label: "Psychologist", reason: "Free tier only" });
+      coaches.push({ label: "Adaptor", reason: "Free tier only" });
+    } else if (tier === "paid") {
+      if (!userAddons.includes("psychologist")) {
+        tools.push({ label: "Psychologist", reason: "Requires Psychologist addon" });
+      }
+      coaches.push({ label: "Adaptor", reason: "Paid tier restriction" });
+    }
+
+    if (!userAddons.includes("psychologist") && !tools.some(t => t.label === "Psychologist")) {
+      tools.push({ label: "Psychologist", reason: "Requires Psychologist addon" });
+    }
+
+    return { disabledTools: tools, disabledCoaches: coaches };
+  }, [userTier, userAddons]);
 
   const endRef = useRef(null);
   const cardsRef = useRef([]);
@@ -46,10 +91,8 @@ export default function Chat() {
       if (current && next) {
         const startX = current.offsetLeft + current.offsetWidth;
         const startY = current.offsetTop + current.offsetHeight / 2;
-
         const endX = next.offsetLeft;
         const endY = next.offsetTop + next.offsetHeight / 2;
-
         newConnectors.push({ startX, startY, endX, endY });
       }
     }
@@ -65,6 +108,31 @@ export default function Chat() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [updateConnectors]);
+
+  // 🔥 Fetch user subscription info
+  useEffect(() => {
+    const fetchUserSubscription = async () => {
+      const auth = getAuth();
+      const db = getFirestore();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setUserTier((data.tier || "free").toLowerCase());
+          setUserAddons(data.addons || []);
+        } else {
+          setUserTier("free");
+        }
+      } catch (error) {
+        console.error("Error fetching user subscription:", error);
+        setUserTier("free");
+      }
+    };
+    fetchUserSubscription();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -112,27 +180,16 @@ export default function Chat() {
     setPrompt("");
   };
 
-  const handleSelectSession = (id) => {
-    setActiveSessionId(id);
-  };
-
+  const handleSelectSession = (id) => setActiveSessionId(id);
   const handleNewChat = () => {
-    const newSession = {
-      id: Date.now().toString(),
-      title: "New Chat",
-      messages: [],
-    };
+    const newSession = { id: Date.now().toString(), title: "New Chat", messages: [] };
     setChatSessions((prev) => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
   };
 
   const handleRightClick = (e, sessionId) => {
     e.preventDefault();
-    setContextMenu({
-      x: e.pageX,
-      y: e.pageY,
-      sessionId,
-    });
+    setContextMenu({ x: e.pageX, y: e.pageY, sessionId });
   };
 
   const handleDeleteClick = () => {
@@ -160,20 +217,21 @@ export default function Chat() {
       <main className={`timeline-container ${timelineExpanded ? "expanded" : ""}`}>
         <div className="timeline-overlay" ref={scrollRef}>
           {activeSession && (
-            <div className="timeline-scroll" role="log" aria-live="polite" style={{ position: "relative" }}>
+            <div
+              className="timeline-scroll"
+              role="log"
+              aria-live="polite"
+              style={{ position: "relative" }}
+            >
               {activeSession.messages.map(({ question, response, timestamp }, idx) => (
                 <div
                   className={`timeline-card ${focusedCard === idx ? "focused" : ""}`}
                   key={idx}
                   ref={(el) => (cardsRef.current[idx] = el)}
                 >
-                  <button
-                    className="focus-btn"
-                    onClick={() => toggleFocus(idx)}
-                  >
+                  <button className="focus-btn" onClick={() => toggleFocus(idx)}>
                     {focusedCard === idx ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
-
                   <div className="timestamp">{timestamp}</div>
                   <div className="question">{question}</div>
                   <div className="answer">{response}</div>
@@ -190,7 +248,7 @@ export default function Chat() {
                     width: "100%",
                     height: "100%",
                     pointerEvents: "none",
-                    overflow: "visible"
+                    overflow: "visible",
                   }}
                 >
                   {connectors.map(({ startX, startY, endX, endY }, i) => (
@@ -206,7 +264,6 @@ export default function Chat() {
                   ))}
                 </svg>
               )}
-
               <div ref={endRef} />
             </div>
           )}
@@ -217,7 +274,7 @@ export default function Chat() {
         )}
       </main>
 
-      {/* Chat history capsules */}
+      {/* Chat history */}
       <section className="chat-history-scroll">
         {chatSessions.map((session) => (
           <div
@@ -237,7 +294,7 @@ export default function Chat() {
       {/* Prompt toolbar */}
       <form className="prompt-toolbar" onSubmit={handleSubmit}>
         <div className="toolbar-content">
-          {/* Left third: squares with icons */}
+          {/* Tools */}
           <div className="toolbar-left">
             <div className="toolbar-section">
               <div className="toolbar-section-title">Tools</div>
@@ -247,37 +304,35 @@ export default function Chat() {
                   { id: 2, label: "Momentum Manager", icon: <Hourglass size={25} /> },
                   { id: 3, label: "Business Plan Generator", icon: <NotebookText size={25} /> },
                   { id: 4, label: "Psychologist", icon: <Brain size={25} /> },
-                ].map(({ id, label, icon }) => (
-                  <div key={id} className="square-with-text">
-                    <div
-                      className={`selectable-square ${selectedLeftSquare === id ? "selected" : ""}`}
-                      onClick={() =>
-                        setSelectedLeftSquare(selectedLeftSquare === id ? null : id)
-                      }
-                      title={label}
-                    >
-                      {icon}
+                ].map(({ id, label, icon }) => {
+                  const disabledItem = disabledTools.find((t) => t.label === label);
+                  const isDisabled = !!disabledItem;
+                  const tooltip = isDisabled ? disabledItem.reason : label;
+                  return (
+                    <div key={id} className="square-with-text">
+                      <div
+                        className={`selectable-square ${selectedLeftSquare === id ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
+                        onClick={() => {
+                          if (!isDisabled) setSelectedLeftSquare(selectedLeftSquare === id ? null : id);
+                        }}
+                        title={tooltip}
+                      >
+                        {icon}
+                      </div>
+                      <span className="square-label">{label}</span>
                     </div>
-                    <span className="square-label">{label}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
 
-
-          {/* Middle third: prompt input pill */}
+          {/* Prompt input */}
           <div className="toolbar-middle">
             <div className="pill-container">
-              <button
-                type="button"
-                className="new-chat-icon-button"
-                onClick={handleNewChat}
-                title="New Chat"
-              >
+              <button type="button" className="new-chat-icon-button" onClick={handleNewChat} title="New Chat">
                 <FaPlus />
               </button>
-
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -285,12 +340,11 @@ export default function Chat() {
                 rows={1}
                 className="prompt-input"
               />
-
               <button type="submit" className="submit-button">Send</button>
             </div>
           </div>
 
-          {/* Right third: empty */}
+          {/* Coaches */}
           <div className="toolbar-right">
             <div className="toolbar-section">
               <div className="toolbar-section-title">Coaches</div>
@@ -300,32 +354,33 @@ export default function Chat() {
                   { id: 2, label: "Positive Pusher", icon: <ArrowBigUpDash size={25} /> },
                   { id: 3, label: "Empathy Builder", icon: <MessageCircleHeart size={25} /> },
                   { id: 4, label: "Adaptor", icon: <Bot size={25} /> },
-                ].map(({ id, label, icon }) => (
-                  <div key={id} className="square-with-text">
-                    <div
-                      className={`selectable-square ${selectedRightSquare === id ? "selected" : ""}`}
-                      onClick={() =>
-                        setSelectedRightSquare(selectedRightSquare === id ? null : id)
-                      }
-                      title={label}
-                    >
-                      {icon}
+                ].map(({ id, label, icon }) => {
+                  const disabledItem = disabledCoaches.find((c) => c.label === label);
+                  const isDisabled = !!disabledItem;
+                  const tooltip = isDisabled ? disabledItem.reason : label;
+                  return (
+                    <div key={id} className="square-with-text">
+                      <div
+                        className={`selectable-square ${selectedRightSquare === id ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
+                        onClick={() => {
+                          if (!isDisabled) setSelectedRightSquare(selectedRightSquare === id ? null : id);
+                        }}
+                        title={tooltip}
+                      >
+                        {icon}
+                      </div>
+                      <span className="square-label">{label}</span>
                     </div>
-                    <span className="square-label">{label}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
-
         </div>
       </form>
 
       {contextMenu && (
-        <div
-          className="context-menu"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-        >
+        <div className="context-menu" style={{ top: contextMenu.y, left: contextMenu.x }}>
           <div className="context-menu-item" onClick={handleDeleteClick}>Delete</div>
         </div>
       )}
