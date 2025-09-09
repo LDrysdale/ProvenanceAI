@@ -32,17 +32,18 @@ def generate_quotes_json(start_date: str, days: int, post_time: str = "15:00:00"
 
         quote = QUOTES[i % len(QUOTES)]
 
-        # Try adding hashtags until we risk going over 280 characters
-        random.shuffle(HASHTAGS)
-        hashtags_to_add = []
-        for tag in HASHTAGS:
-            test_post = f"{quote}\n\n{' '.join(hashtags_to_add + [tag])}".strip()
-            if len(test_post) <= 280:
-                hashtags_to_add.append(tag)
-            else:
-                break
+        # Pick up to 5 random hashtags
+        num_tags = random.randint(2, 5)  # choose between 2 and 5 to keep variety
+        hashtags_to_add = random.sample(HASHTAGS, k=min(num_tags, len(HASHTAGS)))
 
+        # Ensure final text is within 280 chars
         full_post = f"{quote}\n\n{' '.join(hashtags_to_add)}"
+        if len(full_post) > 280:
+            # Trim hashtags until it's short enough
+            while len(full_post) > 280 and hashtags_to_add:
+                hashtags_to_add.pop()
+                full_post = f"{quote}\n\n{' '.join(hashtags_to_add)}"
+
         schedule.append({"timestamp": timestamp, "quote": full_post})
 
     with open(filename, "w", encoding="utf-8") as f:
