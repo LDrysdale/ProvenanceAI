@@ -1,0 +1,267 @@
+.signup-container {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 16px;
+  font-family: Arial, sans-serif;
+  background-color: #F9FAF6;
+}
+
+.signup-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #F9FAF6;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.12),
+      rgba(0, 0, 0, 0.12) 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.signup-center-stack {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  position: relative;
+  z-index: 1;
+  width: 50%;
+}
+
+/* Two-column layout */
+.two-column-layout {
+  flex-direction: row;
+}
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+/* Card styling */
+.signup-card,
+.tier-card-container,
+.addon-card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  border: 2px solid #ccc;
+  padding: 24px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Feature table */
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tier-table th,
+.tier-table td {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.tier-table td.feature-name {
+  text-align: left;
+  font-weight: 500;
+}
+
+.tier-header .tier-price {
+  font-size: 16px; /* larger font for price */
+  font-weight: bold;
+  margin-top: 4px;
+  display: block; /* ensure it goes below the tier name */
+}
+
+
+.tick {
+  color: #1a73e8;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.cross {
+  color: #ccc;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Addons grid 2x2 */
+.addons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.addons-grid > .addon-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 120px; /* all cards same height */
+  cursor: pointer;
+  background-color: #ffffff;
+  border-radius: 24px;
+  border: 2px solid #ccc;
+  padding: 24px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.addon-card.selected {
+  border: 2px solid #1a73e8;
+  background-color: #eaf0ff;
+}
+
+.addon-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.addon-desc {
+  font-size: 12px;
+  color: #555;
+}
+
+.addon-price {
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.addon-card .addon-price {
+  font-size: 22px; /* bigger font for price */
+  font-weight: bold;
+  margin: 4px 0 0 0; /* small top margin, remove bottom margin */
+  color: black;
+}
+
+
+/* Inputs and buttons */
+.signup-input {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 16px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.signup-button {
+  background-color: #1a73e8;
+  color: white;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.tier-selector {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.tier-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #ccc;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.tier-pill.selected {
+  background-color: #1a73e8;
+  color: white;
+  border-color: #1a73e8;
+}
+
+.total-cost-card {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #f4f6f8;
+  border: 2px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertically centers content */
+  gap: 4px; /* small gap between title and price */
+  height: 180px; /* same as other addon cards */
+  margin: 0; /* remove default margin */
+}
+
+.total-cost-card h3,
+.total-cost-card p {
+  margin: 0; /* remove default margins that create gap */
+}
+
+.total-cost-card p {
+  margin: 0;
+  font-size: 28px; /* bigger font for the price */
+  font-weight: bold;
+  color: black;
+}
+
+
+.checkout-card {
+  background-color: #1a73e8;
+  color: black; /* default text color */
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 180px; /* same as other addon cards */
+  border: 2px solid #1a73e8;
+  border-radius: 24px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  transition: background-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.checkout-card:hover {
+  background-color: #1664c1;
+  color: white; /* text turns white on hover */
+}
+
+.checkout-card .addon-title {
+  font-size: 18px;
+  margin: 0;
+}
+
+.checkout-card:active {
+  transform: scale(0.97); /* slightly shrink the card */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* deeper shadow for pressed effect */
+}
+
